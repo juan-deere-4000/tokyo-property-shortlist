@@ -75,3 +75,26 @@ Use only if English rendering is needed for review.
 ## Data Model Note
 Primary sort metric:
 - `door_to_door_min = walk_min + transit_min`
+
+## Shared Notes Setup
+
+Goal: notes entered on one device are visible to all visitors.
+
+1. Create DB objects in Supabase:
+- Open Supabase SQL Editor.
+- Run: `supabase/setup_notes.sql`
+
+2. Configure frontend keys:
+- Copy `notes-config.example.js` to `notes-config.js` (already included with placeholders).
+- Fill:
+  - `supabaseUrl`
+  - `supabaseAnonKey`
+
+3. Deploy:
+- Commit and push `notes-config.js` + `index.html`.
+- GitHub Pages will serve notes UI automatically.
+
+Notes behavior:
+- Notes UI is collapsed by default.
+- If a property already has a note, its notes panel auto-expands.
+- If Supabase config is empty, app falls back to local-only `localStorage`.

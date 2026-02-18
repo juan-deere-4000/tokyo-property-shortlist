@@ -168,6 +168,63 @@
       border-radius: 4px;
       font-size: 13px;
     }
+    .tag.notes-toggle {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .tag.notes-toggle[data-expanded="true"] {
+      background: #e8f4fd;
+      color: var(--primary-dark);
+    }
+    .notes-panel {
+      background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
+      border: 1px solid #d0e8f8;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+    }
+    .notes-panel.collapsed {
+      display: none;
+    }
+    .notes-input {
+      width: 100%;
+      min-height: 90px;
+      border: 1px solid #c8dff0;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    .notes-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .notes-save {
+      background: var(--primary);
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .notes-save:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+    .notes-status {
+      color: var(--muted);
+      font-size: 12px;
+    }
 
     .tag.transit {
       background: #fff3cd;
@@ -551,6 +608,154 @@
   <div class="footer">
     <p>Built with ❤️ by juan</p>
   </div>
+  <script src="notes-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const NOTES_CONFIG = Object.assign(
+      {
+        supabaseUrl: '',
+        supabaseAnonKey: '',
+        table: 'property_notes'
+      },
+      window.NOTES_CONFIG || {}
+    );
+
+    function getPropertySlug(card, idx) {
+      const link = card.querySelector('.property-header h2 a');
+      const href = link ? (link.getAttribute('href') || '') : '';
+      const m = href.match(/properties\/([^/.]+)\.html/i);
+      if (m) return m[1];
+      const text = (link ? link.textContent : '').toLowerCase();
+      if (text.includes('kikugawa')) return 'kikugawa-royal-corp';
+      return 'property-' + idx;
+    }
+
+    function createNotesUI(card, slug) {
+      const meta = card.querySelector('.meta');
+      if (!meta) return null;
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'tag notes-toggle';
+      toggle.setAttribute('data-expanded', 'false');
+      toggle.textContent = 'Notes ▼';
+
+      const firstTag = meta.querySelector('.tag');
+      if (firstTag && firstTag.nextSibling) {
+        meta.insertBefore(toggle, firstTag.nextSibling);
+      } else {
+        meta.appendChild(toggle);
+      }
+
+      const panel = document.createElement('div');
+      panel.className = 'notes-panel collapsed';
+      panel.setAttribute('aria-hidden', 'true');
+      panel.innerHTML =
+        '<textarea class="notes-input" placeholder="Add shared notes for this property..."></textarea>' +
+        '<div class="notes-actions">' +
+        '  <button type="button" class="notes-save">Save</button>' +
+        '  <span class="notes-status"></span>' +
+        '</div>';
+      card.appendChild(panel);
+
+      function setExpanded(expanded) {
+        toggle.setAttribute('data-expanded', expanded ? 'true' : 'false');
+        toggle.textContent = expanded ? 'Notes ▲' : 'Notes ▼';
+        panel.classList.toggle('collapsed', !expanded);
+        panel.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+      }
+
+      toggle.addEventListener('click', function () {
+        setExpanded(toggle.getAttribute('data-expanded') !== 'true');
+      });
+
+      return { slug, panel, toggle, setExpanded };
+    }
+
+    async function initNotes() {
+      const cards = Array.from(document.querySelectorAll('.property'));
+      const entries = cards.map((card, idx) => createNotesUI(card, getPropertySlug(card, idx + 1))).filter(Boolean);
+      const slugs = entries.map(e => e.slug);
+
+      const hasSupabase = NOTES_CONFIG.supabaseUrl && NOTES_CONFIG.supabaseAnonKey && window.supabase;
+      const localStore = {};
+
+      if (!hasSupabase) {
+        entries.forEach(e => {
+          const v = localStorage.getItem('tokyo_notes_' + e.slug);
+          if (v) localStore[e.slug] = v;
+        });
+      }
+
+      let supabaseClient = null;
+      let remoteStore = {};
+
+      if (hasSupabase) {
+        supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
+        const { data } = await supabaseClient
+          .from(NOTES_CONFIG.table)
+          .select('property_slug, body')
+          .in('property_slug', slugs);
+        (data || []).forEach(function (row) {
+          remoteStore[row.property_slug] = row.body || '';
+        });
+      }
+
+      entries.forEach(function (entry) {
+        const input = entry.panel.querySelector('.notes-input');
+        const save = entry.panel.querySelector('.notes-save');
+        const status = entry.panel.querySelector('.notes-status');
+        const existing = hasSupabase ? (remoteStore[entry.slug] || '') : (localStore[entry.slug] || '');
+
+        if (existing.trim()) {
+          input.value = existing;
+          entry.setExpanded(true);
+        }
+
+        if (!hasSupabase) {
+          status.textContent = 'Local only (configure Supabase for shared notes).';
+        }
+
+        save.addEventListener('click', async function () {
+          const value = input.value.trim();
+          save.disabled = true;
+          status.textContent = 'Saving...';
+          try {
+            if (hasSupabase) {
+              if (value) {
+                const { error } = await supabaseClient
+                  .from(NOTES_CONFIG.table)
+                  .upsert(
+                    { property_slug: entry.slug, body: value, updated_at: new Date().toISOString() },
+                    { onConflict: 'property_slug' }
+                  );
+                if (error) throw error;
+              } else {
+                const { error } = await supabaseClient
+                  .from(NOTES_CONFIG.table)
+                  .delete()
+                  .eq('property_slug', entry.slug);
+                if (error) throw error;
+              }
+            } else {
+              localStorage.setItem('tokyo_notes_' + entry.slug, value);
+            }
+            if (value) entry.setExpanded(true);
+            status.textContent = 'Saved';
+          } catch (err) {
+            status.textContent = 'Save failed';
+          } finally {
+            save.disabled = false;
+            setTimeout(function () {
+              if (status.textContent === 'Saved') status.textContent = hasSupabase ? 'Shared note saved.' : 'Local note saved.';
+            }, 1200);
+          }
+        });
+      });
+    }
+
+    initNotes();
+  </script>
 </body>
 </html>
 <!-- Wed Feb 18 16:28:00 +07 2026 -->
