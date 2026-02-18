@@ -30,15 +30,6 @@ create table if not exists public.property_vetoes (
   primary key (property_slug, rater)
 );
 
-create table if not exists public.user_preferences (
-  user_id text primary key,
-  sort_key text not null default 'score',
-  hide_unstarred boolean not null default false,
-  hide_sold boolean not null default true,
-  hide_vetoed boolean not null default false,
-  updated_at timestamptz not null default now()
-);
-
 create table if not exists public.property_notes_by_author (
   property_slug text not null,
   author text not null,
@@ -51,7 +42,6 @@ alter table public.property_notes enable row level security;
 alter table public.property_flags enable row level security;
 alter table public.property_ratings enable row level security;
 alter table public.property_vetoes enable row level security;
-alter table public.user_preferences enable row level security;
 alter table public.property_notes_by_author enable row level security;
 
 -- Read/write from anonymous clients (public site).
@@ -277,63 +267,6 @@ begin
   ) then
     create policy property_vetoes_delete_anon
       on public.property_vetoes
-      for delete
-      to anon
-      using (true);
-  end if;
-end$$;
-
--- Shared user preferences table policies.
-do $$
-begin
-  if not exists (
-    select 1 from pg_policies
-    where schemaname = 'public'
-      and tablename = 'user_preferences'
-      and policyname = 'user_preferences_select_anon'
-  ) then
-    create policy user_preferences_select_anon
-      on public.user_preferences
-      for select
-      to anon
-      using (true);
-  end if;
-
-  if not exists (
-    select 1 from pg_policies
-    where schemaname = 'public'
-      and tablename = 'user_preferences'
-      and policyname = 'user_preferences_insert_anon'
-  ) then
-    create policy user_preferences_insert_anon
-      on public.user_preferences
-      for insert
-      to anon
-      with check (true);
-  end if;
-
-  if not exists (
-    select 1 from pg_policies
-    where schemaname = 'public'
-      and tablename = 'user_preferences'
-      and policyname = 'user_preferences_update_anon'
-  ) then
-    create policy user_preferences_update_anon
-      on public.user_preferences
-      for update
-      to anon
-      using (true)
-      with check (true);
-  end if;
-
-  if not exists (
-    select 1 from pg_policies
-    where schemaname = 'public'
-      and tablename = 'user_preferences'
-      and policyname = 'user_preferences_delete_anon'
-  ) then
-    create policy user_preferences_delete_anon
-      on public.user_preferences
       for delete
       to anon
       using (true);

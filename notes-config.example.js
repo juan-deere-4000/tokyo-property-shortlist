@@ -6,6 +6,5 @@ window.NOTES_CONFIG = {
   notesByAuthorTable: 'property_notes_by_author',
   starTable: 'property_flags',
   ratingTable: 'property_ratings',
-  vetoTable: 'property_vetoes',
-  preferencesTable: 'user_preferences'
+  vetoTable: 'property_vetoes'
 };
