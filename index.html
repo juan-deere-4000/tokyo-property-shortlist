@@ -47,7 +47,6 @@
     }
 
     .property:hover {
-      transform: translateY(-2px);
       box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     }
 
@@ -65,11 +64,24 @@
       color: var(--muted);
       text-align: right;
       flex-shrink: 0;
+      align-self: start;
     }
 
     .property h2 {
       margin: 0;
       font-size: 18px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .title-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .title-row a {
       min-width: 0;
     }
 
@@ -82,6 +94,12 @@
       color: var(--primary-dark);
       text-decoration: underline;
     }
+    .jp-subtitle {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.2;
+    }
 
     .price {
       font-size: 22px;
@@ -91,13 +109,21 @@
     }
     .price-wrap {
       display: inline-flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
       justify-self: end;
+      align-self: start;
+    }
+    .price-main {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+      min-width: 0;
     }
     .aggregate-score {
       color: var(--primary);
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       min-width: 38px;
       text-align: right;
@@ -480,6 +506,110 @@
       font-size: 14px;
     }
 
+    @media (max-width: 820px) {
+      /* Ratings: switch to stacked layout earlier to avoid overflow. */
+      .ratings-panel {
+        overflow-x: visible;
+      }
+      .ratings-table thead {
+        display: none;
+      }
+      .ratings-table,
+      .ratings-table tbody,
+      .ratings-table tr,
+      .ratings-table th,
+      .ratings-table td {
+        display: block;
+        width: 100%;
+      }
+      .ratings-table tr {
+        padding: 8px 0;
+      }
+      .ratings-table th {
+        padding: 6px 0 8px 0;
+      }
+      .ratings-table td {
+        padding: 6px 0;
+        border-bottom: 0;
+      }
+      .rating-control {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .rating-control::before {
+        content: attr(data-metric);
+        margin-right: auto;
+        color: #42566f;
+        font-weight: 600;
+        flex: 1 0 110px;
+      }
+      .rating-range {
+        flex: 1 1 180px;
+        min-width: 0;
+        max-width: none;
+        width: auto;
+      }
+      .ratings-table tr td:last-child {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-top: 10px;
+      }
+      .ratings-table tr td:last-child::before {
+        content: "Veto";
+        color: #42566f;
+        font-weight: 600;
+      }
+    }
+
+    @media (max-width: 760px) {
+      /* Header: put score/price/star under the title and allow wrapping. */
+      .property-header {
+        grid-template-columns: 40px 1fr;
+        grid-template-areas:
+          "rank title"
+          "rank price";
+        row-gap: 6px;
+        align-items: start;
+      }
+      .property-header .rank {
+        grid-area: rank;
+        align-self: start;
+      }
+      .property-header h2 {
+        grid-area: title;
+      }
+      .price-wrap {
+        grid-area: price;
+        justify-self: start;
+        row-gap: 6px;
+        column-gap: 10px;
+      }
+      .price {
+        font-size: 20px;
+      }
+      .aggregate-score {
+        font-size: 20px;
+        min-width: 0;
+        text-align: left;
+      }
+
+      /* Meta actions: stack under the meta pills. */
+      .meta-actions {
+        margin-left: 0;
+        flex-basis: 100%;
+        width: auto;
+        justify-content: flex-start;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .meta-actions .tag { justify-content: center; }
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 14px;
@@ -493,29 +623,6 @@
       .station-card {
         flex-direction: column;
         align-items: flex-start;
-      }
-      .property-header {
-        grid-template-columns: 40px 1fr;
-        row-gap: 8px;
-        align-items: start;
-      }
-      .price-wrap {
-        grid-column: 2;
-        justify-self: end;
-      }
-      .meta-actions {
-        margin-left: 0;
-        width: 100%;
-        justify-content: flex-end;
-      }
-      .ratings-panel {
-        overflow-x: auto;
-      }
-      .ratings-table {
-        min-width: 560px;
-      }
-      .rating-range {
-        width: 96px;
       }
       .notes-author-pill {
         padding: 4px 8px;
@@ -576,7 +683,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#1</span>
-      <h2><a href="properties/yotsuya-high-corp.html">Yotsuya High Corp (四谷ハイコーパ)</a></h2>
+      <h2><a href="properties/yotsuya-high-corp.html">Yotsuya High Corp</a><span class="jp-subtitle">四谷ハイコーパ</span></h2>
       <span class="price">¥29.98M</span>
     </div>
     <div class="station-card">
@@ -602,7 +709,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#2</span>
-      <h2><a href="properties/nakamachi-corp.html">Nakamachi Corp (仲町コーポラス)</a></h2>
+      <h2><a href="properties/nakamachi-corp.html">Nakamachi Corp</a><span class="jp-subtitle">仲町コーポラス</span></h2>
       <span class="price">¥26.2M</span>
     </div>
     <div class="station-card">
@@ -629,7 +736,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#3</span>
-      <h2><a href="properties/kasuga-town-home.html">Kasuga Town Home (春日タウンホーム)</a></h2>
+      <h2><a href="properties/kasuga-town-home.html">Kasuga Town Home</a><span class="jp-subtitle">春日タウンホーム</span></h2>
       <span class="price">¥24.8M</span>
     </div>
     <div class="station-card">
@@ -655,7 +762,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#4</span>
-      <h2><a href="https://realestate.yahoo.co.jp/used/mansion/detail_corp/b0024085388/" target="_blank">Kikugawa Royal Corp (菊川ローザルコーポ)</a></h2>
+      <h2><a href="https://realestate.yahoo.co.jp/used/mansion/detail_corp/b0024085388/" target="_blank">Kikugawa Royal Corp</a><span class="jp-subtitle">菊川ローザルコーポ</span></h2>
       <span class="price">¥26.8M</span>
     </div>
     <div class="station-card">
@@ -681,7 +788,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#5</span>
-      <h2><a href="properties/heitsu-otowa.html">Heitsu Otowa (ハイツ音羽)</a></h2>
+      <h2><a href="properties/heitsu-otowa.html">Heitsu Otowa</a><span class="jp-subtitle">ハイツ音羽</span></h2>
       <span class="price">¥29.99M</span>
     </div>
     <div class="station-card">
@@ -707,7 +814,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#6</span>
-      <h2><a href="properties/tabata-mansion.html">Tabata Mansion (田端マンション)</a></h2>
+      <h2><a href="properties/tabata-mansion.html">Tabata Mansion</a><span class="jp-subtitle">田端マンション</span></h2>
       <span class="price">¥29.8M</span>
     </div>
     <div class="station-card">
@@ -733,7 +840,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#7</span>
-      <h2><a href="properties/oedo-corp.html">Oedo Corp (大江戸コーパ)</a></h2>
+      <h2><a href="properties/oedo-corp.html">Oedo Corp</a><span class="jp-subtitle">大江戸コーパ</span></h2>
       <span class="price">¥29.8M</span>
     </div>
     <div class="station-card">
@@ -759,7 +866,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#8</span>
-      <h2><a href="properties/hasegawa-heights.html">Hasegawa Heights (ハセガワハイツ)</a></h2>
+      <h2><a href="properties/hasegawa-heights.html">Hasegawa Heights</a><span class="jp-subtitle">ハセガワハイツ</span></h2>
       <span class="price">¥27.8M</span>
     </div>
     <div class="station-card">
@@ -785,7 +892,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#9</span>
-      <h2><a href="properties/palm-house-bunkyo.html">Palm House Bunkyo (パルムハウス文京)</a></h2>
+      <h2><a href="properties/palm-house-bunkyo.html">Palm House Bunkyo</a><span class="jp-subtitle">パルムハウス文京</span></h2>
       <span class="price">¥31.8M</span>
     </div>
     <div class="station-card">
@@ -811,7 +918,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#10</span>
-      <h2><a href="properties/palast-nippori.html">Palast Nippori (パラスト日暮里)</a></h2>
+      <h2><a href="properties/palast-nippori.html">Palast Nippori</a><span class="jp-subtitle">パラスト日暮里</span></h2>
       <span class="price">¥26.99M</span>
     </div>
     <div class="station-card">
@@ -837,7 +944,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#11</span>
-      <h2><a href="properties/happy-heights-kameido.html">Happy Heights Kameido (ハピーハイツ亀戸)</a></h2>
+      <h2><a href="properties/happy-heights-kameido.html">Happy Heights Kameido</a><span class="jp-subtitle">ハピーハイツ亀戸</span></h2>
       <span class="price">¥25.8M</span>
     </div>
     <div class="station-card">
@@ -863,7 +970,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#12</span>
-      <h2><a href="properties/ojima-royal-mansion.html">Ojima Royal Mansion (大島ロイヤルマンション)</a></h2>
+      <h2><a href="properties/ojima-royal-mansion.html">Ojima Royal Mansion</a><span class="jp-subtitle">大島ロイヤルマンション</span></h2>
       <span class="price">¥22.8M</span>
     </div>
     <div class="station-card">
@@ -889,7 +996,7 @@
   <div class="property">
     <div class="property-header">
       <span class="rank">#13</span>
-      <h2><a href="properties/koken-heights-mejiro.html">Koken Heights Mejiro (光建ハイツ目白)</a></h2>
+      <h2><a href="properties/koken-heights-mejiro.html">Koken Heights Mejiro</a><span class="jp-subtitle">光建ハイツ目白</span></h2>
       <span class="price">¥27.5M</span>
     </div>
     <div class="station-card">
@@ -1230,12 +1337,20 @@
           header.insertBefore(wrap, price);
           wrap.appendChild(price);
         }
+        let main = wrap.querySelector('.price-main');
+        if (!main) {
+          main = document.createElement('span');
+          main.className = 'price-main';
+          // Ensure score+price can wrap independently, while star stays outside.
+          wrap.insertBefore(main, price);
+          main.appendChild(price);
+        }
         let aggregate = wrap.querySelector('.aggregate-score');
         if (!aggregate) {
           aggregate = document.createElement('span');
           aggregate.className = 'aggregate-score';
           aggregate.style.display = 'none';
-          wrap.insertBefore(aggregate, price);
+          main.insertBefore(aggregate, price);
         }
 
         const star = document.createElement('button');
@@ -1270,7 +1385,18 @@
           applyFilters();
         });
 
-        wrap.appendChild(star);
+        // Place star next to the title (not next to the price).
+        const title = card.querySelector('.property-header h2');
+        const titleLink = title ? title.querySelector('a') : null;
+        let titleRow = title ? title.querySelector('.title-row') : null;
+        if (title && titleLink && !titleRow) {
+          titleRow = document.createElement('span');
+          titleRow.className = 'title-row';
+          title.insertBefore(titleRow, titleLink);
+          titleRow.appendChild(titleLink);
+        }
+        if (titleRow) titleRow.appendChild(star);
+        else wrap.appendChild(star);
       });
 
       const hideToggle = document.getElementById('hide-toggle');
