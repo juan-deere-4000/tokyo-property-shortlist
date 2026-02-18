@@ -1649,6 +1649,7 @@
 
       entries.forEach(function (entry) {
         const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill'));
+        const topPills = Array.from(entry.panel.querySelectorAll('.notes-author-pill:not(.notes-editor-pill)'));
         const editors = Array.from(entry.panel.querySelectorAll('.notes-editor'));
         const hint = entry.panel.querySelector('.notes-hint');
         const saveTimers = {};
@@ -1693,10 +1694,12 @@
 
         function setAuthorVisible(author, visible) {
           const editor = getEditor(author);
-          const pill = getTopPill(author);
-          if (!editor || !pill) return;
+          const topPill = getTopPill(author);
+          const editorPill = getEditorPill(author);
+          if (!editor) return;
           editor.setAttribute('aria-hidden', visible ? 'false' : 'true');
-          pill.setAttribute('data-active', visible ? 'true' : 'false');
+          if (topPill) topPill.setAttribute('data-active', visible ? 'true' : 'false');
+          if (editorPill) editorPill.setAttribute('data-active', visible ? 'true' : 'false');
           hint.style.display = anyEditorVisible() ? 'none' : '';
         }
 
@@ -1827,7 +1830,8 @@
           if (hasAnyData() || anyEditorVisible()) entry.setExpanded(true);
         }
 
-        pills.forEach(function (pill) {
+        // Top-row pills: show/hide author editors.
+        topPills.forEach(function (pill) {
           pill.addEventListener('click', function () {
             const author = pill.getAttribute('data-author');
             const input = getInput(author);
@@ -1842,6 +1846,7 @@
           });
         });
 
+        // In-editor pills: collapse/expand just that author's editor.
         editors.forEach(function (editor) {
           const pill = editor.querySelector('.notes-editor-pill');
           if (!pill) return;
