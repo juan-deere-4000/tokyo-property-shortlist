@@ -333,6 +333,12 @@
       flex-direction: column;
       gap: 8px;
     }
+    .notes-editor-head {
+      margin: 0 0 6px 0;
+    }
+    .notes-editor-pill {
+      cursor: pointer;
+    }
     .notes-author-pill {
       border: 1px solid #d6deea;
       cursor: pointer;
@@ -1268,6 +1274,9 @@
         pillsHtml += '<button type="button" class="notes-author-pill" data-author="' + author + '" data-active="false" data-has-content="false">' + author + '</button>';
         editorsHtml +=
           '<div class="notes-editor" data-author="' + author + '" aria-hidden="true">' +
+            '<div class="notes-editor-head">' +
+              '<button type="button" class="notes-author-pill notes-editor-pill" data-author="' + author + '" data-active="true">' + author + '</button>' +
+            '</div>' +
             '<textarea class="notes-input" data-author="' + author + '" placeholder="Add ' + author + '\'s notes..."></textarea>' +
           '</div>';
       });
@@ -1596,6 +1605,14 @@
           return entry.panel.querySelector('.notes-input[data-author="' + author + '"]');
         }
 
+        function getTopPill(author) {
+          return entry.panel.querySelector('.notes-author-pill:not(.notes-editor-pill)[data-author="' + author + '"]');
+        }
+
+        function getEditorPill(author) {
+          return entry.panel.querySelector('.notes-editor-pill[data-author="' + author + '"]');
+        }
+
         function hasAnyData() {
           return NOTE_AUTHORS.some(function (author) {
             const v = notesStore[notesKey(author)] || '';
@@ -1616,11 +1633,56 @@
 
         function setAuthorVisible(author, visible) {
           const editor = getEditor(author);
-          const pill = entry.panel.querySelector('.notes-author-pill[data-author="' + author + '"]');
+          const pill = getTopPill(author);
           if (!editor || !pill) return;
           editor.setAttribute('aria-hidden', visible ? 'false' : 'true');
           pill.setAttribute('data-active', visible ? 'true' : 'false');
           hint.style.display = anyEditorVisible() ? 'none' : '';
+        }
+
+        function reorderEditors() {
+          const container = entry.panel.querySelector('.notes-editors');
+          if (!container) return;
+          const ordered = NOTE_AUTHORS.slice();
+          if (isAuthorVisible('Joe')) {
+            const rest = ordered.filter(function (a) { return a !== 'Joe'; });
+            rest.unshift('Joe');
+            rest.forEach(function (author) {
+              const editor = getEditor(author);
+              if (editor) container.appendChild(editor);
+            });
+            return;
+          }
+          ordered.forEach(function (author) {
+            const editor = getEditor(author);
+            if (editor) container.appendChild(editor);
+          });
+        }
+
+        function applyPillLayout() {
+          const visibleAuthors = NOTE_AUTHORS.filter(function (author) {
+            return isAuthorVisible(author);
+          });
+          const multiOpen = visibleAuthors.length > 1;
+          NOTE_AUTHORS.forEach(function (author) {
+            const topPill = getTopPill(author);
+            const editor = getEditor(author);
+            const editorPill = getEditorPill(author);
+            if (topPill) {
+              const hideOnTop = multiOpen && visibleAuthors.indexOf(author) !== -1;
+              topPill.style.display = hideOnTop ? 'none' : '';
+            }
+            if (editor) {
+              const head = editor.querySelector('.notes-editor-head');
+              if (head) head.style.display = multiOpen ? '' : 'none';
+            }
+            if (editorPill) {
+              editorPill.setAttribute('data-active', isAuthorVisible(author) ? 'true' : 'false');
+              const v = notesStore[notesKey(author)] || '';
+              editorPill.setAttribute('data-has-content', v.trim() ? 'true' : 'false');
+            }
+          });
+          reorderEditors();
         }
 
         function refreshPills() {
@@ -1630,6 +1692,7 @@
             pill.setAttribute('data-has-content', v.trim() ? 'true' : 'false');
             pill.setAttribute('data-active', isAuthorVisible(author) ? 'true' : 'false');
           });
+          applyPillLayout();
         }
 
         const defaultAuthors = NOTE_AUTHORS.filter(function (author) {
@@ -1713,6 +1776,17 @@
             }
             refreshPills();
             entry.setExpanded(true);
+          });
+        });
+
+        editors.forEach(function (editor) {
+          const pill = editor.querySelector('.notes-editor-pill');
+          if (!pill) return;
+          pill.addEventListener('click', function () {
+            const author = pill.getAttribute('data-author');
+            const nextVisible = !isAuthorVisible(author);
+            setAuthorVisible(author, nextVisible);
+            refreshPills();
           });
         });
 
