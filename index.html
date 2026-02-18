@@ -150,6 +150,21 @@
       gap: 4px;
     }
 
+    .transit-badge {
+      background: #fff3cd;
+      color: #856404;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .station-badges {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     .meta {
       display: flex;
       flex-wrap: wrap;
@@ -173,12 +188,6 @@
     .tag.ward {
       background: #e2e3e5;
       color: #383d41;
-    }
-
-    .total-time {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 8px;
     }
 
     .footer {
@@ -226,9 +235,11 @@
           <span class="station-line">JR Yamanote Line</span>
         </span>
       </div>
-      <span class="walk-badge">🚶 5 min walk</span>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 5 min</span>
+        <span class="transit-badge">🚇 15 min → Ginza</span>
+      </div>
     </div>
-    <div class="total-time">🚇 15 min → Ginza (20 min total)</div>
     <div class="meta">
       <span class="tag">2LDK</span>
       <span class="tag">45.76m²</span>
@@ -252,7 +263,11 @@
       </div>
       <span class="walk-badge">🚶 3 min walk</span>
     </div>
-    <div class="total-time">🚇 11 min → Ginza (14 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 3 min</span>
+        <span class="transit-badge">🚇 11 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">37.44m²</span>
@@ -276,7 +291,11 @@
       </div>
       <span class="walk-badge">🚶 8 min walk</span>
     </div>
-    <div class="total-time">🚇 9 min → Ginza (17 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 8 min</span>
+        <span class="transit-badge">🚇 9 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">50.51m²</span>
@@ -300,7 +319,11 @@
       </div>
       <span class="walk-badge">🚶 7 min walk</span>
     </div>
-    <div class="total-time">🚇 11 min → Ginza (18 min total) · ⚠️ Sold Feb 2026</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 7 min</span>
+        <span class="transit-badge">🚇 11 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">47.21m²</span>
@@ -324,7 +347,11 @@
       </div>
       <span class="walk-badge">🚶 7 min walk</span>
     </div>
-    <div class="total-time">🚇 14 min → Ginza (21 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 7 min</span>
+        <span class="transit-badge">🚇 14 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">2DK</span>
       <span class="tag">41.68m²</span>
@@ -348,7 +375,11 @@
       </div>
       <span class="walk-badge">🚶 1 min walk</span>
     </div>
-    <div class="total-time">🚇 24 min → Ginza (25 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 1 min</span>
+        <span class="transit-badge">🚇 24 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">46.28m²</span>
@@ -372,7 +403,11 @@
       </div>
       <span class="walk-badge">🚶 7 min walk</span>
     </div>
-    <div class="total-time">🚇 19 min → Ginza (26 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 7 min</span>
+        <span class="transit-badge">🚇 19 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">2DK</span>
       <span class="tag">47.43m²</span>
@@ -396,7 +431,11 @@
       </div>
       <span class="walk-badge">🚶 14 min walk</span>
     </div>
-    <div class="total-time">🚇 14 min → Ginza (28 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 14 min</span>
+        <span class="transit-badge">🚇 14 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">44.7m²</span>
@@ -420,7 +459,11 @@
       </div>
       <span class="walk-badge">🚶 4 min walk</span>
     </div>
-    <div class="total-time">🚇 24 min → Ginza (28 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 4 min</span>
+        <span class="transit-badge">🚇 24 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">47.04m²</span>
@@ -444,7 +487,11 @@
       </div>
       <span class="walk-badge">🚶 4 min walk</span>
     </div>
-    <div class="total-time">🚇 26 min → Ginza (30 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 4 min</span>
+        <span class="transit-badge">🚇 26 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">40.16m²</span>
@@ -468,7 +515,11 @@
       </div>
       <span class="walk-badge">🚶 3 min walk</span>
     </div>
-    <div class="total-time">🚇 28 min → Ginza (31 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 3 min</span>
+        <span class="transit-badge">🚇 28 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">2LDK</span>
       <span class="tag">46.18m²</span>
@@ -492,7 +543,11 @@
       </div>
       <span class="walk-badge">🚶 7 min walk</span>
     </div>
-    <div class="total-time">🚇 32 min → Ginza (39 min total)</div>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 7 min</span>
+        <span class="transit-badge">🚇 32 min → Ginza</span>
+      </div>
+    </div>
     <div class="meta">
       <span class="tag">2DK</span>
       <span class="tag">49.77m²</span>
@@ -514,9 +569,11 @@
           <span class="station-line">Toei Shinjuku</span>
         </span>
       </div>
-      <span class="walk-badge">🚶 7 min walk</span>
+      <div class="station-badges">
+        <span class="walk-badge">🚶 7 min</span>
+        <span class="transit-badge">🚇 33 min → Ginza</span>
+      </div>
     </div>
-    <div class="total-time">🚇 33 min → Ginza (40 min total)</div>
     <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">40.01m²</span>
