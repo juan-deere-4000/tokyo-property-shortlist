@@ -4,5 +4,7 @@ window.NOTES_CONFIG = {
   supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
   table: 'property_notes',
   starTable: 'property_flags',
-  ratingTable: 'property_ratings'
+  ratingTable: 'property_ratings',
+  vetoTable: 'property_vetoes',
+  preferencesTable: 'user_preferences'
 };

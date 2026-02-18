@@ -92,7 +92,7 @@
     .price-wrap {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       justify-self: end;
     }
     .aggregate-score {
@@ -135,6 +135,57 @@
       gap: 6px;
       cursor: pointer;
       user-select: none;
+    }
+    .filters .sort-wrap {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filters .hide-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .filters .hide-toggle {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 13px;
+      background: #fff;
+      color: #2f4058;
+      cursor: pointer;
+    }
+    .filters .hide-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 150px;
+      background: #fff;
+      border: 1px solid #d6deea;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      padding: 8px;
+      z-index: 20;
+      display: none;
+    }
+    .filters .hide-menu.open {
+      display: block;
+    }
+    .filters .hide-menu label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 2px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .filters select {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 13px;
+      background: #fff;
     }
 
     .station-card {
@@ -293,17 +344,39 @@
       gap: 6px;
     }
     .rating-range {
-      width: 92px;
-    }
-    .rating-stars {
-      color: #d99a00;
-      font-size: 12px;
-      min-width: 50px;
+      width: 120px;
     }
     .rating-value {
       color: #516277;
-      min-width: 28px;
+      min-width: 34px;
       text-align: right;
+    }
+    .rating-clear {
+      border: 0;
+      background: transparent;
+      color: #8ea0b8;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      cursor: pointer;
+      display: none;
+    }
+    .rating-clear:hover {
+      color: #516277;
+    }
+    .veto-btn {
+      border: 1px solid #d6deea;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 12px;
+      color: #42566f;
+      background: #fff;
+      cursor: pointer;
+    }
+    .veto-btn.active {
+      border-color: #dc3545;
+      color: #fff;
+      background: #dc3545;
     }
     .notes-panel.collapsed {
       display: none;
@@ -327,6 +400,10 @@
     .tag.ward {
       background: #e2e3e5;
       color: #383d41;
+    }
+    .tag.veto-pill {
+      background: #dc3545;
+      color: #fff;
     }
 
 
@@ -358,8 +435,25 @@
   <h1>🏠 Tokyo Property Shortlist</h1>
   <p class="subtitle">Last updated: February 18, 2026</p>
   <div class="filters">
-    <label><input type="checkbox" id="filter-starred-only"> Starred only</label>
-    <label><input type="checkbox" id="filter-hide-sold" checked> Hide sold</label>
+    <span class="hide-wrap">
+      <button type="button" class="hide-toggle" id="hide-toggle" aria-expanded="false">Hide</button>
+      <div class="hide-menu" id="hide-menu">
+        <label><input type="checkbox" id="hide-unstarred"> Unstarred</label>
+        <label><input type="checkbox" id="hide-sold" checked> Sold</label>
+        <label><input type="checkbox" id="hide-vetoed"> Vetoed</label>
+      </div>
+    </span>
+    <span class="sort-wrap">
+      <label for="sort-by">Sort</label>
+      <select id="sort-by">
+        <option value="score">score</option>
+        <option value="price">price</option>
+        <option value="sqm">sqm</option>
+        <option value="walk">walking distance</option>
+        <option value="train">train time</option>
+        <option value="total">total transit time</option>
+      </select>
+    </span>
   </div>
   
 
@@ -714,15 +808,24 @@
         supabaseAnonKey: '',
         table: 'property_notes',
         starTable: 'property_flags',
-        ratingTable: 'property_ratings'
+        ratingTable: 'property_ratings',
+        vetoTable: 'property_vetoes',
+        preferencesTable: 'user_preferences'
       },
       window.NOTES_CONFIG || {}
     );
-    const STAR_STORAGE_KEY = 'tokyo_starred_properties_v1';
-    const FILTER_STORAGE_KEY = 'tokyo_property_filters_v1';
-    const RATING_STORAGE_KEY = 'tokyo_property_ratings_v1';
+
+    // Fail hard if Supabase config is missing
+    if (!NOTES_CONFIG.supabaseUrl || !NOTES_CONFIG.supabaseAnonKey) {
+      throw new Error('Supabase config missing: supabaseUrl and supabaseAnonKey required in NOTES_CONFIG');
+    }
+
+    const USER_ID = 'default';
     const RATERS = ['Joe', 'Max', 'Michelle'];
     const METRICS = ['Neighborhood', 'Transit', 'Layout'];
+    const SORT_OPTIONS = ['score', 'price', 'sqm', 'walk', 'train', 'total'];
+
+    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
 
     function getPropertySlug(card, idx) {
       const link = card.querySelector('.property-header h2 a');
@@ -760,44 +863,68 @@
       });
     }
 
-    function loadStarredSetLocal() {
-      try {
-        const raw = localStorage.getItem(STAR_STORAGE_KEY);
-        const arr = raw ? JSON.parse(raw) : [];
-        return new Set(Array.isArray(arr) ? arr : []);
-      } catch (_) {
-        return new Set();
+    function parseCardMetrics(card) {
+      const priceText = (card.querySelector('.price')?.textContent || '').trim();
+      const priceMatch = priceText.match(/([0-9]+(?:\.[0-9]+)?)\s*M/i);
+      if (priceMatch) card.dataset.price = String(Number(priceMatch[1]));
+
+      const sqmTag = Array.from(card.querySelectorAll('.meta .tag')).find(function (tag) {
+        return /m²/i.test(tag.textContent || '');
+      });
+      const sqmMatch = (sqmTag?.textContent || '').match(/([0-9]+(?:\.[0-9]+)?)\s*m²/i);
+      if (sqmMatch) card.dataset.sqm = String(Number(sqmMatch[1]));
+
+      const transitText = card.querySelector('.transit-pills')?.textContent || '';
+      const minutes = Array.from(transitText.matchAll(/([0-9]+)\s*min/gi)).map(function (m) {
+        return Number(m[1]);
+      });
+      if (minutes.length >= 3) {
+        card.dataset.walk = String(minutes[0]);
+        card.dataset.train = String(minutes[1]);
+        card.dataset.total = String(minutes[2]);
       }
     }
 
-    function saveStarredSetLocal(set) {
-      localStorage.setItem(STAR_STORAGE_KEY, JSON.stringify(Array.from(set)));
+    function updateRanks() {
+      document.querySelectorAll('.property').forEach(function (card, idx) {
+        const rankEl = card.querySelector('.rank');
+        if (rankEl) rankEl.textContent = '#' + (idx + 1);
+      });
     }
 
-    function loadRatingsLocal() {
-      try {
-        const raw = localStorage.getItem(RATING_STORAGE_KEY);
-        const obj = raw ? JSON.parse(raw) : {};
-        return obj && typeof obj === 'object' ? obj : {};
-      } catch (_) {
-        return {};
-      }
+    function metricValue(card, key) {
+      const raw = card.dataset[key];
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : null;
     }
 
-    function saveRatingsLocal(store) {
-      localStorage.setItem(RATING_STORAGE_KEY, JSON.stringify(store));
-    }
+    function sortCards() {
+      const sortEl = document.getElementById('sort-by');
+      if (!sortEl) return;
+      const sortKey = sortEl.value || 'score';
+      saveUserPreferences({ sort_key: sortKey });
 
-    function ratingKey(slug, rater, metric) {
-      return slug + '||' + rater + '||' + metric;
-    }
+      const cards = Array.from(document.querySelectorAll('.property'));
+      const footer = document.querySelector('.footer');
+      if (!footer) return;
 
-    function starsFromScore(score) {
-      if (score == null) return '☆☆☆☆☆';
-      const full = Math.floor(score / 2);
-      const half = score % 2 >= 1 ? 1 : 0;
-      const empty = 5 - full - half;
-      return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(Math.max(0, empty));
+      const dir = sortKey === 'price' || sortKey === 'walk' || sortKey === 'train' || sortKey === 'total'
+        ? 1
+        : -1;
+      cards.sort(function (a, b) {
+        const av = metricValue(a, sortKey);
+        const bv = metricValue(b, sortKey);
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        if (av === bv) return 0;
+        return av < bv ? -1 * dir : 1 * dir;
+      });
+
+      cards.forEach(function (card) {
+        footer.parentNode.insertBefore(card, footer);
+      });
+      updateRanks();
     }
 
     function updateAggregateForCard(card, slug, ratingsStore) {
@@ -815,78 +942,144 @@
       if (!values.length) {
         badge.style.display = 'none';
         badge.textContent = '';
+        delete card.dataset.score;
         return;
       }
       const avg = values.reduce(function (a, b) { return a + b; }, 0) / values.length;
       badge.style.display = '';
       badge.textContent = avg.toFixed(1);
+      card.dataset.score = avg.toFixed(2);
     }
 
-    function loadFilterState() {
-      try {
-        const raw = localStorage.getItem(FILTER_STORAGE_KEY);
-        const v = raw ? JSON.parse(raw) : {};
-        return {
-          starredOnly: Boolean(v.starredOnly),
-          hideSold: v.hideSold !== false
-        };
-      } catch (_) {
-        return { starredOnly: false, hideSold: true };
+    function updateVetoPill(card, slug, vetoStore) {
+      const meta = card.querySelector('.meta');
+      if (!meta) return;
+      const hasVeto = RATERS.some(function (rater) {
+        return Boolean(vetoStore[vetoKey(slug, rater)]);
+      });
+      card.setAttribute('data-vetoed', hasVeto ? 'true' : 'false');
+      let pill = meta.querySelector('.veto-pill');
+      if (!hasVeto) {
+        if (pill) pill.remove();
+        return;
+      }
+      if (!pill) {
+        pill = document.createElement('span');
+        pill.className = 'tag veto-pill';
+        pill.textContent = 'Vetoed';
+        meta.appendChild(pill);
       }
     }
 
-    function saveFilterState(state) {
-      localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(state));
+    let userPreferences = {
+      sort_key: 'score',
+      hide_unstarred: false,
+      hide_sold: true,
+      hide_vetoed: false
+    };
+
+    async function loadUserPreferences() {
+      try {
+        const { data } = await supabaseClient
+          .from(NOTES_CONFIG.preferencesTable)
+          .select('*')
+          .eq('user_id', USER_ID)
+          .single();
+        if (data) {
+          userPreferences = {
+            sort_key: data.sort_key || 'score',
+            hide_unstarred: data.hide_unstarred || false,
+            hide_sold: data.hide_sold !== false,
+            hide_vetoed: data.hide_vetoed || false
+          };
+        }
+      } catch (err) {
+        console.error('Failed to load user preferences', err);
+      }
+      return userPreferences;
+    }
+
+    async function saveUserPreferences(prefs) {
+      userPreferences = { ...userPreferences, ...prefs };
+      try {
+        await supabaseClient
+          .from(NOTES_CONFIG.preferencesTable)
+          .upsert({
+            user_id: USER_ID,
+            sort_key: userPreferences.sort_key,
+            hide_unstarred: userPreferences.hide_unstarred,
+            hide_sold: userPreferences.hide_sold,
+            hide_vetoed: userPreferences.hide_vetoed,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+      } catch (err) {
+        console.error('Failed to save user preferences', err);
+      }
     }
 
     function applyFilters() {
-      const starredOnlyEl = document.getElementById('filter-starred-only');
-      const hideSoldEl = document.getElementById('filter-hide-sold');
-      if (!starredOnlyEl || !hideSoldEl) return;
-      const starredOnly = starredOnlyEl.checked;
+      const hideUnstarredEl = document.getElementById('hide-unstarred');
+      const hideSoldEl = document.getElementById('hide-sold');
+      const hideVetoedEl = document.getElementById('hide-vetoed');
+      if (!hideUnstarredEl || !hideSoldEl || !hideVetoedEl) return;
+      const hideUnstarred = hideUnstarredEl.checked;
       const hideSold = hideSoldEl.checked;
+      const hideVetoed = hideVetoedEl.checked;
       document.querySelectorAll('.property').forEach(function (card) {
         const starred = card.getAttribute('data-starred') === 'true';
         const sold = card.getAttribute('data-sold') === 'true';
-        const show = (!starredOnly || starred) && (!hideSold || !sold);
+        const vetoed = card.getAttribute('data-vetoed') === 'true';
+        const show = (!hideUnstarred || starred) && (!hideSold || !sold) && (!hideVetoed || !vetoed);
         card.style.display = show ? '' : 'none';
       });
-      saveFilterState({ starredOnly: starredOnly, hideSold: hideSold });
+      saveUserPreferences({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed });
     }
 
     async function initStarsAndFilters() {
       formatPrices();
-      const hasSupabase = NOTES_CONFIG.supabaseUrl && NOTES_CONFIG.supabaseAnonKey && window.supabase;
-      const supabaseClient = hasSupabase
-        ? window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey)
-        : null;
-      const starredSet = loadStarredSetLocal();
+      await loadUserPreferences();
+
+      const starredSet = new Set();
 
       const cards = Array.from(document.querySelectorAll('.property'));
       const slugs = cards.map(function (card, idx) {
         return getPropertySlug(card, idx + 1);
       });
 
-      if (hasSupabase) {
-        try {
-          const { data } = await supabaseClient
-            .from(NOTES_CONFIG.starTable)
-            .select('property_slug, starred')
-            .in('property_slug', slugs);
-          (data || []).forEach(function (row) {
-            if (row.starred) starredSet.add(row.property_slug);
-            else starredSet.delete(row.property_slug);
-          });
-          saveStarredSetLocal(starredSet);
-        } catch (err) {
-          console.error('Failed to load shared stars, using local fallback', err);
-        }
+      // Load stars from Supabase
+      try {
+        const { data } = await supabaseClient
+          .from(NOTES_CONFIG.starTable)
+          .select('property_slug, starred')
+          .in('property_slug', slugs);
+        (data || []).forEach(function (row) {
+          if (row.starred) starredSet.add(row.property_slug);
+          else starredSet.delete(row.property_slug);
+        });
+      } catch (err) {
+        console.error('Failed to load stars from Supabase', err);
+      }
+
+      // Load vetoes from Supabase
+      const vetoStore = {};
+      try {
+        const { data } = await supabaseClient
+          .from(NOTES_CONFIG.vetoTable)
+          .select('property_slug, rater, vetoed')
+          .in('property_slug', slugs);
+        (data || []).forEach(function (row) {
+          vetoStore[vetoKey(row.property_slug, row.rater)] = row.vetoed;
+        });
+      } catch (err) {
+        console.error('Failed to load vetoes from Supabase', err);
       }
 
       cards.forEach(function (card, idx) {
         const slug = getPropertySlug(card, idx + 1);
         card.setAttribute('data-property-slug', slug);
         card.setAttribute('data-sold', isSoldCard(card) ? 'true' : 'false');
+        card.setAttribute('data-vetoed', card.getAttribute('data-vetoed') || 'false');
+        parseCardMetrics(card);
 
         const header = card.querySelector('.property-header');
         const price = card.querySelector('.price');
@@ -921,22 +1114,20 @@
           star.textContent = isActive ? '★' : '☆';
           card.setAttribute('data-starred', isActive ? 'true' : 'false');
           if (isActive) starredSet.add(slug); else starredSet.delete(slug);
-          saveStarredSetLocal(starredSet);
 
-          if (hasSupabase) {
-            (async function () {
-              try {
-                await supabaseClient
-                  .from(NOTES_CONFIG.starTable)
-                  .upsert(
-                    { property_slug: slug, starred: isActive, updated_at: new Date().toISOString() },
-                    { onConflict: 'property_slug' }
-                  );
-              } catch (err) {
-                console.error('Shared star save failed for', slug, err);
-              }
-            })();
-          }
+          // Save to Supabase
+          (async function () {
+            try {
+              await supabaseClient
+                .from(NOTES_CONFIG.starTable)
+                .upsert(
+                  { property_slug: slug, starred: isActive, updated_at: new Date().toISOString() },
+                  { onConflict: 'property_slug' }
+                );
+            } catch (err) {
+              console.error('Star save failed for', slug, err);
+            }
+          })();
 
           applyFilters();
         });
@@ -944,14 +1135,36 @@
         wrap.appendChild(star);
       });
 
-      const starredOnlyEl = document.getElementById('filter-starred-only');
-      const hideSoldEl = document.getElementById('filter-hide-sold');
-      const fs = loadFilterState();
-      if (starredOnlyEl) starredOnlyEl.checked = fs.starredOnly;
-      if (hideSoldEl) hideSoldEl.checked = fs.hideSold;
-      if (starredOnlyEl) starredOnlyEl.addEventListener('change', applyFilters);
+      const hideToggle = document.getElementById('hide-toggle');
+      const hideMenu = document.getElementById('hide-menu');
+      const hideUnstarredEl = document.getElementById('hide-unstarred');
+      const hideSoldEl = document.getElementById('hide-sold');
+      const hideVetoedEl = document.getElementById('hide-vetoed');
+      const sortEl = document.getElementById('sort-by');
+      if (hideUnstarredEl) hideUnstarredEl.checked = userPreferences.hide_unstarred;
+      if (hideSoldEl) hideSoldEl.checked = userPreferences.hide_sold;
+      if (hideVetoedEl) hideVetoedEl.checked = userPreferences.hide_vetoed;
+      if (sortEl) sortEl.value = userPreferences.sort_key;
+      if (hideUnstarredEl) hideUnstarredEl.addEventListener('change', applyFilters);
       if (hideSoldEl) hideSoldEl.addEventListener('change', applyFilters);
+      if (hideVetoedEl) hideVetoedEl.addEventListener('change', applyFilters);
+      if (sortEl) sortEl.addEventListener('change', sortCards);
+      if (hideToggle && hideMenu) {
+        hideToggle.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const open = hideMenu.classList.toggle('open');
+          hideToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        hideMenu.addEventListener('click', function (e) {
+          e.stopPropagation();
+        });
+        document.addEventListener('click', function () {
+          hideMenu.classList.remove('open');
+          hideToggle.setAttribute('aria-expanded', 'false');
+        });
+      }
 
+      sortCards();
       applyFilters();
     }
 
@@ -1012,16 +1225,18 @@
       METRICS.forEach(function (metric) {
         html += '<th>' + metric + '</th>';
       });
+      html += '<th>Veto</th>';
       html += '</tr></thead><tbody>';
       RATERS.forEach(function (rater) {
         html += '<tr><th>' + rater + '</th>';
         METRICS.forEach(function (metric) {
           html += '<td><div class="rating-control" data-rater="' + rater + '" data-metric="' + metric + '">' +
             '<input class="rating-range" type="range" min="0" max="10" step="0.5" value="0">' +
-            '<span class="rating-stars">☆☆☆☆☆</span>' +
             '<span class="rating-value">—</span>' +
+            '<button type="button" class="rating-clear" aria-label="Clear rating">×</button>' +
             '</div></td>';
         });
+        html += '<td><button type="button" class="veto-btn" data-rater="' + rater + '">Veto</button></td>';
         html += '</tr>';
       });
       html += '</tbody></table>';
@@ -1042,45 +1257,53 @@
 
     async function initRatings() {
       const cards = Array.from(document.querySelectorAll('.property'));
-      const hasSupabase = NOTES_CONFIG.supabaseUrl && NOTES_CONFIG.supabaseAnonKey && window.supabase;
-      const supabaseClient = hasSupabase
-        ? window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey)
-        : null;
-      const ratingsStore = loadRatingsLocal();
+      const ratingsStore = {};
+      const vetoStore = {};
       const saveTimers = {};
 
+      // Load ratings from Supabase
       const entries = cards
         .map((card, idx) => createRatingsUI(card, getPropertySlug(card, idx + 1)))
         .filter(Boolean);
       const slugs = entries.map(function (e) { return e.slug; });
 
-      if (hasSupabase) {
-        try {
-          const { data } = await supabaseClient
-            .from(NOTES_CONFIG.ratingTable)
-            .select('property_slug, rater, metric, score')
-            .in('property_slug', slugs);
-          (data || []).forEach(function (row) {
-            const score = Number(row.score);
-            if (!Number.isFinite(score)) return;
-            ratingsStore[ratingKey(row.property_slug, row.rater, row.metric)] = score;
-          });
-          saveRatingsLocal(ratingsStore);
-        } catch (err) {
-          console.error('Failed to load shared ratings, using local fallback', err);
-        }
+      try {
+        const { data } = await supabaseClient
+          .from(NOTES_CONFIG.ratingTable)
+          .select('property_slug, rater, metric, score')
+          .in('property_slug', slugs);
+        (data || []).forEach(function (row) {
+          const score = Number(row.score);
+          if (!Number.isFinite(score)) return;
+          ratingsStore[ratingKey(row.property_slug, row.rater, row.metric)] = score;
+        });
+      } catch (err) {
+        console.error('Failed to load ratings from Supabase', err);
+      }
+
+      // Load vetoes from Supabase
+      try {
+        const { data } = await supabaseClient
+          .from(NOTES_CONFIG.vetoTable)
+          .select('property_slug, rater, vetoed')
+          .in('property_slug', slugs);
+        (data || []).forEach(function (row) {
+          vetoStore[vetoKey(row.property_slug, row.rater)] = row.vetoed;
+        });
+      } catch (err) {
+        console.error('Failed to load vetoes from Supabase', err);
       }
 
       function renderControl(control, score) {
-        const stars = control.querySelector('.rating-stars');
         const value = control.querySelector('.rating-value');
+        const clear = control.querySelector('.rating-clear');
         if (score == null || !Number.isFinite(score)) {
-          stars.textContent = '☆☆☆☆☆';
           value.textContent = '—';
+          if (clear) clear.style.display = 'none';
           return;
         }
-        stars.textContent = starsFromScore(score);
         value.textContent = score.toFixed(1);
+        if (clear) clear.style.display = '';
       }
 
       entries.forEach(function (entry) {
@@ -1089,6 +1312,7 @@
           const rater = control.getAttribute('data-rater');
           const metric = control.getAttribute('data-metric');
           const range = control.querySelector('.rating-range');
+          const clear = control.querySelector('.rating-clear');
           const key = ratingKey(entry.slug, rater, metric);
           const existing = ratingsStore[key];
           if (typeof existing === 'number' && Number.isFinite(existing)) {
@@ -1099,12 +1323,24 @@
           }
 
           const persist = function (score) {
-            ratingsStore[key] = score;
-            saveRatingsLocal(ratingsStore);
-            if (hasSupabase) {
-              (async function () {
-                try {
-                  const { error } = await supabaseClient
+            if (score == null || !Number.isFinite(score)) {
+              delete ratingsStore[key];
+            } else {
+              ratingsStore[key] = score;
+            }
+            (async function () {
+              try {
+                let error = null;
+                if (score == null || !Number.isFinite(score)) {
+                  const res = await supabaseClient
+                    .from(NOTES_CONFIG.ratingTable)
+                    .delete()
+                    .eq('property_slug', entry.slug)
+                    .eq('rater', rater)
+                    .eq('metric', metric);
+                  error = res.error;
+                } else {
+                  const res = await supabaseClient
                     .from(NOTES_CONFIG.ratingTable)
                     .upsert(
                       {
@@ -1116,12 +1352,13 @@
                       },
                       { onConflict: 'property_slug,rater,metric' }
                     );
-                  if (error) throw error;
-                } catch (err) {
-                  console.error('Shared rating save failed', entry.slug, rater, metric, err);
+                  error = res.error;
                 }
-              })();
-            }
+                if (error) throw error;
+              } catch (err) {
+                console.error('Rating save failed', entry.slug, rater, metric, err);
+              }
+            })();
           };
 
           const onChange = function () {
@@ -1136,10 +1373,57 @@
 
           range.addEventListener('input', onChange);
           range.addEventListener('change', onChange);
+          if (clear) {
+            clear.addEventListener('click', function () {
+              range.value = '0';
+              renderControl(control, null);
+              updateAggregateForCard(entry.card, entry.slug, ratingsStore);
+              if (saveTimers[key]) clearTimeout(saveTimers[key]);
+              saveTimers[key] = setTimeout(function () {
+                persist(null);
+              }, 250);
+            });
+          }
         });
 
         updateAggregateForCard(entry.card, entry.slug, ratingsStore);
+
+        // Veto buttons - load from Supabase
+        const vetoButtons = Array.from(entry.panel.querySelectorAll('.veto-btn'));
+        vetoButtons.forEach(function (btn) {
+          const rater = btn.getAttribute('data-rater');
+          const key = vetoKey(entry.slug, rater);
+          const existing = Boolean(vetoStore[key]);
+          btn.classList.toggle('active', existing);
+
+          btn.addEventListener('click', function () {
+            const next = !Boolean(vetoStore[key]);
+            vetoStore[key] = next;
+            btn.classList.toggle('active', next);
+            // Save veto to Supabase
+            (async function () {
+              try {
+                await supabaseClient
+                  .from(NOTES_CONFIG.vetoTable)
+                  .upsert({
+                    property_slug: entry.slug,
+                    rater: rater,
+                    vetoed: next,
+                    updated_at: new Date().toISOString()
+                  }, { onConflict: 'property_slug,rater' });
+              } catch (err) {
+                console.error('Veto save failed', entry.slug, rater, err);
+              }
+            })();
+            updateVetoPill(entry.card, entry.slug, vetoStore);
+            applyFilters();
+          });
+        });
+        updateVetoPill(entry.card, entry.slug, vetoStore);
       });
+
+      applyFilters();
+      if (document.getElementById('sort-by')?.value === 'score') sortCards();
     }
 
     async function initNotes() {
@@ -1147,21 +1431,9 @@
       const entries = cards.map((card, idx) => createNotesUI(card, getPropertySlug(card, idx + 1))).filter(Boolean);
       const slugs = entries.map(e => e.slug);
 
-      const hasSupabase = NOTES_CONFIG.supabaseUrl && NOTES_CONFIG.supabaseAnonKey && window.supabase;
-      const localStore = {};
-
-      if (!hasSupabase) {
-        entries.forEach(e => {
-          const v = localStorage.getItem('tokyo_notes_' + e.slug);
-          if (v) localStore[e.slug] = v;
-        });
-      }
-
-      let supabaseClient = null;
-      let remoteStore = {};
-
-      if (hasSupabase) {
-        supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
+      // Load notes from Supabase
+      const remoteStore = {};
+      try {
         const { data } = await supabaseClient
           .from(NOTES_CONFIG.table)
           .select('property_slug, body')
@@ -1169,11 +1441,13 @@
         (data || []).forEach(function (row) {
           remoteStore[row.property_slug] = row.body || '';
         });
+      } catch (err) {
+        console.error('Failed to load notes from Supabase', err);
       }
 
       entries.forEach(function (entry) {
         const input = entry.panel.querySelector('.notes-input');
-        const existing = hasSupabase ? (remoteStore[entry.slug] || '') : (localStore[entry.slug] || '');
+        const existing = remoteStore[entry.slug] || '';
         let saveTimer = null;
 
         if (existing.trim()) {
@@ -1183,24 +1457,20 @@
 
         async function persistNote(value) {
           try {
-            if (hasSupabase) {
-              if (value) {
-                const { error } = await supabaseClient
-                  .from(NOTES_CONFIG.table)
-                  .upsert(
-                    { property_slug: entry.slug, body: value, updated_at: new Date().toISOString() },
-                    { onConflict: 'property_slug' }
-                  );
-                if (error) throw error;
-              } else {
-                const { error } = await supabaseClient
-                  .from(NOTES_CONFIG.table)
-                  .delete()
-                  .eq('property_slug', entry.slug);
-                if (error) throw error;
-              }
+            if (value) {
+              const { error } = await supabaseClient
+                .from(NOTES_CONFIG.table)
+                .upsert(
+                  { property_slug: entry.slug, body: value, updated_at: new Date().toISOString() },
+                  { onConflict: 'property_slug' }
+                );
+              if (error) throw error;
             } else {
-              localStorage.setItem('tokyo_notes_' + entry.slug, value);
+              const { error } = await supabaseClient
+                .from(NOTES_CONFIG.table)
+                .delete()
+                .eq('property_slug', entry.slug);
+              if (error) throw error;
             }
           } catch (err) {
             console.error('Notes autosave failed for', entry.slug, err);
