@@ -133,40 +133,25 @@
       margin-left: 8px;
     }
 
-    .walk-badge {
-      background: var(--primary);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .transit-badge {
-      background: #fff3cd;
-      color: #856404;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .total-badge {
-      background: #e8f4fd;
+    .walk-badge, .transit-badge, .total-badge, .transit-pills {
       color: var(--primary);
-      padding: 6px 12px;
-      border-radius: 20px;
       font-size: 13px;
       font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .transit-pills {
+      /* background: #f0f7ff; */
+      padding: 4px 10px;
+      border-radius: 16px;
     }
 
     .station-badges {
-      display: flex;
-      gap: 8px;
+      display: inline-flex;
       align-items: center;
+      gap: 4px;
     }
 
     .meta {
@@ -239,9 +224,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 7 min</span>
-        <span class="transit-badge">🚇 10 min</span>
-        <span class="total-badge">→ 17 min</span>
+        <span class="transit-pills">🚶 7 min → 🚇 10 min → 17 min</span>
       </div>
     </div>
     <div class="meta">
@@ -267,9 +250,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 7 min</span>
-        <span class="transit-badge">🚇 11 min</span>
-        <span class="total-badge">→ 18 min</span>
+        <span class="transit-pills">🚶 7 min → 🚇 11 min → 18 min</span>
       </div>
     </div>
     <div class="meta">
@@ -296,9 +277,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 8 min</span>
-        <span class="transit-badge">🚇 11 min</span>
-        <span class="total-badge">→ 19 min</span>
+        <span class="transit-pills">🚶 8 min → 🚇 11 min → 19 min</span>
       </div>
     </div>
     <div class="meta">
@@ -324,9 +303,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 3 min</span>
-        <span class="transit-badge">🚇 17 min</span>
-        <span class="total-badge">→ 20 min</span>
+        <span class="transit-pills">🚶 3 min → 🚇 17 min → 20 min</span>
       </div>
     </div>
     <div class="meta">
@@ -352,9 +329,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 5 min</span>
-        <span class="transit-badge">🚇 15 min</span>
-        <span class="total-badge">→ 20 min</span>
+        <span class="transit-pills">🚶 5 min → 🚇 15 min → 20 min</span>
       </div>
     </div>
     <div class="meta">
@@ -380,9 +355,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 1 min</span>
-        <span class="transit-badge">🚇 20 min</span>
-        <span class="total-badge">→ 21 min</span>
+        <span class="transit-pills">🚶 1 min → 🚇 20 min → 21 min</span>
       </div>
     </div>
     <div class="meta">
@@ -408,9 +381,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 4 min</span>
-        <span class="transit-badge">🚇 17 min</span>
-        <span class="total-badge">→ 21 min</span>
+        <span class="transit-pills">🚶 4 min → 🚇 17 min → 21 min</span>
       </div>
     </div>
     <div class="meta">
@@ -436,9 +407,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 7 min</span>
-        <span class="transit-badge">🚇 15 min</span>
-        <span class="total-badge">→ 22 min</span>
+        <span class="transit-pills">🚶 7 min → 🚇 15 min → 22 min</span>
       </div>
     </div>
     <div class="meta">
@@ -464,9 +433,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 4 min</span>
-        <span class="transit-badge">🚇 18 min</span>
-        <span class="total-badge">→ 22 min</span>
+        <span class="transit-pills">🚶 4 min → 🚇 18 min → 22 min</span>
       </div>
     </div>
     <div class="meta">
@@ -492,9 +459,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 14 min</span>
-        <span class="transit-badge">🚇 12 min</span>
-        <span class="total-badge">→ 26 min</span>
+        <span class="transit-pills">🚶 14 min → 🚇 12 min → 26 min</span>
       </div>
     </div>
     <div class="meta">
@@ -520,9 +485,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 3 min</span>
-        <span class="transit-badge">🚇 25 min</span>
-        <span class="total-badge">→ 28 min</span>
+        <span class="transit-pills">🚶 3 min → 🚇 25 min → 28 min</span>
       </div>
     </div>
     <div class="meta">
@@ -548,9 +511,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 7 min</span>
-        <span class="transit-badge">🚇 24 min</span>
-        <span class="total-badge">→ 31 min</span>
+        <span class="transit-pills">🚶 7 min → 🚇 24 min → 31 min</span>
       </div>
     </div>
     <div class="meta">
@@ -576,9 +537,7 @@
         </span>
       </div>
       <div class="station-badges">
-        <span class="walk-badge">🚶 7 min</span>
-        <span class="transit-badge">🚇 27 min</span>
-        <span class="total-badge">→ 34 min</span>
+        <span class="transit-pills">🚶 7 min → 🚇 27 min → 34 min</span>
       </div>
     </div>
     <div class="meta">
