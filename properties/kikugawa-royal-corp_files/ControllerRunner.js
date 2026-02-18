@@ -1,0 +1,1 @@
+import _defineProperty from"/buy/web_modules/@babel/runtime/helpers/defineProperty.js";export default class ControllerRunner{constructor(){_defineProperty(this,"runControllers",controllers=>Promise.all(controllers.map(c=>c.run())))}}

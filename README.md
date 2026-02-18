@@ -1,89 +1,77 @@
-# Tokyo Shortlist (LLM-Compact)
+# Tokyo Shortlist: LLM Ingestion Guide
 
 Live site: https://juan-deere-4000.github.io/tokyo-property-shortlist/
 
-## Scope
+## Goal
+Given a new `.webarchive` property page, produce a working local page:
+- `properties/<slug>.html`
+- `properties/<slug>_files/` (all required assets)
 
-This repo stores the rendered shortlist site and raw property HTML captures under `properties/`.
+## Required Naming
+- HTML: `properties/<slug>.html`
+- Assets dir: `properties/<slug>_files/`
+- Keep slug identical in both names.
 
-## Data Model
+## Conversion Workflow (New Property)
+1. Add files
+- Place converted HTML in `properties/<slug>.html`.
+- Place extracted assets in `properties/<slug>_files/`.
 
-Primary transit metric:
-- `door_to_door_min = walk_min + transit_min`
-
-Sort order target:
-- ascending `door_to_door_min`
-
-## Property HTML Conversion Rules
-
-Goal: make each property HTML load from its local extracted assets.
-
-For each `properties/<name>.html`:
-- expected local assets folder: `properties/<name>_files/`
-- special case allowed:
-  - `nakamachi-corp.html` may use
-    `[SUUMO] Nakamachi Corporas Used Apartment Property Information_files/`
-
-### Rewrite Targets (only these)
-
-Rewrite `href/src` paths when they start with:
-- `krcommon/`
-- `jjcommon/`
-- `assets/suumo/`
-- `/library/` (library pages)
-- optional prefixed forms are also targets:
+2. Rewrite SUUMO asset refs to local
+- Rewrite `href`/`src` when path starts with:
+  - `krcommon/`
+  - `jjcommon/`
+  - `assets/suumo/`
+  - `/library/`
   - `/jj/<target>`
   - `https://suumo.jp/<target>`
-
-### Rewrite Method
-
-- Strip domain/prefix/querystring.
-- Keep basename only.
-- Map to local folder.
+- Map to local: `<slug>_files/<basename>`.
+- Remove query strings.
 
 Examples:
-- `krcommon/css/common.css?1661472838000` -> `oedo-corp_files/common.css`
-- `/jj/jjcommon/js/dropdown.js` -> `oedo-corp_files/dropdown.js`
-- `https://suumo.jp/library/js/library.js?20260218` -> `ojima-royal-mansion_files/library.js`
+- `krcommon/css/common.css?1661472838000` -> `<slug>_files/common.css`
+- `/jj/jjcommon/js/dropdown.js` -> `<slug>_files/dropdown.js`
+- `https://suumo.jp/library/js/library.js?20260218` -> `<slug>_files/library.js`
 
-### Do NOT Rewrite
+3. Keep external links unless required locally
+- Do not rewrite generic external links (fonts/CDNs/content links).
+- If external tracker/optimizer scripts break page behavior, remove them.
 
-Keep external non-asset links as-is, e.g.:
-- Google Fonts
-- analytics/ads/tracking scripts
-- other external CDNs
+4. Ensure core local JS/CSS exists and is referenced
+- Typical required locals: `jquery.js`, `library.js`, `library3.js`, `style.css`.
+- If page references local fallback assets (example: `close_panel_btn.gif`, `suumobook.png`), ensure those files exist.
 
-## Validation Commands
-
-No remaining targeted raw asset prefixes:
+## Validation (Run Every Time)
+Check unresolved SUUMO-style asset prefixes:
 ```bash
 rg -n '(href|src)="(?:https?://suumo\.jp)?/?(?:jj/)?(?:krcommon/|jjcommon/|assets/suumo/|library/)' properties/*.html
 ```
 
-Show local `_files` references:
+Check local `_files` references exist on disk:
 ```bash
-rg -n '(href|src)="[^\"]*_files/[^\"]+"' properties/*.html | head
-```
-
-Quick existence check for rewritten assets (sample):
-```bash
-for f in properties/*.html; do
-  echo "--- $f"
-  rg -o "[-_A-Za-z0-9\\[\\] .]+_files/[^\"' ]+" "$f" | head -n 10
+cd properties
+for html in *.html; do
+  base="${html%.html}"
+  pref="${base}_files/"
+  refs=$(rg -o "${pref}[^\"' )>]+" "$html" | sed "s#^${pref}##" | sort -u)
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    [ -e "${pref}$f" ] || echo "$html :: MISSING :: $f"
+  done <<< "$refs"
 done
 ```
 
-## Current Target Set
+Spot-check for likely runtime breakers:
+```bash
+rg -n 'library8|libraryg|_files/jsapi"|\$ is not defined|visualwebsiteoptimizer|log\.suumo\.jp' properties/*.html
+```
 
-- happy-heights-kameido.html
-- hasegawa-heights.html
-- heitsu-otowa.html
-- kasuga-town-home.html
-- koken-heights-mejiro.html
-- nakamachi-corp.html
-- oedo-corp.html
-- ojima-royal-mansion.html
-- palast-nippori.html
-- palm-house-bunkyo.html
-- tabata-mansion.html
-- yotsuya-high-corp.html
+## Optional: Runtime English Translation
+Use only if English rendering is needed for review.
+- Inject an `auto-en-translate` script in each property HTML.
+- Script should set `googtrans=/ja/en` and load Google Translate element JS.
+- This is runtime translation, not permanent rewritten English HTML.
+
+## Data Model Note
+Primary sort metric:
+- `door_to_door_min = walk_min + transit_min`
