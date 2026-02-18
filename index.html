@@ -328,6 +328,11 @@
       gap: 8px;
       margin: 0 0 10px 0;
     }
+    .notes-editors {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
     .notes-author-pill {
       border: 1px solid #d6deea;
       cursor: pointer;
@@ -348,7 +353,7 @@
     .notes-author-pill[data-has-content="true"] {
       border-color: #9dc0ea;
     }
-    .notes-editor[aria-disabled="true"] {
+    .notes-editor[aria-hidden="true"] {
       display: none;
     }
     .ratings-panel {
@@ -394,19 +399,27 @@
       text-align: right;
     }
     .rating-clear {
-      border: 0;
-      background: transparent;
-      color: #6c8099;
-      font-size: 15px;
+      border: 1px solid #c8d6ea;
+      background: #fff;
+      color: #4a5f7a;
+      font-size: 12px;
       font-weight: 700;
       line-height: 1;
-      padding: 0 2px;
-      margin-left: 2px;
+      padding: 0;
+      margin-left: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
       cursor: pointer;
       display: none;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
     }
     .rating-clear:hover {
-      color: #2f4058;
+      color: #23364d;
+      border-color: #9fb5d1;
+      background: #f3f8ff;
     }
     .veto-btn {
       border: 1px solid #d6deea;
@@ -1250,15 +1263,20 @@
       panel.className = 'notes-panel collapsed';
       panel.setAttribute('aria-hidden', 'true');
       let pillsHtml = '';
+      let editorsHtml = '';
       NOTE_AUTHORS.forEach(function (author) {
         pillsHtml += '<button type="button" class="notes-author-pill" data-author="' + author + '" data-active="false" data-has-content="false">' + author + '</button>';
+        editorsHtml +=
+          '<div class="notes-editor" data-author="' + author + '" aria-hidden="true">' +
+            '<textarea class="notes-input" data-author="' + author + '" placeholder="Add ' + author + '\'s notes..."></textarea>' +
+          '</div>';
       });
       panel.innerHTML =
         '<div class="notes-authors">' + pillsHtml + '</div>' +
-        '<div class="notes-editor" aria-disabled="true">' +
-          '<textarea class="notes-input" placeholder="Add shared notes..."></textarea>' +
+        '<div class="notes-editors">' +
+          editorsHtml +
         '</div>' +
-        '<div class="notes-hint">Select a name to add notes.</div>';
+        '<div class="notes-hint">Click author pills to show/hide notes.</div>';
       card.appendChild(panel);
 
       function setExpanded(expanded) {
@@ -1348,7 +1366,7 @@
           return;
         }
         value.textContent = score.toFixed(1);
-        if (clear) clear.style.display = '';
+        if (clear) clear.style.display = 'inline-flex';
       }
 
       function renderEntry(entry) {
@@ -1562,14 +1580,20 @@
 
       entries.forEach(function (entry) {
         const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill'));
-        const editor = entry.panel.querySelector('.notes-editor');
+        const editors = Array.from(entry.panel.querySelectorAll('.notes-editor'));
         const hint = entry.panel.querySelector('.notes-hint');
-        const input = entry.panel.querySelector('.notes-input');
-        let saveTimer = null;
-        let activeAuthor = null;
+        const saveTimers = {};
 
         function notesKey(author) {
           return entry.slug + '||' + author;
+        }
+
+        function getEditor(author) {
+          return entry.panel.querySelector('.notes-editor[data-author="' + author + '"]');
+        }
+
+        function getInput(author) {
+          return entry.panel.querySelector('.notes-input[data-author="' + author + '"]');
         }
 
         function hasAnyData() {
@@ -1579,17 +1603,24 @@
           });
         }
 
-        function setActiveAuthor(author) {
-          activeAuthor = author;
-          pills.forEach(function (pill) {
-            const isActive = pill.getAttribute('data-author') === author;
-            pill.setAttribute('data-active', isActive ? 'true' : 'false');
+        function isAuthorVisible(author) {
+          const editor = getEditor(author);
+          return Boolean(editor) && editor.getAttribute('aria-hidden') !== 'true';
+        }
+
+        function anyEditorVisible() {
+          return NOTE_AUTHORS.some(function (author) {
+            return isAuthorVisible(author);
           });
-          editor.setAttribute('aria-disabled', 'false');
-          hint.style.display = 'none';
-          input.value = notesStore[notesKey(author)] || '';
-          input.placeholder = 'Add ' + author + '\'s notes...';
-          input.focus();
+        }
+
+        function setAuthorVisible(author, visible) {
+          const editor = getEditor(author);
+          const pill = entry.panel.querySelector('.notes-author-pill[data-author="' + author + '"]');
+          if (!editor || !pill) return;
+          editor.setAttribute('aria-hidden', visible ? 'false' : 'true');
+          pill.setAttribute('data-active', visible ? 'true' : 'false');
+          hint.style.display = anyEditorVisible() ? 'none' : '';
         }
 
         function refreshPills() {
@@ -1597,23 +1628,30 @@
             const author = pill.getAttribute('data-author');
             const v = notesStore[notesKey(author)] || '';
             pill.setAttribute('data-has-content', v.trim() ? 'true' : 'false');
+            pill.setAttribute('data-active', isAuthorVisible(author) ? 'true' : 'false');
           });
         }
 
-        const defaultAuthor = NOTE_AUTHORS.find(function (author) {
+        const defaultAuthors = NOTE_AUTHORS.filter(function (author) {
           const v = notesStore[notesKey(author)] || '';
           return v.trim().length > 0;
-        }) || null;
+        });
 
-        refreshPills();
-        if (defaultAuthor) {
-          setActiveAuthor(defaultAuthor);
+        if (defaultAuthors.length) {
+          defaultAuthors.forEach(function (author) {
+            setAuthorVisible(author, true);
+            const input = getInput(author);
+            if (input) input.value = notesStore[notesKey(author)] || '';
+          });
           entry.setExpanded(true);
         } else {
-          editor.setAttribute('aria-disabled', 'true');
+          editors.forEach(function (editor) {
+            editor.setAttribute('aria-hidden', 'true');
+          });
           hint.style.display = '';
           entry.setExpanded(false);
         }
+        refreshPills();
 
         async function persistNote(author, value) {
           try {
@@ -1660,27 +1698,38 @@
           }
 
           refreshPills();
-          if (hasAnyData()) entry.setExpanded(true);
+          if (hasAnyData() || anyEditorVisible()) entry.setExpanded(true);
         }
 
         pills.forEach(function (pill) {
           pill.addEventListener('click', function () {
             const author = pill.getAttribute('data-author');
-            setActiveAuthor(author);
+            const input = getInput(author);
+            const nextVisible = !isAuthorVisible(author);
+            setAuthorVisible(author, nextVisible);
+            if (nextVisible && input) {
+              input.value = notesStore[notesKey(author)] || '';
+              input.focus();
+            }
+            refreshPills();
             entry.setExpanded(true);
           });
         });
 
-        input.addEventListener('input', function () {
-          if (!activeAuthor) return;
-          const value = input.value.trim();
-          notesStore[notesKey(activeAuthor)] = value;
-          refreshPills();
-          if (value) entry.setExpanded(true);
-          if (saveTimer) clearTimeout(saveTimer);
-          saveTimer = setTimeout(function () {
-            persistNote(activeAuthor, value);
-          }, 500);
+        NOTE_AUTHORS.forEach(function (author) {
+          const input = getInput(author);
+          if (!input) return;
+          input.value = notesStore[notesKey(author)] || '';
+          input.addEventListener('input', function () {
+            const value = input.value.trim();
+            notesStore[notesKey(author)] = value;
+            refreshPills();
+            if (value) entry.setExpanded(true);
+            if (saveTimers[author]) clearTimeout(saveTimers[author]);
+            saveTimers[author] = setTimeout(function () {
+              persistNote(author, value);
+            }, 500);
+          });
         });
       });
     }
