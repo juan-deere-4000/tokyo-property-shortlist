@@ -163,10 +163,22 @@
       user-select: none;
     }
     .filters .sort-wrap {
-      margin-left: auto;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+    }
+    .filters .select-prefix {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .filters .select-prefix-label {
+      position: absolute;
+      left: 10px;
+      color: #2f4058;
+      font-weight: 600;
+      font-size: 13px;
+      pointer-events: none;
     }
     .filters .hide-wrap {
       position: relative;
@@ -221,6 +233,9 @@
       color: #2f4058;
       font-weight: 600;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .filters .select-prefix select {
+      padding-left: 56px; /* room for "Sort:" */
     }
     .filters select:hover {
       border-color: #b9c7da;
@@ -551,18 +566,18 @@
         max-width: none;
         width: auto;
       }
-      .ratings-table tr td:last-child {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding-top: 10px;
-      }
-      .ratings-table tr td:last-child::before {
-        content: "Veto";
-        color: #42566f;
-        font-weight: 600;
-      }
-    }
+	      .ratings-table tr td:last-child {
+	        display: flex;
+	        align-items: center;
+	        gap: 10px;
+	        padding-top: 4px;
+	        padding-bottom: 14px;
+	      }
+	      .ratings-table tr td:last-child::before {
+	        content: "";
+	        display: none;
+	      }
+	    }
 
     @media (max-width: 760px) {
       /* Header: put score/price/star under the title and allow wrapping. */
@@ -634,30 +649,25 @@
       }
     }
 
-    @media (max-width: 420px) {
-      .filters {
-        gap: 10px;
-      }
-      .filters .hide-wrap,
-      .filters .sort-wrap {
-        width: 100%;
-      }
-      .filters .sort-wrap {
-        margin-left: 0;
-        justify-content: space-between;
-      }
-      .filters .hide-wrap {
-        justify-content: flex-start;
-      }
-      .filters select {
-        width: 100%;
-      }
-    }
+    /* No special filter breakpoints; the filter bar should wrap naturally. */
   </style>
 </head>
 <body>
   <h1>🏠 Tokyo Property Shortlist</h1>
   <div class="filters">
+    <span class="sort-wrap">
+      <span class="select-prefix">
+        <span class="select-prefix-label">Sort:</span>
+        <select id="sort-by" aria-label="Sort">
+          <option value="score">Score</option>
+          <option value="price">Price</option>
+          <option value="sqm">Sqm</option>
+          <option value="walk">Walking Distance</option>
+          <option value="train">Train Time</option>
+          <option value="total">Total Transit Time</option>
+        </select>
+      </span>
+    </span>
     <span class="hide-wrap">
       <button type="button" class="hide-toggle" id="hide-toggle" aria-expanded="false">Hide</button>
       <div class="hide-menu" id="hide-menu">
@@ -665,17 +675,6 @@
         <label><input type="checkbox" id="hide-sold" checked> Sold</label>
         <label><input type="checkbox" id="hide-vetoed"> Vetoed</label>
       </div>
-    </span>
-    <span class="sort-wrap">
-      <label for="sort-by">Sort</label>
-      <select id="sort-by">
-        <option value="score">Score</option>
-        <option value="price">Price</option>
-        <option value="sqm">Sqm</option>
-        <option value="walk">Walking Distance</option>
-        <option value="train">Train Time</option>
-        <option value="total">Total Transit Time</option>
-      </select>
     </span>
   </div>
   
@@ -1025,32 +1024,64 @@
   <script src="notes-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const NOTES_CONFIG = Object.assign(
-      {
-        supabaseUrl: '',
-        supabaseAnonKey: '',
-        table: 'property_notes',
-        notesByAuthorTable: 'property_notes_by_author',
-        starTable: 'property_flags',
-        ratingTable: 'property_ratings',
-        vetoTable: 'property_vetoes',
-        preferencesTable: 'user_preferences'
-      },
-      window.NOTES_CONFIG || {}
-    );
+	    const NOTES_CONFIG = Object.assign(
+	      {
+	        supabaseUrl: '',
+	        supabaseAnonKey: '',
+	        table: 'property_notes',
+	        notesByAuthorTable: 'property_notes_by_author',
+	        starTable: 'property_flags',
+	        ratingTable: 'property_ratings',
+	        vetoTable: 'property_vetoes'
+	      },
+	      window.NOTES_CONFIG || {}
+	    );
 
     // Fail hard if Supabase config is missing
     if (!NOTES_CONFIG.supabaseUrl || !NOTES_CONFIG.supabaseAnonKey) {
       throw new Error('Supabase config missing: supabaseUrl and supabaseAnonKey required in NOTES_CONFIG');
     }
 
-    const USER_ID = 'default';
-    const RATERS = ['Joe', 'Max', 'Michelle'];
-    const NOTE_AUTHORS = ['Joe', 'Max', 'Michelle', 'Agent'];
-    const METRICS = ['Neighborhood', 'Transit', 'Layout'];
-    const SORT_OPTIONS = ['score', 'price', 'sqm', 'walk', 'train', 'total'];
+	    const RATERS = ['Joe', 'Max', 'Michelle'];
+	    const NOTE_AUTHORS = ['Joe', 'Max', 'Michelle', 'Agent'];
+	    const METRICS = ['Neighborhood', 'Transit', 'Layout'];
+	    const SORT_OPTIONS = ['score', 'price', 'sqm', 'walk', 'train', 'total'];
+	    const UI_PREFS_STORAGE_KEY = 'tokyo_property_shortlist_ui_prefs_v1';
 
-    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
+	    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
+
+	    function loadUiPrefs() {
+	      const defaults = {
+	        sort_key: 'score',
+	        hide_unstarred: false,
+	        hide_sold: true,
+	        hide_vetoed: false
+	      };
+	      try {
+	        const raw = localStorage.getItem(UI_PREFS_STORAGE_KEY);
+	        if (!raw) return defaults;
+	        const parsed = JSON.parse(raw);
+	        const sortKey = typeof parsed.sort_key === 'string' ? parsed.sort_key : defaults.sort_key;
+	        return {
+	          sort_key: SORT_OPTIONS.includes(sortKey) ? sortKey : defaults.sort_key,
+	          hide_unstarred: Boolean(parsed.hide_unstarred),
+	          hide_sold: parsed.hide_sold !== false, // default true
+	          hide_vetoed: Boolean(parsed.hide_vetoed)
+	        };
+	      } catch (err) {
+	        return defaults;
+	      }
+	    }
+
+	    function saveUiPrefs(patch) {
+	      const next = { ...loadUiPrefs(), ...(patch || {}) };
+	      try {
+	        localStorage.setItem(UI_PREFS_STORAGE_KEY, JSON.stringify(next));
+	      } catch (err) {
+	        // Ignore (e.g. disabled storage); UI still works in-memory.
+	      }
+	      return next;
+	    }
 
     function getPropertySlug(card, idx) {
       const link = card.querySelector('.property-header h2 a');
@@ -1131,11 +1162,11 @@
       return slug + '||' + rater;
     }
 
-    function sortCards() {
-      const sortEl = document.getElementById('sort-by');
-      if (!sortEl) return;
-      const sortKey = sortEl.value || 'score';
-      saveUserPreferences({ sort_key: sortKey });
+	    function sortCards() {
+	      const sortEl = document.getElementById('sort-by');
+	      if (!sortEl) return;
+	      const sortKey = sortEl.value || 'score';
+	      saveUiPrefs({ sort_key: sortKey });
 
       const cards = Array.from(document.querySelectorAll('.property'));
       const footer = document.querySelector('.footer');
@@ -1184,7 +1215,7 @@
       card.dataset.score = avg.toFixed(2);
     }
 
-    function updateVetoPill(card, slug, vetoStore) {
+	    function updateVetoPill(card, slug, vetoStore) {
       const meta = card.querySelector('.meta');
       if (!meta) return;
       const hasVeto = RATERS.some(function (rater) {
@@ -1214,57 +1245,11 @@
       } else {
         meta.appendChild(pill);
       }
-    }
+	    }
 
-    let userPreferences = {
-      sort_key: 'score',
-      hide_unstarred: false,
-      hide_sold: true,
-      hide_vetoed: false
-    };
-
-    async function loadUserPreferences() {
-      try {
-        const { data } = await supabaseClient
-          .from(NOTES_CONFIG.preferencesTable)
-          .select('*')
-          .eq('user_id', USER_ID)
-          .single();
-        if (data) {
-          userPreferences = {
-            sort_key: data.sort_key || 'score',
-            hide_unstarred: data.hide_unstarred || false,
-            hide_sold: data.hide_sold !== false,
-            hide_vetoed: data.hide_vetoed || false
-          };
-        }
-      } catch (err) {
-        console.error('Failed to load user preferences', err);
-      }
-      return userPreferences;
-    }
-
-    async function saveUserPreferences(prefs) {
-      userPreferences = { ...userPreferences, ...prefs };
-      try {
-        await supabaseClient
-          .from(NOTES_CONFIG.preferencesTable)
-          .upsert({
-            user_id: USER_ID,
-            sort_key: userPreferences.sort_key,
-            hide_unstarred: userPreferences.hide_unstarred,
-            hide_sold: userPreferences.hide_sold,
-            hide_vetoed: userPreferences.hide_vetoed,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id' });
-      } catch (err) {
-        console.error('Failed to save user preferences', err);
-      }
-    }
-
-    function applyFilters() {
-      const hideUnstarredEl = document.getElementById('hide-unstarred');
-      const hideSoldEl = document.getElementById('hide-sold');
+	    function applyFilters() {
+	      const hideUnstarredEl = document.getElementById('hide-unstarred');
+	      const hideSoldEl = document.getElementById('hide-sold');
       const hideVetoedEl = document.getElementById('hide-vetoed');
       if (!hideUnstarredEl || !hideSoldEl || !hideVetoedEl) return;
       const hideUnstarred = hideUnstarredEl.checked;
@@ -1274,15 +1259,15 @@
         const starred = card.getAttribute('data-starred') === 'true';
         const sold = card.getAttribute('data-sold') === 'true';
         const vetoed = card.getAttribute('data-vetoed') === 'true';
-        const show = (!hideUnstarred || starred) && (!hideSold || !sold) && (!hideVetoed || !vetoed);
-        card.style.display = show ? '' : 'none';
-      });
-      saveUserPreferences({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed });
-    }
+	        const show = (!hideUnstarred || starred) && (!hideSold || !sold) && (!hideVetoed || !vetoed);
+	        card.style.display = show ? '' : 'none';
+	      });
+	      saveUiPrefs({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed });
+	    }
 
-    async function initStarsAndFilters() {
-      formatPrices();
-      await loadUserPreferences();
+	    async function initStarsAndFilters() {
+	      formatPrices();
+	      const uiPrefs = loadUiPrefs();
 
       const starredSet = new Set();
 
@@ -1402,17 +1387,17 @@
       const hideToggle = document.getElementById('hide-toggle');
       const hideMenu = document.getElementById('hide-menu');
       const hideUnstarredEl = document.getElementById('hide-unstarred');
-      const hideSoldEl = document.getElementById('hide-sold');
-      const hideVetoedEl = document.getElementById('hide-vetoed');
-      const sortEl = document.getElementById('sort-by');
-      if (hideUnstarredEl) hideUnstarredEl.checked = userPreferences.hide_unstarred;
-      if (hideSoldEl) hideSoldEl.checked = userPreferences.hide_sold;
-      if (hideVetoedEl) hideVetoedEl.checked = userPreferences.hide_vetoed;
-      if (sortEl) sortEl.value = userPreferences.sort_key;
-      if (hideUnstarredEl) hideUnstarredEl.addEventListener('change', applyFilters);
-      if (hideSoldEl) hideSoldEl.addEventListener('change', applyFilters);
-      if (hideVetoedEl) hideVetoedEl.addEventListener('change', applyFilters);
-      if (sortEl) sortEl.addEventListener('change', sortCards);
+	      const hideSoldEl = document.getElementById('hide-sold');
+	      const hideVetoedEl = document.getElementById('hide-vetoed');
+	      const sortEl = document.getElementById('sort-by');
+	      if (hideUnstarredEl) hideUnstarredEl.checked = uiPrefs.hide_unstarred;
+	      if (hideSoldEl) hideSoldEl.checked = uiPrefs.hide_sold;
+	      if (hideVetoedEl) hideVetoedEl.checked = uiPrefs.hide_vetoed;
+	      if (sortEl) sortEl.value = uiPrefs.sort_key;
+	      if (hideUnstarredEl) hideUnstarredEl.addEventListener('change', applyFilters);
+	      if (hideSoldEl) hideSoldEl.addEventListener('change', applyFilters);
+	      if (hideVetoedEl) hideVetoedEl.addEventListener('change', applyFilters);
+	      if (sortEl) sortEl.addEventListener('change', sortCards);
       if (hideToggle && hideMenu) {
         hideToggle.addEventListener('click', function (e) {
           e.stopPropagation();
@@ -1827,6 +1812,8 @@
           if (topPill) topPill.setAttribute('data-active', visible ? 'true' : 'false');
           if (editorPill) editorPill.setAttribute('data-active', visible ? 'true' : 'false');
           hint.style.display = anyEditorVisible() ? 'none' : '';
+          // Reorder only when visibility changes (avoids focus loss while typing).
+          reorderEditors();
         }
 
         function reorderEditors() {
@@ -1874,17 +1861,16 @@
               editorPill.setAttribute('data-has-content', v.trim() ? 'true' : 'false');
             }
           });
-          reorderEditors();
         }
 
-        function refreshPills() {
+        function refreshPills(applyLayout) {
           pills.forEach(function (pill) {
             const author = pill.getAttribute('data-author');
             const v = notesStore[notesKey(author)] || '';
             pill.setAttribute('data-has-content', v.trim() ? 'true' : 'false');
             pill.setAttribute('data-active', isAuthorVisible(author) ? 'true' : 'false');
           });
-          applyPillLayout();
+          if (applyLayout !== false) applyPillLayout();
         }
 
         const defaultAuthors = NOTE_AUTHORS.filter(function (author) {
@@ -1906,7 +1892,7 @@
           hint.style.display = '';
           entry.setExpanded(false);
         }
-        refreshPills();
+        refreshPills(true);
 
         async function persistNote(author, value) {
           try {
@@ -1952,7 +1938,7 @@
             console.error('Notes autosave failed for', entry.slug, err);
           }
 
-          refreshPills();
+          refreshPills(false);
           if (hasAnyData() || anyEditorVisible()) entry.setExpanded(true);
         }
 
@@ -1967,7 +1953,7 @@
               input.value = notesStore[notesKey(author)] || '';
               input.focus();
             }
-            refreshPills();
+            refreshPills(true);
             entry.setExpanded(true);
           });
         });
@@ -1984,7 +1970,7 @@
               const topPill = getTopPill(author);
               if (topPill) topPill.style.display = '';
             }
-            refreshPills();
+            refreshPills(true);
           });
         });
 
@@ -1995,7 +1981,8 @@
           input.addEventListener('input', function () {
             const value = input.value.trim();
             notesStore[notesKey(author)] = value;
-            refreshPills();
+            // Don't reorder/hide/show editors while typing; it can steal focus.
+            refreshPills(false);
             if (value) entry.setExpanded(true);
             if (saveTimers[author]) clearTimeout(saveTimers[author]);
             saveTimers[author] = setTimeout(function () {
