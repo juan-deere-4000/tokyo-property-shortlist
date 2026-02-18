@@ -1,0 +1,139 @@
+body {
+    background-color: #FFFFFF;
+    background: none;
+}
+
+.logo {
+    float: left;
+    width: 239px;
+}
+
+.gnav .gnav-list dt a {
+    font-size: 10px;
+}
+
+.ryolink a {
+    line-height: 1.6;
+}
+
+.linkbox-body a {
+    line-height: 1.6;
+}
+
+.dn {
+    display: none;
+}
+
+.bgbox.bgbox--add.bgbox--type4 {
+    padding: 20px 75px;
+    border-top: 1px solid #DDDDDD;
+}
+
+/* clearfix */
+.ui-media:after, .ui-list--hz:after, .ui-list--hz3:after, .ui-list--hz4:after, .ui-tab--base:after, .pickupbox .pickupbox-inner:after, .lightbox .lightbox-link:after, .lightbox .lightbox-areabtn:after, .lightboxitem:after, .lightboxitem .lightboxitem-amounttime:after, .breadcrumb .breadcrumb-list:after, .breadcrumb2:after, .breadcrumb2 dl:after, .sectionmore:after, .subsectionmore:after, .itemlinklisth:after, .itemlisth_singleline:after, .itemlisth:after, .itemlisth2:after, .itemlisthbox > ul:after, .subsmalllistbox > ul:after, .itemlisth3:after, .featuresearchlist:after, .bgbox:after, .seminarbox .seminarbox-link .seminarbox-linklist:after, .seminarboxfull .seminarboxfull-link .seminarboxfull-linklist:after, .counter .counter-header:after, .stickybox.stickybox--type1 > .stickybox-list:after, .stickybox.stickybox--type2:after, .searchareabox.searchareabox--itembox:after, .searchareabox.searchareabox--itembox .searchareabox-title:after, .searchbox:after, .areabtnlist:after, .bglinkbox .bglinkbox-inner:after, .mobilebox:after, .simplesubbannerbox .simplesubbannerbox-list:after, .subitemlisth:after, .subitemlisth2:after, .addbox.addbox--pr:after, .prreadbox:after, .prlistbox > ul:after, .propertydata .propertydata-txt:after, .footbnr .footbnr-list:after, .navbox_group:after, .navbox.navbox--large .navbox-body:after, .navbox.navbox--hz:after, .linkbox_group:after, .linkbox.linkbox--route:after, .linkbox.linkbox--search:after, .linkbox.linkbox--hz:after, .linkbox.linkbox--zentop:after, .ppbox_group:after, .ppbox:after, .logobox:after, .mylist .mylist-inner:after, .mylist .mylist-list:after, .mylist .mylist-member:after, .mylistbarbox .mylistbarbox-inner .mylistbarbox-inner-contents:after, .mylistbar .mylistbar-inbar:after, .mylistbar .mylistbar-inbar .mylistbar-inbar-item:after, .mylistbar .mylistbar-inbar .mylistbar-inbar-item a:after, .loginbox .loginbox-links:after, .browselist:after, .browselist .titlearea:after, .browselist .listarea--article:after, .browselist .historyarea:after, .siteheader .siteheader-inner:after, .desc:after, .logo:after, .gnav .gnav-list:after, .gnav .gnav-list dd:after, .visual:after, .contents:after, .contents_zen:after, .contents_han:after, .propertyinfo:after, .themesearch:after, .themesearch .tokushubox-list:after, .pagination_set:after, .imgheader:after, .imgheader ul:after, .imgheader .imgheader-point:after, .searchcarousel:after, .searchcarousel .searchcarousel-inner:after, .repeatcarousel:after, .repeatcarousel .repeatcarousel-pct:after, .pickupphotos .pickupphotos-labellist:after, .pickupphotos .pickupphotos-labellist02:after, .property_housing .property_housing-label:after, .labelbox02 ul:after, .property_unit:after, .property_unit .property_unit-header:after, .property_unit .property_unit-icons.property_unit-icons--area:after, .property_unit .property_unit-thumblist ul:after, .property_unit .property_unit-lines:after, .dottable dl:after, .dottable--col2 .dottable-fix dl:after, .areacustomersearch .areacustomersearch-title:after, .areacustomersearch.areacustomersearch--wide .areacustomersearch-list:after, .sortbox dl:after, .change-condition .change-condition-list:after, .chisearchterms .chisearchterms-link:after, .chisearchterms .chisearchterms-sublink:after, .inputlist.inputlist--col2:after, .inputlist.inputlist--madori:after, .tabmenu-assist.tabmenu-assist--tright:after, .tabmenu-assist.tabmenu-assist--bright:after, .conditionchange:after, .conditionselect:after, .single_thumbbox .single_thumbbox-detail:after {
+    content: "";
+    display: block;
+    clear: both;
+    height: 0;
+    visibility: hidden;
+}
+
+.ui-media, .ui-list--hz, .ui-list--hz3, .ui-list--hz4, .ui-tab--base, .pickupbox .pickupbox-inner, .lightbox .lightbox-link, .lightbox .lightbox-areabtn, .lightboxitem, .lightboxitem .lightboxitem-amounttime, .breadcrumb .breadcrumb-list, .breadcrumb2, .breadcrumb2 dl, .sectionmore, .subsectionmore, .itemlinklisth, .itemlisth_singleline, .itemlisth, .itemlisth2, .itemlisthbox > ul, .subsmalllistbox > ul, .itemlisth3, .featuresearchlist, .bgbox, .seminarbox .seminarbox-link .seminarbox-linklist, .seminarboxfull .seminarboxfull-link .seminarboxfull-linklist, .counter .counter-header, .stickybox.stickybox--type1 > .stickybox-list, .stickybox.stickybox--type2, .searchareabox.searchareabox--itembox, .searchareabox.searchareabox--itembox .searchareabox-title, .searchbox, .areabtnlist, .bglinkbox .bglinkbox-inner, .mobilebox, .simplesubbannerbox .simplesubbannerbox-list, .subitemlisth, .subitemlisth2, .addbox.addbox--pr, .prreadbox, .prlistbox > ul, .propertydata .propertydata-txt, .footbnr .footbnr-list, .navbox_group, .navbox.navbox--large .navbox-body, .navbox.navbox--hz, .linkbox_group, .linkbox.linkbox--route, .linkbox.linkbox--search, .linkbox.linkbox--hz, .linkbox.linkbox--zentop, .ppbox_group, .ppbox, .logobox, .mylist .mylist-inner, .mylist .mylist-list, .mylist .mylist-member, .mylistbarbox .mylistbarbox-inner .mylistbarbox-inner-contents, .mylistbar .mylistbar-inbar, .mylistbar .mylistbar-inbar .mylistbar-inbar-item, .mylistbar .mylistbar-inbar .mylistbar-inbar-item a, .mylistbar.mylistbar--nb .mylistbar-inbar .mylistbar-inbar-item a, .loginbox .loginbox-links, .browselist, .browselist .titlearea, .browselist .listarea--article, .browselist .historyarea, .siteheader .siteheader-inner, .desc, .logo, .gnav .gnav-list, .gnav .gnav-list dd, .visual, .contents, .contents_zen, .contents_han, .propertyinfo, .themesearch, .themesearch .tokushubox-list, .pagination_set, .imgheader, .imgheader ul, .imgheader .imgheader-point, .searchcarousel, .searchcarousel .searchcarousel-inner, .repeatcarousel, .repeatcarousel .repeatcarousel-pct, .pickupphotos .pickupphotos-labellist, .pickupphotos .pickupphotos-labellist02, .property_housing .property_housing-label, .labelbox02 ul, .property_unit, .property_unit .property_unit-header, .property_unit .property_unit-icons.property_unit-icons--area, .property_unit .property_unit-thumblist ul, .property_unit .property_unit-lines, .dottable dl, .dottable--col2 .dottable-fix dl, .areacustomersearch .areacustomersearch-title, .areacustomersearch.areacustomersearch--wide .areacustomersearch-list, .sortbox dl, .change-condition .change-condition-list, .chisearchterms .chisearchterms-link, .chisearchterms .chisearchterms-sublink, .inputlist.inputlist--col2, .inputlist.inputlist--madori, .tabmenu-assist.tabmenu-assist--tright, .tabmenu-assist.tabmenu-assist--bright, .conditionchange, .conditionselect, .single_thumbbox .single_thumbbox-detail {
+    min-height: 1px;
+    _height: 1px;
+}
+
+/* bredcrumb */
+.breadcrumb {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.breadcrumb .breadcrumb-inner {
+    width: 950px;
+    margin: 0 auto;
+}
+.breadcrumb .breadcrumb-list li {
+    float: left;
+}
+.breadcrumb.breadcrumb--foot {
+    margin-top: 30px;
+}
+.breadcrumb.breadcrumb--foot .breadcrumb-inner {
+    padding-top: 10px;
+    border-top: 1px solid #DDDDDD;
+}
+
+.formtable {
+    margin-top: 20px;
+    border-right: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+.formtable th {
+    padding: 15px 10px 5px;
+    border-top: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    vertical-align: top;
+    line-height: 1.6;
+}
+
+.formtable td {
+    padding: 15px 20px;
+    border-top: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+    vertical-align: middle;
+}
+
+.thSideDYellow {
+    background-color: #FFF2E4;
+}
+
+.ui-section--h2 .conditiontable {
+    width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+    border-right: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+.ui-section--h2 .conditiontable th {
+    border-top: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+}
+
+.ui-section--h2 .conditiontable td {
+    border-top: 1px solid #CCCCCC;
+    border-left: 1px solid #CCCCCC;
+}
+
+#contents .link_tagline_section .directory_link .pankuzu_disp p {
+    margin-top: 20px;
+}
+
+.seoMsSeoAreaTtl {
+    margin-top: 20px;
+}
+
+.ui-icon--logo,
+.ui-icon--yahoo,
+.ui-icon--google,
+.ui-icon--facebook,
+.ui-icon--twitter,
+.ui-icon--recruitid {
+    text-indent: 0;
+}
+
+.l-browse_morelink_box {
+  margin-top: 20px;
+}
+
+.browse_morelink_box {
+  text-align: center;
+}
+
+.browse_morelink .browse_morelink-text {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+  text-decoration: underline;
+}

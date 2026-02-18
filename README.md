@@ -1,46 +1,89 @@
-# Tokyo Property Shortlist
+# Tokyo Shortlist (LLM-Compact)
 
-A public shortlist of Tokyo apartments near Ginza station, built for easy browsing on mobile and desktop.
+Live site: https://juan-deere-4000.github.io/tokyo-property-shortlist/
 
-## Live Site
+## Scope
 
-🔗 **https://juan-deere-4000.github.io/tokyo-property-shortlist/**
+This repo stores the rendered shortlist site and raw property HTML captures under `properties/`.
 
-## About
+## Data Model
 
-This site lists 13 Tokyo apartments within 40 minutes of Ginza station. Properties are sorted by "door-to-door" time (walk to station + transit to Ginza).
+Primary transit metric:
+- `door_to_door_min = walk_min + transit_min`
 
-All properties are under ¥32M (~$210k), at least 37m², and in central Tokyo wards.
+Sort order target:
+- ascending `door_to_door_min`
 
-## How It Works
+## Property HTML Conversion Rules
 
-### Data Source
+Goal: make each property HTML load from its local extracted assets.
 
-Properties come from:
-- SUUMO (スーモ) - Japanese real estate listings
-- Yahoo! Realty Japan
+For each `properties/<name>.html`:
+- expected local assets folder: `properties/<name>_files/`
+- special case allowed:
+  - `nakamachi-corp.html` may use
+    `[SUUMO] Nakamachi Corporas Used Apartment Property Information_files/`
 
-### Metrics
+### Rewrite Targets (only these)
 
-- **Walk to Station**: Minutes from property to nearest station
-- **Transit to Ginza**: Minutes from nearest station to Ginza (via Google Maps)
-- **Ginza Door-to-Door**: Total time = walk + transit
+Rewrite `href/src` paths when they start with:
+- `krcommon/`
+- `jjcommon/`
+- `assets/suumo/`
+- `/library/` (library pages)
+- optional prefixed forms are also targets:
+  - `/jj/<target>`
+  - `https://suumo.jp/<target>`
 
-### Updates
+### Rewrite Method
 
-The site is rebuilt from the source data in `tokyo-properties/` project. Edits are pushed to GitHub and deployed via GitHub Pages.
+- Strip domain/prefix/querystring.
+- Keep basename only.
+- Map to local folder.
 
-## Repository
+Examples:
+- `krcommon/css/common.css?1661472838000` -> `oedo-corp_files/common.css`
+- `/jj/jjcommon/js/dropdown.js` -> `oedo-corp_files/dropdown.js`
+- `https://suumo.jp/library/js/library.js?20260218` -> `ojima-royal-mansion_files/library.js`
 
-- **Source**: https://github.com/juan-deere-4000/tokyo-property-shortlist
-- **Data Project**: https://github.com/juan-deere-4000/tokyo-properties
+### Do NOT Rewrite
 
-## Tech
+Keep external non-asset links as-is, e.g.:
+- Google Fonts
+- analytics/ads/tracking scripts
+- other external CDNs
 
-- Plain HTML/CSS (no JS required)
-- GitHub Pages for hosting
-- GitHub Actions for deployment (automatic on push)
+## Validation Commands
 
-## Author
+No remaining targeted raw asset prefixes:
+```bash
+rg -n '(href|src)="(?:https?://suumo\.jp)?/?(?:jj/)?(?:krcommon/|jjcommon/|assets/suumo/|library/)' properties/*.html
+```
 
-Built by Juan Deere-4000 🤖
+Show local `_files` references:
+```bash
+rg -n '(href|src)="[^\"]*_files/[^\"]+"' properties/*.html | head
+```
+
+Quick existence check for rewritten assets (sample):
+```bash
+for f in properties/*.html; do
+  echo "--- $f"
+  rg -o "[-_A-Za-z0-9\\[\\] .]+_files/[^\"' ]+" "$f" | head -n 10
+done
+```
+
+## Current Target Set
+
+- happy-heights-kameido.html
+- hasegawa-heights.html
+- heitsu-otowa.html
+- kasuga-town-home.html
+- koken-heights-mejiro.html
+- nakamachi-corp.html
+- oedo-corp.html
+- ojima-royal-mansion.html
+- palast-nippori.html
+- palm-house-bunkyo.html
+- tabata-mansion.html
+- yotsuya-high-corp.html

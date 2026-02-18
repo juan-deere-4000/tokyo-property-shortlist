@@ -1,0 +1,134 @@
+@charset "utf-8";
+
+/* ヘッダー　ログインボタンのドロップダウン */
+#login_dropdown_wrapper{
+    width:120px;
+    z-index:200;
+    position:relative;
+    text-align:left;
+    display:none;
+}
+#login_dropdown_wrapper.global_navi_kr{
+    width:120px;
+    z-index:200;
+    position:absolute;
+    text-align:left;
+    display:none;
+}
+#list_login.zenkoku_top{
+    position:absolute;
+    top:15px;
+    left:767px;
+}
+#list_login.area_top{
+    position:absolute;
+    top:12px;
+    left:767px;
+}
+#list_login{
+    position:absolute;
+    top:-5px;
+    left:566px;
+}
+#list_login ul.dropdownList {
+    width:181px;
+    margin:0px 0px 0px 0px;
+    padding:8px 0px 0px 0px;
+    list-style:none;
+    border-bottom:1px solid #3d9973;
+    background:url(../img/bg_header_login_dropdown.gif);
+    background-position: center top;
+    background-repeat: no-repeat;
+    display:block;
+}
+#list_login li {
+    width:179px;
+    padding:0;
+    margin:0;
+    display:block;
+    border-right:1px solid #3d9973;
+    border-left:1px solid #3d9973;
+    font-size:12px;
+    line-height:1.2;
+    background:#fff;
+}
+#list_login.area_top li {
+    width:179px;
+    padding:0;
+    margin:0;
+    display:block;
+    border-right:1px solid #3d9973;
+    border-left:1px solid #3d9973;
+    font-size:12px;
+    line-height:1.1;
+    background:#fff;
+}
+#list_login li.suumoIcn {
+	padding-top: 3px;
+}
+
+#list_login li.suumoIcn a{
+    background: url(../img/img_header_login_suumo.gif) 0 50% no-repeat;
+}
+#list_login li.twIcn a{
+    background: url(../img/img_header_login_socialTw.gif) 0 50% no-repeat;
+}
+#list_login li.fbIcn a{
+    background: url(../img/img_header_login_socialFb.gif) 0 50% no-repeat;
+}
+#list_login li.yaIcn a{
+    background: url(../img/img_header_login_socialYa.gif) 0 50% no-repeat;
+}
+#list_login li.goIcn a{
+    background: url(../img/img_header_login_socialGo.gif) 0 50% no-repeat;
+}
+#list_login li.jalanHpIcn a{
+    background: url(../img/img_header_login_socialJalanHp.gif) 0 50% no-repeat;
+}
+#list_login a,
+#list_login a:active,
+#list_login a:visited {
+    display:block;
+    padding:2px 7px 2px 20px;
+    margin-left:3px;
+    color:#0066cc;
+    text-decoration:underline;
+    width:146px;
+}
+#list_login a:hover {
+    color:#0080ff;
+}
+
+.mh					{ background: url(../img/sprites/m.png) no-repeat; }
+.mhb				{ background: url(../img/sprites/m.png) no-repeat; text-indent: -9999px; overflow: hidden; display: block; }
+
+.icSuumo			{ background-position: -286px 0; padding-left: 20px; }
+.icFacebook			{ background-position: -286px -74px; padding-left: 20px; margin-top: 3px; }
+.icTwitter			{ background-position: -286px -148px; padding-left: 20px; margin-top: 3px; }
+.icYahoo			{ background-position: -286px -296px; padding-left: 20px; margin-top: 3px; }
+.icGoogle			{ background-position: -286px -222px; padding-left: 20px; margin-top: 3px; }
+.icPepperJaran		{ background-position: -286px -370px; padding-left: 20px; margin-top: 3px; }
+
+.btIdLogin			{ background-position: 0 -30px; width: 91px; height: 16px;}
+
+.btIdvarious		{ background-position: 0 -46px; width: 91px; height: 16px;}
+.btIdvarious:hover,
+.btIdvarious:active	{ background-position: 0 -62px;}
+
+.btNewEntry			{ background-position: 0 -158px; width: 124px; height: 25px;}
+.btNewEntry:hover,
+.btNewEntry:active	{ background-position: 0 -183px; }
+
+.dropdownArea		{ border-left: 1px solid #3D9973; border-right: 1px solid #3D9973; border-bottom: 1px solid #3D9973; background-color: #fff; margin:0; padding: 3px; width:177px; font-size:12px; line-height:1.2;}
+.loginHeader		{ background-position: -28px 0; padding-top: 8px; position: absolute; left: 572px; top: -5px; }
+.loginHeaderATop	{ background-position: -18px 0; padding-top: 8px; position: absolute; left: 562px; top: -5px; }
+.mT1				{ margin-top: 1px; }
+.mT5				{ margin-top: 5px; }
+.mR4				{ margin-right: 4px; }
+.pT100				{ padding-top: 100px; }
+.taC				{ text-align: center; }
+.dibz				{ display: inline-block !important; *display: inline !important; zoom: 1; }
+.vat				{ vertical-align: top; }
+
+.mB10_header		{margin-bottom: 10px;}
+.mT11_header		{margin-top: 11px;}

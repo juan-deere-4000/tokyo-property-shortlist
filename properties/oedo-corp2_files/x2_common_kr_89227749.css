@@ -1,0 +1,1369 @@
+@charset "UTF-8";
+/* clearfix */
+.recommend_inner:after, .recommend_inner .recommend_inner-block:after, .recommend_box_item:after, .recommendcard_inner:after, .recommendcard_inner .recommendcard_inner-block:after, .recommendcard_box_item:after {
+  content: "";
+  display: block;
+  clear: both;
+  height: 0;
+  visibility: hidden;
+}
+
+.recommend_inner, .recommend_inner .recommend_inner-block, .recommend_box_item, .recommendcard_inner, .recommendcard_inner .recommendcard_inner-block, .recommendcard_box_item {
+  min-height: 1px;
+  _height: 1px;
+}
+
+.l-recommend_checkbox {
+  margin-top: 50px;
+}
+
+/*
+* thickbox設定(thickbox_kr.css)
+*/
+#TB_overlay {
+  position: fixed;
+  z-index: 100;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+}
+
+#TB_window {
+  position: fixed;
+  background: #ffffff;
+  z-index: 102;
+  color: #000000;
+  display: none;
+  border: 4px solid #525252;
+  text-align: left;
+  top: 50%;
+  left: 50%;
+}
+
+#TB_ajaxContent {
+  clear: both;
+  padding: 2px 15px 15px 15px;
+  overflow: auto;
+  text-align: left;
+  line-height: 1.4em;
+}
+
+/* ↓↓↓ie6 hack↓↓↓ */
+* html #TB_overlay {
+  position: absolute;
+  height: expression(fixHeight(document.body.scrollHeight, document.body.offsetHeight));
+}
+
+* html #TB_window {
+  position: absolute;
+  margin-top: expression(fixMarginTop(this.offsetHeight,document.documentElement,document.body.scrollTop));
+}
+
+/* ↑↑↑ie6 hack↑↑↑ */
+/*
+* lightbox(kr)の設定
+*/
+/* 写真拡大*/
+.jsiKrThickbox {
+  width: 605px;
+}
+
+/* 間取り拡大*/
+.jsiKrMadoriThickbox {
+  width: 605px;
+}
+
+/*写真モーダル用追記*/
+#nyroModalWrapper #nyroModalContent {
+  background: none;
+}
+
+#nyroModalContent .jsKrTBinner {
+  background: #FFFFFF;
+  padding-bottom: 10px;
+}
+
+#nyroModalWrapper p.nyroModalClose {
+  padding-top: 0;
+}
+
+/*
+* ↓↓↓価格更新お知らせメール start↓↓↓
+*/
+.TB_overlayBG {
+  background-color: black;
+  filter: alpha(opacity=75);
+  -moz-opacity: 0.75;
+  opacity: 0.75;
+}
+
+#TB_window {
+  background-color: transparent;
+}
+
+#TB_window {
+  border: none;
+}
+
+#TB_window {
+  z-index: 102;
+  color: black;
+  text-align: left;
+  left: 50%;
+}
+
+#TB_window {
+  font: 12px 'メイリオ', 'meiryo', Arial, Helvetica, sans-serif;
+}
+
+#TB_title {
+  display: none;
+}
+
+#TB_title {
+  background-color: #E8E8E8;
+  height: 27px;
+}
+
+#TB_ajaxContent {
+  background-color: white;
+}
+
+#TB_ajaxContent {
+  padding: 0;
+}
+
+div {
+  display: block;
+}
+
+.thickbox_title_section {
+  background-color: #F0F0F0;
+  padding: 5px;
+  border-bottom: 1px solid #D8D8D8;
+}
+
+.clr:after {
+  content: "";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+/* ============================== css hack */
+/* floating box clear */
+.clr {
+  display: inline-table;
+  min-height: 1%;
+}
+
+/* Hide from mac IE5 \*/
+* html .clr {
+  height: 1%;
+}
+
+.clr {
+  display: block;
+}
+
+/* ============================== css hack */
+.thickbox_title_section .thickbox_title {
+  width: 300px;
+  float: left;
+  color: #1F4D39;
+  font-size: 117%;
+  font-weight: bold;
+  margin-top: 2px;
+  border-left: 3px solid #3D9973;
+  padding-left: 5px;
+}
+
+#TB_ajaxContent p {
+  padding: 5px 0px 5px 0px;
+}
+
+.thickbox_title_section p {
+  width: 100px;
+  float: right;
+  text-align: right;
+}
+
+#TB_window .thickbox_iframe a:link {
+  color: #06C;
+}
+
+#hi09001_td .form_table {
+  background: none;
+  width: 95%;
+  margin-top: 20px;
+}
+
+.thickbox_iframe table {
+  margin: 0 auto;
+}
+
+.form_table {
+  border-collapse: separate;
+}
+
+.thickbox_iframe form {
+  margin: 0;
+}
+
+#hi09001_td .form_table {
+  background: none;
+  width: 95%;
+  margin-top: 20px;
+}
+
+/* agreement_box */
+.agreement_box {
+  border: 1px solid #CCC;
+  height: 200px;
+  line-height: 1.5;
+  margin: 10px auto 0;
+  overflow-y: scroll;
+  padding: 5px;
+  width: 95%;
+}
+
+/* js_message */
+.js_message {
+  padding-top: 20px;
+  color: white;
+  text-align: center;
+}
+
+/*
+* ↑↑↑価格更新お知らせメール end↑↑↑
+*/
+/*
+* ↓↓↓物件情報にメールを送る start↓↓↓
+*/
+/* nyroModalFull */
+/* 間取り拡大の間取り概要に影響があるため設定しない
+div#nyroModalFull {font-size: 12px;color: #777;font-family: 'メイリオ','meiryo',Verdana;}
+*/
+div {
+  display: block;
+}
+
+/* nyroModalWrapper */
+div#nyroModalFull div#nyroModalWrapper, div#nyroModalFull div#nyroModalLoading {
+  border: none;
+}
+
+div#nyroModalFull div#nyroModalWrapper {
+  border: 4px solid #777;
+}
+
+div#nyroModalWrapper {
+  background: none !important;
+}
+
+/* nyroModalContent */
+div#nyroModalFull div#nyroModalWrapper div.wrapper div#nyroModalContent {
+  padding: 0;
+}
+
+div#nyroModalContent {
+  background-color: white;
+}
+
+div {
+  display: block;
+}
+
+/* thickbox_iframe thickbox_gallery */
+#nyroModalContent .thickbox_iframe {
+  font-family: 'メイリオ', 'meiryo', Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  color: black;
+}
+
+div {
+  display: block;
+}
+
+/* thickbox_title_section clr */
+.thickbox_title_section {
+  background-color: #F0F0F0;
+  padding: 5px;
+  border-bottom: 1px solid #D8D8D8;
+}
+
+.clr {
+  display: block;
+}
+
+/* thickbox_title */
+.thickbox_title_section .thickbox_title {
+  width: 300px;
+  float: left;
+  color: #1F4D39;
+  font-size: 117%;
+  font-weight: bold;
+  margin-top: 2px;
+  border-left: 3px solid #3D9973;
+  padding-left: 5px;
+}
+
+#nyroModalContent .thickbox_iframe p {
+  padding: 5px 0;
+}
+
+.thickbox_title_section p {
+  width: 100px;
+  float: right;
+  text-align: right;
+}
+
+#nyroModalContent .thickbox_iframe a:link {
+  color: #06C;
+}
+
+/* form_over_txt */
+#nyroModalContent .thickbox_iframe p.form_over_txt {
+  line-height: 1.5;
+  margin: 20px auto 0;
+  width: 95%;
+}
+
+#nyroModalContent .thickbox_iframe p {
+  padding: 5px 0;
+}
+
+/* contact_form2 */
+.thickbox_iframe form {
+  margin: 0;
+}
+
+#nyroModalContent .thickbox_iframe a:link {
+  color: #06C;
+}
+
+/* form_table */
+#nyroModalContent .thickbox_gallery table {
+  margin-top: 20px;
+  width: 95%;
+}
+
+.thickbox_gallery table {
+  margin: 20px auto 0;
+}
+
+.form_table {
+  border-collapse: separate;
+}
+
+/* item_name */
+#nyroModalContent .form_table tr.has_top_border th {
+  background-color: #FFF6E5;
+  border-right: medium none;
+}
+
+.form_table tr.has_top_border th, .form_table tr.has_top_border td {
+  border-top: 1px solid #CCC;
+}
+
+.thickbox_iframe table th {
+  padding: 10px 0 10px 10px;
+  font-weight: bold;
+}
+
+.form_table th {
+  background-color: #FFF6E5;
+  font-weight: bold;
+  border-left: 1px solid #CCC;
+}
+
+.form_table th, .form_table td {
+  border-bottom: 1px solid #CCC;
+  line-height: 1.3;
+  vertical-align: middle;
+}
+
+/* entry_format */
+#nyroModalContent .form_table tr.has_top_border th {
+  background-color: #FFF6E5;
+  border-right: medium none;
+}
+
+.form_table tr.has_top_border th, .form_table tr.has_top_border td {
+  border-top: 1px solid #CCC;
+}
+
+.form_table th.entry_format {
+  border-left: none;
+  font-weight: normal;
+  padding-left: 0;
+}
+
+.thickbox_iframe table th {
+  padding: 10px 0 10px 10px;
+}
+
+.form_table th, .form_table td {
+  border-bottom: 1px solid #CCC;
+  line-height: 1.3;
+  vertical-align: middle;
+}
+
+#nyroModalContent .form_table tr.has_top_border td {
+  background: transparent none repeat scroll 0 0;
+  border-left: 1px solid #CCC;
+  padding: 10px;
+  width: 60%;
+}
+
+.form_table tr.has_top_border th, .form_table tr.has_top_border td {
+  border-top: 1px solid #CCC;
+}
+
+.thickbox_gallery table td {
+  vertical-align: middle;
+}
+
+.form_table th, .form_table td {
+  border-right: 1px solid #CCC;
+  border-bottom: 1px solid #CCC;
+  line-height: 1.3;
+}
+
+#kr01802 .data_table th, td {
+  text-align: left;
+}
+
+.form_table input {
+  vertical-align: middle;
+  margin-right: 3px;
+}
+
+#nyroModalContent .form_table tr.has_top_border td img {
+  margin-right: 3px;
+  vertical-align: middle;
+}
+
+#nyroModalContent .thickbox_iframe p {
+  padding: 5px 0;
+}
+
+.form_table .note {
+  font-weight: normal;
+  color: #666;
+}
+
+.note {
+  font-size: 84%;
+  line-height: 1.5;
+}
+
+/* mailError */
+#nyroModalContent .thickbox_gallery table {
+  margin-top: 20px;
+  width: 95%;
+}
+
+.thickbox_gallery table {
+  margin: 20px auto 0;
+}
+
+.form_table {
+  border-collapse: separate;
+}
+
+#nyroModalContent .thickbox_iframe p.form_over_txt {
+  line-height: 1.5;
+  margin: 20px auto 0;
+  width: 95%;
+}
+
+#nyroModalContent .thickbox_iframe p {
+  padding: 5px 0;
+}
+
+#nyroModalContent .thickbox_iframe a:link {
+  color: #06C;
+}
+
+.thickbox_iframe form {
+  margin: 0;
+}
+
+#nyroModalContent .thickbox_iframe a:link {
+  color: #06C;
+}
+
+a:-webkit-any-link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* js_message */
+.js_message {
+  padding-top: 20px;
+  color: white;
+  text-align: center;
+}
+
+/* nyrModalTmp */
+/* nyroModalLoading */
+div#nyroModalFull div#nyroModalWrapper, div#nyroModalFull div#nyroModalLoading {
+  border: none;
+}
+
+div#nyroModalFull div#nyroModalLoading {
+  border: 4px solid #777;
+  text-indent: -9999em;
+  background: white url(../img/ajaxLoader.gif) no-repeat;
+  background-position: center;
+}
+
+/*
+* ↑↑↑物件情報にメールを送る end↑↑↑
+*/
+/* ↓↓↓↓↓↓↓↓↓↓↓↓↓↓ 資料請求のCSS ↓↓↓↓↓↓↓↓↓↓↓↓↓↓ */
+.jscErrorMsg {
+  margin-top: 0;
+  color: #ff0000;
+  font-weight: bold;
+  line-height: 1.6;
+}
+
+.address_entry_supporter {
+  background-color: #FFFFFF;
+  border: 1px solid #999999;
+  display: none;
+}
+
+.address_entry_supporter a {
+  display: block;
+  padding: 5px 8px;
+}
+
+.bdWhite2 {
+  border: 2px solid #FFFFFF;
+}
+
+/* entry_flow */
+.form_finish #contents .entry_flow {
+  margin-top: 10px;
+}
+
+/* inline_list */
+ul.inline_list li {
+  display: inline;
+}
+
+.inline_list img {
+  vertical-align: middle;
+}
+
+/* below_h1 */
+.form_confirm .below_h1 {
+  margin-top: 10px;
+}
+
+/* seo_first_top */
+#contents .seo_first_top {
+  margin-top: 5px;
+}
+
+/* data_table */
+.data_table {
+  border-collapse: separate;
+  width: 100%;
+  margin-top: 10px;
+  border-bottom: 1px solid #CCC;
+  border-right: 1px solid #CCC;
+}
+
+.data_table th,
+.data_table td {
+  border-left: 1px solid #CCC;
+  border-top: 1px solid #CCC;
+  padding: 10px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.data_table th {
+  vertical-align: middle;
+}
+
+.data_table td,
+.data_table td img {
+  vertical-align: middle;
+}
+
+.data_table tr th {
+  background-color: #F0F0F0;
+}
+
+.data_table th a,
+.data_table td a {
+  line-height: 1.6;
+}
+
+.data_table thead th,
+.data_table thead td {
+  line-height: 1.3;
+}
+
+.data_table thead th {
+  background-color: #E3E3E3;
+}
+
+.data_table thead td,
+.data_table tbody th {
+  background-color: #F0F0F0;
+  vertical-align: middle;
+}
+
+.data_table td.selected_td {
+  background-color: #F3FFE5;
+}
+
+.data_table td.rent_lower {
+  border-right: 1px solid #F0F0F0;
+  background-color: #FFF6E5;
+  text-align: left;
+}
+
+.data_table td.weight_high {
+  background-color: #FEE1A7;
+}
+
+.data_table td.rent_lower img {
+  padding-right: 5px;
+}
+
+.data_table td.rent_center {
+  text-align: center;
+  border-right: 1px solid #F0F0F0;
+}
+
+.data_table td.rent_higher {
+  text-align: right;
+}
+
+.data_table td.rent_higher img {
+  padding-left: 5px;
+}
+
+.data_table td.weight_medium {
+  background-color: #FFECC6;
+}
+
+.data_table td.weight_low {
+  background-color: #FFF6E5;
+}
+
+.data_table td.rent_lower,
+.data_table td.rent_center,
+.data_table td.rent_higher {
+  background-color: #F0F0F0;
+}
+
+.data_table tbody td.checkbox_td {
+  width: 14px;
+  vertical-align: middle;
+}
+
+.data_table tbody td .multi_column p {
+  float: left;
+  margin-top: 0;
+}
+
+.data_table tbody td .multi_column ul {
+  float: right;
+  width: 123px;
+}
+
+.data_table tbody td .multi_column ul li.first_column {
+  margin-top: 0;
+}
+
+.data_table tbody td .multi_column ul li {
+  margin-top: 5px;
+}
+
+.data_table strong {
+  font-weight: bold;
+  color: #C01718;
+  font-size: 117%;
+}
+
+.data_table em {
+  font-weight: bold;
+}
+
+/* data_table_search */
+.data_table_search {
+  border-right: none;
+}
+
+.data_table_search td.blank_td {
+  border-left: none;
+  height: 10px;
+  padding: 0;
+  font-size: 1px;
+}
+
+.data_table_search td.blank_td_low {
+  border-left: none;
+  height: 2px;
+  padding: 0;
+  font-size: 1px;
+}
+
+.data_table_search td.blank_td_col {
+  border-top: none;
+  border-bottom: none;
+  width: 10px;
+  padding: 0;
+  font-size: 1px;
+}
+
+/* checkbox_td */
+.data_table tbody td.checkbox_td {
+  width: 14px;
+  vertical-align: middle;
+}
+
+/* selected_item_table(data_table) */
+.form_confirm .selected_item_table {
+  margin-top: 20px;
+}
+
+.form_confirm .selected_item_table .data_01 {
+  width: 4%;
+}
+
+.form_confirm .selected_item_table .data_02 {
+  width: 43%;
+}
+
+.form_confirm .selected_item_table .data_03 {
+  width: 43%;
+}
+
+.form_confirm .selected_item_table .data_04 {
+  width: 10%;
+}
+
+/* btn_submit */
+.btn_submit {
+  text-align: center;
+}
+
+/* has_side_control */
+#hi07026 #contents .has_side_control {
+  margin-top: -25px;
+}
+
+/* ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 資料請求のCSS ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ */
+sup {
+  vertical-align: top;
+}
+
+.l-recommend {
+  margin-top: 68px;
+}
+
+.recommend .recommend-header {
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ccc;
+}
+.recommend .recommend-header .recommend-header-title {
+  font-size: 16px;
+  font-weight: bold;
+  padding-left: 10px;
+  line-height: 20px;
+  border-left: 3px solid #8E7F11;
+}
+.recommend .recommend-body {
+  background-color: #eee;
+  margin-top: 10px;
+}
+
+.recommend_container {
+  position: relative;
+  padding-left: 42px;
+  padding-right: 42px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.recommend_container .recommend_container-prev {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-top: -55px;
+  padding-left: 10px;
+}
+.recommend_container .recommend_container-area {
+  overflow: hidden;
+  width: 836px;
+}
+.recommend_container .recommend_container-next {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  margin-top: -55px;
+  padding-right: 10px;
+}
+
+.recommend_btn {
+  display: none;
+  width: 18px;
+  height: 120px;
+  text-indent: -9999px;
+  border: solid 1px #d4d5d0;
+  border-radius: 4px;
+  box-shadow: 0 -2px 0 0 #efefef inset, 0 0 1px 0 #ccc;
+  background-color: #FFF;
+  position: relative;
+  outline: none;
+}
+.recommend_btn.recommend_btn--next:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7.5px 0 7.5px 7px;
+  border-color: transparent transparent transparent #ccc;
+  margin-top: -8px;
+}
+.recommend_btn.recommend_btn--prev:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7.5px 7px 7.5px 0;
+  border-color: transparent #ccc transparent transparent;
+  margin-top: -8px;
+}
+.recommend_btn:focus {
+  outline: none;
+}
+.recommend_btn:hover {
+  opacity: 0.8;
+}
+.recommend_btn.is-active {
+  display: block;
+}
+
+.recommend_inner .recommend_inner-block {
+  float: left;
+}
+.recommend_inner .recommend_inner-block > li {
+  float: left;
+  width: 194px;
+  margin-left: 20px;
+}
+.recommend_inner .recommend_inner-block > li:first-child {
+  margin-left: 0;
+}
+
+.recommend_box {
+  width: 174px;
+  background-color: #fff;
+  padding: 10px;
+  display: block;
+}
+.recommend_box .recommend_box-object {
+  border: solid 1px #e6e6e6;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 3px;
+  background-color: #FFF;
+}
+.recommend_box .recommend_box-disc {
+  margin-top: 8px;
+}
+.recommend_box .recommend_box-disc .recommend_box-disc-label {
+  padding: 4px;
+  font-size: 10px;
+  line-height: 1;
+  background-color: #FFF;
+  border: solid 1px #6fba2c;
+  color: #6fba2c;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
+}
+.recommend_box .recommend_box-disc .recommend_box-disc-title {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.recommend_box .recommend_box-disc .recommend_box-disc-detail {
+  margin-top: 5px;
+}
+.recommend_box .recommend_box-disc .recommend_box-disc-detail > li:not(:first-child) {
+  margin-top: 5px;
+}
+
+.recommend_box_item {
+  width: 174px;
+}
+.recommend_box_item .recommend_box_item-title {
+  width: 45px;
+  color: #999;
+  float: left;
+}
+.recommend_box_item .recommend_box_item-text {
+  width: 129px;
+  float: left;
+}
+.recommend_checkbox {
+  background-color: #EEEEEE;
+  border-radius: 5px;
+}
+.recommend_checkbox .recommend_checkbox-header {
+  text-align: center;
+}
+.recommend_checkbox .recommend_checkbox-header .recommend_checkbox-header-title {
+  width: 690px;
+  height: 66px;
+  margin-top: -10px;
+}
+.recommend_checkbox .recommend_checkbox-body {
+  margin-top: 15px;
+}
+
+.recommendcard_container {
+  position: relative;
+  padding-left: 42px;
+  padding-right: 42px;
+  padding-bottom: 20px;
+}
+.recommendcard_container .recommendcard_container-prev {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  margin-top: -55px;
+}
+.recommendcard_container .recommendcard_container-area {
+  position: relative;
+  overflow: hidden;
+  width: 836px;
+}
+.recommendcard_container .recommendcard_container-next {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  margin-top: -55px;
+}
+
+.recommendcard_btn {
+  display: none;
+  width: 18px;
+  height: 120px;
+  text-indent: -9999px;
+  border: solid 1px #D4D5D0;
+  border-radius: 4px;
+  box-shadow: 0 -2px 0 0 #EFEFEF inset, 0 0 1px 0 #CCCCCC;
+  background-color: #FFFFFF;
+  position: relative;
+  outline: none;
+}
+.recommendcard_btn.recommendcard_btn--next:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7.5px 0 7.5px 7px;
+  border-color: transparent transparent transparent #CCCCCC;
+  margin-top: -8px;
+}
+.recommendcard_btn.recommendcard_btn--prev:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7.5px 7px 7.5px 0;
+  border-color: transparent #CCCCCC transparent transparent;
+  margin-top: -8px;
+}
+.recommendcard_btn:focus {
+  outline: none;
+}
+.recommendcard_btn:hover {
+  opacity: 0.8;
+}
+.recommendcard_btn.is-active {
+  display: block;
+}
+
+.recommendcard_inner .recommendcard_inner-block {
+  float: left;
+}
+.recommendcard_inner .recommendcard_inner-block > li {
+  float: left;
+  width: 194px;
+  margin-left: 20px;
+}
+.recommendcard_inner .recommendcard_inner-block > li:first-child {
+  margin-left: 0;
+}
+
+.recommendcard_box {
+  width: 174px;
+  background-color: #FFFFFF;
+  padding: 10px;
+}
+.recommendcard_box .recommendcard_box-checkbox {
+  text-align: center;
+}
+.recommendcard_box .recommendcard_box-checkbox input[type='checkbox'] {
+  opacity: 0;
+  filter: alpha(opacity=0);
+  position: absolute;
+  outline: none;
+  cursor: pointer;
+  zoom: 1;
+  width: 22px;
+  height: 22px;
+}
+.recommendcard_box .recommendcard_box-checkbox input[type='checkbox']:disabled {
+  cursor: default;
+}
+.recommendcard_box .recommendcard_box-checkbox input[type='checkbox'] + label {
+  height: 22px;
+  padding-left: 22px;
+  display: inline-block;
+  background: url(/edit/assets/suumo/img/sprite/checkbox_renewal-.png) no-repeat;
+  background-position: 0 -122px;
+}
+.recommendcard_box .recommendcard_box-checkbox input[type='checkbox']:checked + label {
+  background-position: 0 0;
+}
+.recommendcard_box .recommendcard_box-checkbox input[type='checkbox']:disabled + label {
+  cursor: default;
+  background-position: 0 -244px;
+}
+.recommendcard_box .recommendcard_box-object {
+  border: solid 1px #E6E6E6;
+  display: inline-block;
+  vertical-align: middle;
+  padding: 3px;
+  background-color: #FFFFFF;
+  margin-top: 8px;
+}
+.recommendcard_box .recommendcard_box-disc {
+  margin-top: 8px;
+}
+.recommendcard_box .recommendcard_box-disc .recommendcard_box-disc-label {
+  padding: 4px;
+  font-size: 10px;
+  line-height: 1;
+  background-color: #FFFFFF;
+  border: solid 1px #6FBA2C;
+  color: #6FBA2C;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
+}
+.recommendcard_box .recommendcard_box-disc .recommendcard_box-disc-title {
+  margin-top: 10px;
+  color: #333333;
+  font-size: 14px;
+  font-weight: bold;
+}
+.recommendcard_box .recommendcard_box-disc .recommendcard_box-disc-detail {
+  margin-top: 5px;
+}
+.recommendcard_box .recommendcard_box-disc .recommendcard_box-disc-detail > li {
+  margin-top: 5px;
+}
+.recommendcard_box .recommendcard_box-disc .recommendcard_box-disc-detail > li:first-child {
+  margin-top: 0;
+}
+.recommendcard_box:hover {
+  cursor: pointer;
+  background-color: #F5FBEF;
+}
+
+.recommendcard_box_item {
+  font-size: 12px;
+}
+.recommendcard_box_item .recommendcard_box_item-title {
+  width: 55px;
+  color: #999999;
+  line-height: 1.5;
+  float: left;
+}
+.recommendcard_box_item .recommendcard_box_item-text {
+  color: #333333;
+  line-height: 1.5;
+  overflow: hidden;
+}
+/** ↓KR_DEV-7159 【デモ作成】【買い計画】物件リコメンド公取規約対応（ABテスト）↓ */
+.recommendcard_detail_link {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+.recommend_checkbox.recommend_checkbox--b .recommendcard_inner {
+  display: flex;
+}
+.recommend_checkbox.recommend_checkbox--b .recommendcard_inner .recommendcard_inner-block {
+  float: none;
+  display: flex;
+}
+.recommend_checkbox.recommend_checkbox--b .recommendcard_inner .recommendcard_inner-block > li {
+  float: none;
+  position: relative;
+  background-color: #fff;
+}
+.recommend_checkbox.recommend_checkbox--b .recommendcard_inner .recommendcard_inner-block > li:hover {
+  cursor: pointer;
+  background-color: #F5FBEF;
+}
+.recommend_checkbox.recommend_checkbox--b .recommendcard_box {
+  width: auto;
+  height: 100%;
+  padding: 10px 10px 40px;
+  background-color: inherit;
+  box-sizing: border-box;
+}
+/** ↑KR_DEV-7159 【デモ作成】【買い計画】物件リコメンド公取規約対応（ABテスト）↑ */
+
+/************************************************************
+ * 2020/5/12 レポRN 項目追加
+ ************************************************************/
+.formradioarea .formradioarea-lower {
+    margin-top: 8px;
+}
+.formradioarea .formradioarea-lower {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+.formradioarea .formradioarea-lower_item:last-child {
+    margin-left: 10px;
+}
+
+.formradioarea_item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.formradioarea_item .formradioarea_item-input {
+    margin-right: 5px;
+}
+
+/************************************************************
+ * 2020/5/15 取引有効期限必須化 項目追加
+ ************************************************************/
+.definitionlist {
+  position: relative;
+  width: 500px;
+  height: 20px;
+  font-size: 10px;
+  min-height: 1px;
+  _height: 1px;
+}
+.definitionlist:after {
+  content: "";
+  display: block;
+  clear: both;
+  height: 0;
+  visibility: hidden;
+}
+.definitionlist .definitionlist-title {
+  float: left;
+  margin-left: 5px;
+}
+.definitionlist .definitionlist-title:first-child {
+  margin-left: 0;
+}
+.definitionlist .definitionlist-contents {
+  float: left;
+}
+.definitionlist.definitionlist--layout {
+  margin-top: 10px;
+}
+
+/************************************************************
+ * 2020/11/11 レポRN 項目追加
+ ************************************************************/
+
+.formtable_contents-item {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: dotted 1px #cccccc;
+}
+
+.formtable_contents-item:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.formtable_contents-item.is-disabled {
+  display: none;
+}
+.formtable_contents-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.formtable_contents-body {
+  margin-top: 15px;
+}
+
+.formtable_contents-body.formtable_contents-body--layout {
+  margin-top: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.formtable_contents-body.formtable_contents-body--layout .radiobutton {
+  margin-top: 12px;
+}
+
+.formtable_contents-body .radiobutton{
+  margin-right: 10px;
+}
+
+/************************************************************
+ * 2021/11 レポRN 買い替えフラグ追加
+ ************************************************************/
+.formtable_sumai:not(:first-child) {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dotted #CCC;
+}
+.formtable_sumai.is-disabled {
+  display: none;
+}
+.formtable_sumai .formtable_sumai_inner {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: start;
+      align-items: flex-start;
+}
+.formtable_sumai .formtable_sumai-title {
+  width: 126px;
+  margin-top: 5px;
+  margin-right: 10px;
+}
+.formtable_sumai .formtable_sumai-body {
+  -ms-flex: 1;
+      flex: 1;
+}
+.formtable_sumai .formtable_sumai-group {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  -ms-flex-align: start;
+      align-items: flex-start;
+}
+.formtable_sumai .formtable_sumai-group.is-hidden {
+  display: none;
+}
+
+.formtable_select .formtable_select-item:not(:first-child) {
+  margin-top: 15px;
+}
+.formtable_select .formtable_select-item.is-disabled {
+  display: none;
+}
+.formtable_select .formtable_select-inner {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: start;
+      align-items: flex-start;
+}
+.formtable_select .formtable_select-title {
+  width: 126px;
+  margin-top: 3px;
+  margin-right: 10px;
+}
+.formtable_select .formtable_select-body {
+  min-width: 262px;
+}
+.formtable_select .formtable_select-pulldown {
+  font-size: 12px;
+  width: 100%;
+  height: auto;
+  margin-right: 0;
+}
+
+.radiobutton {
+  display: -ms-flexbox;
+  display: inline-flex;
+  -ms-flex-align: center;
+      align-items: center;
+  position: relative;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.radiobutton:last-of-type{
+  margin-right: 0;
+}
+
+.radiobutton .radiobutton-input {
+  opacity: 0;
+  filter: alpha(opacity=0);
+  position: absolute;
+}
+
+.radiobutton .radiobutton-title {
+  position: relative;
+  display: block;
+  min-height: 24px;
+  padding-left: 30px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.radiobutton .radiobutton-title::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: url(/edit/assets/suumo/img/kr_form-radio.png);
+  background-repeat: no-repeat;
+  background-size: 24px 48px;
+  background-position: 0 0;
+  height: 24px;
+  width: 24px;
+}
+
+.radiobutton .radiobutton-input:checked + .radiobutton-title::before {
+  background-position: 0 -24px;
+  height: 24px;
+  width: 24px;
+}
+
+/************************************************************
+ * 2021/11 レポRN 買い替えフラグ追加
+ ************************************************************/
+.radiobutton.radiobutton--layout {
+  margin-right: 0;
+}
+.radiobutton.radiobutton--layout:not(:first-child) {
+  margin-top: 12px;
+}
