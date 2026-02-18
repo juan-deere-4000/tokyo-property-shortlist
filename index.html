@@ -322,6 +322,35 @@
       padding: 12px 16px;
       margin: 12px 0;
     }
+    .notes-authors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 10px 0;
+    }
+    .notes-author-pill {
+      border: 1px solid #d6deea;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      background: #f8fbff;
+      color: #2f4058;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
+      border-radius: 4px;
+      padding: 4px 10px;
+    }
+    .notes-author-pill[data-active="true"] {
+      background: #eef5ff;
+      color: #1f3555;
+      border-color: #c6d4ea;
+    }
+    .notes-author-pill[data-has-content="true"] {
+      border-color: #9dc0ea;
+    }
+    .notes-editor[aria-disabled="true"] {
+      display: none;
+    }
     .ratings-panel {
       background: linear-gradient(135deg, #eef6ff 0%, #f6faff 100%);
       border: 1px solid #d8e6f7;
@@ -367,15 +396,17 @@
     .rating-clear {
       border: 0;
       background: transparent;
-      color: #8ea0b8;
-      font-size: 14px;
+      color: #6c8099;
+      font-size: 15px;
+      font-weight: 700;
       line-height: 1;
       padding: 0 2px;
+      margin-left: 2px;
       cursor: pointer;
       display: none;
     }
     .rating-clear:hover {
-      color: #516277;
+      color: #2f4058;
     }
     .veto-btn {
       border: 1px solid #d6deea;
@@ -404,6 +435,10 @@
       font-family: inherit;
       resize: vertical;
       box-sizing: border-box;
+    }
+    .notes-hint {
+      color: #5d728a;
+      font-size: 13px;
     }
     .tag.transit {
       background: #fff3cd;
@@ -819,6 +854,7 @@
         supabaseUrl: '',
         supabaseAnonKey: '',
         table: 'property_notes',
+        notesByAuthorTable: 'property_notes_by_author',
         starTable: 'property_flags',
         ratingTable: 'property_ratings',
         vetoTable: 'property_vetoes',
@@ -834,6 +870,7 @@
 
     const USER_ID = 'default';
     const RATERS = ['Joe', 'Max', 'Michelle'];
+    const NOTE_AUTHORS = ['Joe', 'Max', 'Michelle', 'Agent'];
     const METRICS = ['Neighborhood', 'Transit', 'Layout'];
     const SORT_OPTIONS = ['score', 'price', 'sqm', 'walk', 'train', 'total'];
 
@@ -987,6 +1024,18 @@
         pill = document.createElement('span');
         pill.className = 'tag veto-pill';
         pill.textContent = 'Vetoed';
+      }
+      const soldTag = Array.from(meta.querySelectorAll('.tag')).find(function (tag) {
+        return (tag.textContent || '').trim().toLowerCase() === 'sold';
+      });
+      const actions = meta.querySelector('.meta-actions');
+      if (soldTag && soldTag.parentNode === meta) {
+        if (soldTag.nextSibling !== pill) {
+          meta.insertBefore(pill, soldTag.nextSibling);
+        }
+      } else if (actions && actions.parentNode === meta) {
+        meta.insertBefore(pill, actions);
+      } else {
         meta.appendChild(pill);
       }
     }
@@ -1204,8 +1253,16 @@
       const panel = document.createElement('div');
       panel.className = 'notes-panel collapsed';
       panel.setAttribute('aria-hidden', 'true');
+      let pillsHtml = '';
+      NOTE_AUTHORS.forEach(function (author) {
+        pillsHtml += '<button type="button" class="notes-author-pill" data-author="' + author + '" data-active="false" data-has-content="false">' + author + '</button>';
+      });
       panel.innerHTML =
-        '<textarea class="notes-input" placeholder="Add shared notes for this property..."></textarea>';
+        '<div class="notes-authors">' + pillsHtml + '</div>' +
+        '<div class="notes-editor" aria-disabled="true">' +
+          '<textarea class="notes-input" placeholder="Add shared notes..."></textarea>' +
+        '</div>' +
+        '<div class="notes-hint">Select a name to add notes.</div>';
       card.appendChild(panel);
 
       function setExpanded(expanded) {
@@ -1219,7 +1276,7 @@
         setExpanded(toggle.getAttribute('data-expanded') !== 'true');
       });
 
-      return { slug, panel, toggle, setExpanded };
+      return { slug, panel, toggle, setExpanded, card };
     }
 
     function createRatingsUI(card, slug) {
@@ -1472,58 +1529,161 @@
       const entries = cards.map((card, idx) => createNotesUI(card, getPropertySlug(card, idx + 1))).filter(Boolean);
       const slugs = entries.map(e => e.slug);
 
-      // Load notes from Supabase
-      const remoteStore = {};
+      // Legacy single-note table. We'll preserve this by mapping old values to Joe.
+      const legacyStore = {};
       try {
         const { data } = await supabaseClient
           .from(NOTES_CONFIG.table)
           .select('property_slug, body')
           .in('property_slug', slugs);
         (data || []).forEach(function (row) {
-          remoteStore[row.property_slug] = row.body || '';
+          legacyStore[row.property_slug] = row.body || '';
         });
       } catch (err) {
-        console.error('Failed to load notes from Supabase', err);
+        console.error('Failed to load legacy notes from Supabase', err);
       }
 
-      entries.forEach(function (entry) {
-        const input = entry.panel.querySelector('.notes-input');
-        const existing = remoteStore[entry.slug] || '';
-        let saveTimer = null;
+      const notesStore = {};
+      try {
+        const { data } = await supabaseClient
+          .from(NOTES_CONFIG.notesByAuthorTable)
+          .select('property_slug, author, body')
+          .in('property_slug', slugs);
+        (data || []).forEach(function (row) {
+          if (!row.author) return;
+          notesStore[row.property_slug + '||' + row.author] = row.body || '';
+        });
+      } catch (err) {
+        console.error('Failed to load per-author notes from Supabase', err);
+      }
 
-        if (existing.trim()) {
-          input.value = existing;
-          entry.setExpanded(true);
+      // Preserve existing notes by seeding Joe when no Joe note exists yet.
+      slugs.forEach(function (slug) {
+        const legacy = (legacyStore[slug] || '').trim();
+        const joeKey = slug + '||Joe';
+        if (legacy && !notesStore[joeKey]) notesStore[joeKey] = legacy;
+      });
+
+      entries.forEach(function (entry) {
+        const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill'));
+        const editor = entry.panel.querySelector('.notes-editor');
+        const hint = entry.panel.querySelector('.notes-hint');
+        const input = entry.panel.querySelector('.notes-input');
+        let saveTimer = null;
+        let activeAuthor = null;
+
+        function notesKey(author) {
+          return entry.slug + '||' + author;
         }
 
-        async function persistNote(value) {
+        function hasAnyData() {
+          return NOTE_AUTHORS.some(function (author) {
+            const v = notesStore[notesKey(author)] || '';
+            return v.trim().length > 0;
+          });
+        }
+
+        function setActiveAuthor(author) {
+          activeAuthor = author;
+          pills.forEach(function (pill) {
+            const isActive = pill.getAttribute('data-author') === author;
+            pill.setAttribute('data-active', isActive ? 'true' : 'false');
+          });
+          editor.setAttribute('aria-disabled', 'false');
+          hint.style.display = 'none';
+          input.value = notesStore[notesKey(author)] || '';
+          input.placeholder = 'Add ' + author + '\'s notes...';
+          input.focus();
+        }
+
+        function refreshPills() {
+          pills.forEach(function (pill) {
+            const author = pill.getAttribute('data-author');
+            const v = notesStore[notesKey(author)] || '';
+            pill.setAttribute('data-has-content', v.trim() ? 'true' : 'false');
+          });
+        }
+
+        const defaultAuthor = NOTE_AUTHORS.find(function (author) {
+          const v = notesStore[notesKey(author)] || '';
+          return v.trim().length > 0;
+        }) || null;
+
+        refreshPills();
+        if (defaultAuthor) {
+          setActiveAuthor(defaultAuthor);
+          entry.setExpanded(true);
+        } else {
+          editor.setAttribute('aria-disabled', 'true');
+          hint.style.display = '';
+          entry.setExpanded(false);
+        }
+
+        async function persistNote(author, value) {
           try {
+            const key = notesKey(author);
             if (value) {
               const { error } = await supabaseClient
-                .from(NOTES_CONFIG.table)
+                .from(NOTES_CONFIG.notesByAuthorTable)
                 .upsert(
-                  { property_slug: entry.slug, body: value, updated_at: new Date().toISOString() },
-                  { onConflict: 'property_slug' }
+                  { property_slug: entry.slug, author: author, body: value, updated_at: new Date().toISOString() },
+                  { onConflict: 'property_slug,author' }
                 );
               if (error) throw error;
+              notesStore[key] = value;
             } else {
               const { error } = await supabaseClient
-                .from(NOTES_CONFIG.table)
+                .from(NOTES_CONFIG.notesByAuthorTable)
                 .delete()
-                .eq('property_slug', entry.slug);
+                .eq('property_slug', entry.slug)
+                .eq('author', author);
               if (error) throw error;
+              delete notesStore[key];
+            }
+
+            // Keep legacy Joe note in sync for backwards compatibility.
+            if (author === 'Joe') {
+              if (value) {
+                const { error } = await supabaseClient
+                  .from(NOTES_CONFIG.table)
+                  .upsert(
+                    { property_slug: entry.slug, body: value, updated_at: new Date().toISOString() },
+                    { onConflict: 'property_slug' }
+                  );
+                if (error) throw error;
+              } else {
+                const { error } = await supabaseClient
+                  .from(NOTES_CONFIG.table)
+                  .delete()
+                  .eq('property_slug', entry.slug);
+                if (error) throw error;
+              }
             }
           } catch (err) {
             console.error('Notes autosave failed for', entry.slug, err);
           }
+
+          refreshPills();
+          if (hasAnyData()) entry.setExpanded(true);
         }
 
+        pills.forEach(function (pill) {
+          pill.addEventListener('click', function () {
+            const author = pill.getAttribute('data-author');
+            setActiveAuthor(author);
+            entry.setExpanded(true);
+          });
+        });
+
         input.addEventListener('input', function () {
+          if (!activeAuthor) return;
           const value = input.value.trim();
+          notesStore[notesKey(activeAuthor)] = value;
+          refreshPills();
           if (value) entry.setExpanded(true);
           if (saveTimer) clearTimeout(saveTimer);
           saveTimer = setTimeout(function () {
-            persistNote(value);
+            persistNote(activeAuthor, value);
           }, 500);
         });
       });
