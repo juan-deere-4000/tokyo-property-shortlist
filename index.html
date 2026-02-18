@@ -150,11 +150,17 @@
     .filters .hide-toggle {
       border: 1px solid #cfd7e3;
       border-radius: 6px;
-      padding: 4px 10px;
+      padding: 6px 12px;
       font-size: 13px;
       background: #fff;
       color: #2f4058;
       cursor: pointer;
+      font-weight: 600;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .filters .hide-toggle:hover {
+      border-color: #b9c7da;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
     .filters .hide-menu {
       position: absolute;
@@ -183,9 +189,16 @@
     .filters select {
       border: 1px solid #cfd7e3;
       border-radius: 6px;
-      padding: 4px 8px;
+      padding: 6px 10px;
       font-size: 13px;
       background: #fff;
+      color: #2f4058;
+      font-weight: 600;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .filters select:hover {
+      border-color: #b9c7da;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
     .station-card {
@@ -433,7 +446,6 @@
 </head>
 <body>
   <h1>🏠 Tokyo Property Shortlist</h1>
-  <p class="subtitle">Last updated: February 18, 2026</p>
   <div class="filters">
     <span class="hide-wrap">
       <button type="button" class="hide-toggle" id="hide-toggle" aria-expanded="false">Hide</button>
@@ -446,12 +458,12 @@
     <span class="sort-wrap">
       <label for="sort-by">Sort</label>
       <select id="sort-by">
-        <option value="score">score</option>
-        <option value="price">price</option>
-        <option value="sqm">sqm</option>
-        <option value="walk">walking distance</option>
-        <option value="train">train time</option>
-        <option value="total">total transit time</option>
+        <option value="score">Score</option>
+        <option value="price">Price</option>
+        <option value="sqm">Sqm</option>
+        <option value="walk">Walking Distance</option>
+        <option value="train">Train Time</option>
+        <option value="total">Total Transit Time</option>
       </select>
     </span>
   </div>
@@ -1489,9 +1501,21 @@
     }
 
     (async function () {
-      await initStarsAndFilters();
-      await initRatings();
-      initNotes();
+      try {
+        await initStarsAndFilters();
+      } catch (err) {
+        console.error('initStarsAndFilters failed', err);
+      }
+      try {
+        await initNotes();
+      } catch (err) {
+        console.error('initNotes failed', err);
+      }
+      try {
+        await initRatings();
+      } catch (err) {
+        console.error('initRatings failed', err);
+      }
     })();
   </script>
 </body>
