@@ -79,6 +79,8 @@ Primary sort metric:
 ## Shared Notes Setup
 
 Goal: notes entered on one device are visible to all visitors.
+Stars are also shared across devices.
+Ratings are shared across devices.
 
 1. Create DB objects in Supabase:
 - Open Supabase SQL Editor.
@@ -89,6 +91,9 @@ Goal: notes entered on one device are visible to all visitors.
 - Fill:
   - `supabaseUrl`
   - `supabaseAnonKey`
+  - keep `table: 'property_notes'`
+  - keep `starTable: 'property_flags'`
+  - keep `ratingTable: 'property_ratings'`
 
 3. Deploy:
 - Commit and push `notes-config.js` + `index.html`.
@@ -97,4 +102,6 @@ Goal: notes entered on one device are visible to all visitors.
 Notes behavior:
 - Notes UI is collapsed by default.
 - If a property already has a note, its notes panel auto-expands.
+- Star state is shared via Supabase (`property_flags`).
+- Ratings state is shared via Supabase (`property_ratings`).
 - If Supabase config is empty, app falls back to local-only `localStorage`.

@@ -2,5 +2,7 @@
 window.NOTES_CONFIG = {
   supabaseUrl: 'https://YOUR_PROJECT_ID.supabase.co',
   supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
-  table: 'property_notes'
+  table: 'property_notes',
+  starTable: 'property_flags',
+  ratingTable: 'property_ratings'
 };

@@ -89,6 +89,53 @@
       color: var(--success);
       white-space: nowrap;
     }
+    .price-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      justify-self: end;
+    }
+    .aggregate-score {
+      color: var(--primary);
+      font-size: 20px;
+      font-weight: 700;
+      min-width: 38px;
+      text-align: right;
+    }
+    .star-toggle {
+      border: 1px solid #d8dee8;
+      background: #fff;
+      color: #a0acbb;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      line-height: 1;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .star-toggle.active {
+      color: #d99a00;
+      border-color: #e6c96d;
+      background: #fff8dc;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 0 0 18px 0;
+      color: #4a5568;
+      font-size: 14px;
+      align-items: center;
+    }
+    .filters label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
 
     .station-card {
       background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
@@ -174,7 +221,6 @@
       font-size: 13px;
       display: inline-flex;
       align-items: center;
-      margin-left: auto;
       background: #f8fbff;
       color: #2f4058;
       box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
@@ -184,12 +230,80 @@
       color: #1f3555;
       border-color: #c6d4ea;
     }
+    .tag.ratings-toggle {
+      border: 1px solid #d6deea;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      background: #f8fbff;
+      color: #2f4058;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
+    }
+    .tag.ratings-toggle[data-expanded="true"] {
+      background: #eef5ff;
+      color: #1f3555;
+      border-color: #c6d4ea;
+    }
+    .meta-actions {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
     .notes-panel {
       background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
       border: 1px solid #d0e8f8;
       border-radius: 8px;
       padding: 12px 16px;
       margin: 12px 0;
+    }
+    .ratings-panel {
+      background: linear-gradient(135deg, #eef6ff 0%, #f6faff 100%);
+      border: 1px solid #d8e6f7;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+    }
+    .ratings-panel.collapsed {
+      display: none;
+    }
+    .ratings-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .ratings-table th,
+    .ratings-table td {
+      padding: 6px 4px;
+      text-align: left;
+      vertical-align: middle;
+      border-bottom: 1px solid #e6eef9;
+    }
+    .ratings-table tr:last-child td {
+      border-bottom: 0;
+    }
+    .ratings-table th {
+      color: #42566f;
+      font-weight: 600;
+    }
+    .rating-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rating-range {
+      width: 92px;
+    }
+    .rating-stars {
+      color: #d99a00;
+      font-size: 12px;
+      min-width: 50px;
+    }
+    .rating-value {
+      color: #516277;
+      min-width: 28px;
+      text-align: right;
     }
     .notes-panel.collapsed {
       display: none;
@@ -243,6 +357,10 @@
 <body>
   <h1>🏠 Tokyo Property Shortlist</h1>
   <p class="subtitle">Last updated: February 18, 2026</p>
+  <div class="filters">
+    <label><input type="checkbox" id="filter-starred-only"> Starred only</label>
+    <label><input type="checkbox" id="filter-hide-sold" checked> Hide sold</label>
+  </div>
   
 
   <div class="property">
@@ -594,10 +712,17 @@
       {
         supabaseUrl: '',
         supabaseAnonKey: '',
-        table: 'property_notes'
+        table: 'property_notes',
+        starTable: 'property_flags',
+        ratingTable: 'property_ratings'
       },
       window.NOTES_CONFIG || {}
     );
+    const STAR_STORAGE_KEY = 'tokyo_starred_properties_v1';
+    const FILTER_STORAGE_KEY = 'tokyo_property_filters_v1';
+    const RATING_STORAGE_KEY = 'tokyo_property_ratings_v1';
+    const RATERS = ['Joe', 'Max', 'Michelle'];
+    const METRICS = ['Neighborhood', 'Transit', 'Layout'];
 
     function getPropertySlug(card, idx) {
       const link = card.querySelector('.property-header h2 a');
@@ -609,9 +734,231 @@
       return 'property-' + idx;
     }
 
+    function ensureMetaActions(meta) {
+      let actions = meta.querySelector('.meta-actions');
+      if (!actions) {
+        actions = document.createElement('span');
+        actions.className = 'meta-actions';
+        meta.appendChild(actions);
+      }
+      return actions;
+    }
+
+    function formatPrices() {
+      document.querySelectorAll('.price').forEach(function (el) {
+        const m = (el.textContent || '').match(/¥\s*([0-9]+(?:\.[0-9]+)?)\s*M/i);
+        if (!m) return;
+        const value = Number(m[1]);
+        if (!Number.isFinite(value)) return;
+        el.textContent = '¥' + value.toFixed(1) + 'M';
+      });
+    }
+
+    function isSoldCard(card) {
+      return Array.from(card.querySelectorAll('.meta .tag')).some(function (tag) {
+        return (tag.textContent || '').trim().toLowerCase() === 'sold';
+      });
+    }
+
+    function loadStarredSetLocal() {
+      try {
+        const raw = localStorage.getItem(STAR_STORAGE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(arr) ? arr : []);
+      } catch (_) {
+        return new Set();
+      }
+    }
+
+    function saveStarredSetLocal(set) {
+      localStorage.setItem(STAR_STORAGE_KEY, JSON.stringify(Array.from(set)));
+    }
+
+    function loadRatingsLocal() {
+      try {
+        const raw = localStorage.getItem(RATING_STORAGE_KEY);
+        const obj = raw ? JSON.parse(raw) : {};
+        return obj && typeof obj === 'object' ? obj : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function saveRatingsLocal(store) {
+      localStorage.setItem(RATING_STORAGE_KEY, JSON.stringify(store));
+    }
+
+    function ratingKey(slug, rater, metric) {
+      return slug + '||' + rater + '||' + metric;
+    }
+
+    function starsFromScore(score) {
+      if (score == null) return '☆☆☆☆☆';
+      const full = Math.floor(score / 2);
+      const half = score % 2 >= 1 ? 1 : 0;
+      const empty = 5 - full - half;
+      return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(Math.max(0, empty));
+    }
+
+    function updateAggregateForCard(card, slug, ratingsStore) {
+      const wrap = card.querySelector('.price-wrap');
+      if (!wrap) return;
+      const badge = wrap.querySelector('.aggregate-score');
+      if (!badge) return;
+      const values = [];
+      RATERS.forEach(function (rater) {
+        METRICS.forEach(function (metric) {
+          const v = ratingsStore[ratingKey(slug, rater, metric)];
+          if (typeof v === 'number' && Number.isFinite(v)) values.push(v);
+        });
+      });
+      if (!values.length) {
+        badge.style.display = 'none';
+        badge.textContent = '';
+        return;
+      }
+      const avg = values.reduce(function (a, b) { return a + b; }, 0) / values.length;
+      badge.style.display = '';
+      badge.textContent = avg.toFixed(1);
+    }
+
+    function loadFilterState() {
+      try {
+        const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+        const v = raw ? JSON.parse(raw) : {};
+        return {
+          starredOnly: Boolean(v.starredOnly),
+          hideSold: v.hideSold !== false
+        };
+      } catch (_) {
+        return { starredOnly: false, hideSold: true };
+      }
+    }
+
+    function saveFilterState(state) {
+      localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function applyFilters() {
+      const starredOnlyEl = document.getElementById('filter-starred-only');
+      const hideSoldEl = document.getElementById('filter-hide-sold');
+      if (!starredOnlyEl || !hideSoldEl) return;
+      const starredOnly = starredOnlyEl.checked;
+      const hideSold = hideSoldEl.checked;
+      document.querySelectorAll('.property').forEach(function (card) {
+        const starred = card.getAttribute('data-starred') === 'true';
+        const sold = card.getAttribute('data-sold') === 'true';
+        const show = (!starredOnly || starred) && (!hideSold || !sold);
+        card.style.display = show ? '' : 'none';
+      });
+      saveFilterState({ starredOnly: starredOnly, hideSold: hideSold });
+    }
+
+    async function initStarsAndFilters() {
+      formatPrices();
+      const hasSupabase = NOTES_CONFIG.supabaseUrl && NOTES_CONFIG.supabaseAnonKey && window.supabase;
+      const supabaseClient = hasSupabase
+        ? window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey)
+        : null;
+      const starredSet = loadStarredSetLocal();
+
+      const cards = Array.from(document.querySelectorAll('.property'));
+      const slugs = cards.map(function (card, idx) {
+        return getPropertySlug(card, idx + 1);
+      });
+
+      if (hasSupabase) {
+        try {
+          const { data } = await supabaseClient
+            .from(NOTES_CONFIG.starTable)
+            .select('property_slug, starred')
+            .in('property_slug', slugs);
+          (data || []).forEach(function (row) {
+            if (row.starred) starredSet.add(row.property_slug);
+            else starredSet.delete(row.property_slug);
+          });
+          saveStarredSetLocal(starredSet);
+        } catch (err) {
+          console.error('Failed to load shared stars, using local fallback', err);
+        }
+      }
+
+      cards.forEach(function (card, idx) {
+        const slug = getPropertySlug(card, idx + 1);
+        card.setAttribute('data-property-slug', slug);
+        card.setAttribute('data-sold', isSoldCard(card) ? 'true' : 'false');
+
+        const header = card.querySelector('.property-header');
+        const price = card.querySelector('.price');
+        if (!header || !price) return;
+
+        let wrap = header.querySelector('.price-wrap');
+        if (!wrap) {
+          wrap = document.createElement('div');
+          wrap.className = 'price-wrap';
+          header.insertBefore(wrap, price);
+          wrap.appendChild(price);
+        }
+        let aggregate = wrap.querySelector('.aggregate-score');
+        if (!aggregate) {
+          aggregate = document.createElement('span');
+          aggregate.className = 'aggregate-score';
+          aggregate.style.display = 'none';
+          wrap.insertBefore(aggregate, price);
+        }
+
+        const star = document.createElement('button');
+        star.type = 'button';
+        star.className = 'star-toggle';
+        star.setAttribute('aria-label', 'Toggle star');
+        const active = starredSet.has(slug);
+        star.classList.toggle('active', active);
+        star.textContent = active ? '★' : '☆';
+        card.setAttribute('data-starred', active ? 'true' : 'false');
+
+        star.addEventListener('click', function () {
+          const isActive = star.classList.toggle('active');
+          star.textContent = isActive ? '★' : '☆';
+          card.setAttribute('data-starred', isActive ? 'true' : 'false');
+          if (isActive) starredSet.add(slug); else starredSet.delete(slug);
+          saveStarredSetLocal(starredSet);
+
+          if (hasSupabase) {
+            (async function () {
+              try {
+                await supabaseClient
+                  .from(NOTES_CONFIG.starTable)
+                  .upsert(
+                    { property_slug: slug, starred: isActive, updated_at: new Date().toISOString() },
+                    { onConflict: 'property_slug' }
+                  );
+              } catch (err) {
+                console.error('Shared star save failed for', slug, err);
+              }
+            })();
+          }
+
+          applyFilters();
+        });
+
+        wrap.appendChild(star);
+      });
+
+      const starredOnlyEl = document.getElementById('filter-starred-only');
+      const hideSoldEl = document.getElementById('filter-hide-sold');
+      const fs = loadFilterState();
+      if (starredOnlyEl) starredOnlyEl.checked = fs.starredOnly;
+      if (hideSoldEl) hideSoldEl.checked = fs.hideSold;
+      if (starredOnlyEl) starredOnlyEl.addEventListener('change', applyFilters);
+      if (hideSoldEl) hideSoldEl.addEventListener('change', applyFilters);
+
+      applyFilters();
+    }
+
     function createNotesUI(card, slug) {
       const meta = card.querySelector('.meta');
       if (!meta) return null;
+      const actions = ensureMetaActions(meta);
 
       const toggle = document.createElement('button');
       toggle.type = 'button';
@@ -619,7 +966,7 @@
       toggle.setAttribute('data-expanded', 'false');
       toggle.textContent = 'Notes';
 
-      meta.appendChild(toggle);
+      actions.appendChild(toggle);
 
       const panel = document.createElement('div');
       panel.className = 'notes-panel collapsed';
@@ -640,6 +987,159 @@
       });
 
       return { slug, panel, toggle, setExpanded };
+    }
+
+    function createRatingsUI(card, slug) {
+      const meta = card.querySelector('.meta');
+      if (!meta) return null;
+      const actions = ensureMetaActions(meta);
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'tag ratings-toggle';
+      toggle.setAttribute('data-expanded', 'false');
+      toggle.textContent = 'Ratings';
+
+      const notesToggle = actions.querySelector('.notes-toggle');
+      if (notesToggle) actions.insertBefore(toggle, notesToggle);
+      else actions.appendChild(toggle);
+
+      const panel = document.createElement('div');
+      panel.className = 'ratings-panel collapsed';
+      panel.setAttribute('aria-hidden', 'true');
+
+      let html = '<table class="ratings-table"><thead><tr><th></th>';
+      METRICS.forEach(function (metric) {
+        html += '<th>' + metric + '</th>';
+      });
+      html += '</tr></thead><tbody>';
+      RATERS.forEach(function (rater) {
+        html += '<tr><th>' + rater + '</th>';
+        METRICS.forEach(function (metric) {
+          html += '<td><div class="rating-control" data-rater="' + rater + '" data-metric="' + metric + '">' +
+            '<input class="rating-range" type="range" min="0" max="10" step="0.5" value="0">' +
+            '<span class="rating-stars">☆☆☆☆☆</span>' +
+            '<span class="rating-value">—</span>' +
+            '</div></td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      panel.innerHTML = html;
+      card.appendChild(panel);
+
+      function setExpanded(expanded) {
+        toggle.setAttribute('data-expanded', expanded ? 'true' : 'false');
+        panel.classList.toggle('collapsed', !expanded);
+        panel.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+      }
+      toggle.addEventListener('click', function () {
+        setExpanded(toggle.getAttribute('data-expanded') !== 'true');
+      });
+
+      return { slug, panel, toggle, setExpanded, card };
+    }
+
+    async function initRatings() {
+      const cards = Array.from(document.querySelectorAll('.property'));
+      const hasSupabase = NOTES_CONFIG.supabaseUrl && NOTES_CONFIG.supabaseAnonKey && window.supabase;
+      const supabaseClient = hasSupabase
+        ? window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey)
+        : null;
+      const ratingsStore = loadRatingsLocal();
+      const saveTimers = {};
+
+      const entries = cards
+        .map((card, idx) => createRatingsUI(card, getPropertySlug(card, idx + 1)))
+        .filter(Boolean);
+      const slugs = entries.map(function (e) { return e.slug; });
+
+      if (hasSupabase) {
+        try {
+          const { data } = await supabaseClient
+            .from(NOTES_CONFIG.ratingTable)
+            .select('property_slug, rater, metric, score')
+            .in('property_slug', slugs);
+          (data || []).forEach(function (row) {
+            const score = Number(row.score);
+            if (!Number.isFinite(score)) return;
+            ratingsStore[ratingKey(row.property_slug, row.rater, row.metric)] = score;
+          });
+          saveRatingsLocal(ratingsStore);
+        } catch (err) {
+          console.error('Failed to load shared ratings, using local fallback', err);
+        }
+      }
+
+      function renderControl(control, score) {
+        const stars = control.querySelector('.rating-stars');
+        const value = control.querySelector('.rating-value');
+        if (score == null || !Number.isFinite(score)) {
+          stars.textContent = '☆☆☆☆☆';
+          value.textContent = '—';
+          return;
+        }
+        stars.textContent = starsFromScore(score);
+        value.textContent = score.toFixed(1);
+      }
+
+      entries.forEach(function (entry) {
+        const controls = Array.from(entry.panel.querySelectorAll('.rating-control'));
+        controls.forEach(function (control) {
+          const rater = control.getAttribute('data-rater');
+          const metric = control.getAttribute('data-metric');
+          const range = control.querySelector('.rating-range');
+          const key = ratingKey(entry.slug, rater, metric);
+          const existing = ratingsStore[key];
+          if (typeof existing === 'number' && Number.isFinite(existing)) {
+            range.value = String(existing);
+            renderControl(control, existing);
+          } else {
+            renderControl(control, null);
+          }
+
+          const persist = function (score) {
+            ratingsStore[key] = score;
+            saveRatingsLocal(ratingsStore);
+            if (hasSupabase) {
+              (async function () {
+                try {
+                  const { error } = await supabaseClient
+                    .from(NOTES_CONFIG.ratingTable)
+                    .upsert(
+                      {
+                        property_slug: entry.slug,
+                        rater: rater,
+                        metric: metric,
+                        score: score,
+                        updated_at: new Date().toISOString()
+                      },
+                      { onConflict: 'property_slug,rater,metric' }
+                    );
+                  if (error) throw error;
+                } catch (err) {
+                  console.error('Shared rating save failed', entry.slug, rater, metric, err);
+                }
+              })();
+            }
+          };
+
+          const onChange = function () {
+            const score = Number(range.value);
+            renderControl(control, score);
+            updateAggregateForCard(entry.card, entry.slug, ratingsStore);
+            if (saveTimers[key]) clearTimeout(saveTimers[key]);
+            saveTimers[key] = setTimeout(function () {
+              persist(score);
+            }, 400);
+          };
+
+          range.addEventListener('input', onChange);
+          range.addEventListener('change', onChange);
+        });
+
+        updateAggregateForCard(entry.card, entry.slug, ratingsStore);
+      });
     }
 
     async function initNotes() {
@@ -718,7 +1218,11 @@
       });
     }
 
-    initNotes();
+    (async function () {
+      await initStarsAndFilters();
+      await initRatings();
+      initNotes();
+    })();
   </script>
 </body>
 </html>
