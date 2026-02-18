@@ -412,12 +412,15 @@
       font-weight: 700;
       line-height: 1;
       padding: 0;
-      margin-left: 4px;
+      margin-left: 0px;
       width: 16px;
       height: 16px;
       border-radius: 50%;
       cursor: pointer;
-      display: none;
+      /* Keep the layout stable; we toggle visibility instead of display. */
+      display: inline-flex;
+      visibility: hidden;
+      pointer-events: none;
       align-items: center;
       justify-content: center;
       flex: 0 0 auto;
@@ -478,6 +481,15 @@
     }
 
     @media (max-width: 600px) {
+      body {
+        padding: 14px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .property {
+        padding: 14px;
+      }
       .station-card {
         flex-direction: column;
         align-items: flex-start;
@@ -485,11 +497,53 @@
       .property-header {
         grid-template-columns: 40px 1fr;
         row-gap: 8px;
-        align-items: end;
+        align-items: start;
       }
-      .price {
+      .price-wrap {
         grid-column: 2;
         justify-self: end;
+      }
+      .meta-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .ratings-panel {
+        overflow-x: auto;
+      }
+      .ratings-table {
+        min-width: 560px;
+      }
+      .rating-range {
+        width: 96px;
+      }
+      .notes-author-pill {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      .notes-input {
+        min-height: 80px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .filters {
+        gap: 10px;
+      }
+      .filters .hide-wrap,
+      .filters .sort-wrap {
+        width: 100%;
+      }
+      .filters .sort-wrap {
+        margin-left: 0;
+        justify-content: space-between;
+      }
+      .filters .hide-wrap {
+        justify-content: flex-start;
+      }
+      .filters select {
+        width: 100%;
       }
     }
   </style>
@@ -1285,7 +1339,7 @@
         '<div class="notes-editors">' +
           editorsHtml +
         '</div>' +
-        '<div class="notes-hint">Click author pills to show/hide notes.</div>';
+        '<div class="notes-hint"></div>';
       card.appendChild(panel);
 
       function setExpanded(expanded) {
@@ -1331,7 +1385,7 @@
         html += '<tr><th>' + rater + '</th>';
         METRICS.forEach(function (metric) {
           html += '<td><div class="rating-control" data-rater="' + rater + '" data-metric="' + metric + '">' +
-            '<input class="rating-range" type="range" min="0" max="10" step="0.5" value="0">' +
+            '<input class="rating-range" type="range" min="0" max="10" step="0.1" value="0">' +
             '<span class="rating-value">—</span>' +
             '<button type="button" class="rating-clear" aria-label="Clear rating">×</button>' +
             '</div></td>';
@@ -1371,11 +1425,17 @@
         const clear = control.querySelector('.rating-clear');
         if (score == null || !Number.isFinite(score)) {
           value.textContent = '—';
-          if (clear) clear.style.display = 'none';
+          if (clear) {
+            clear.style.visibility = 'hidden';
+            clear.style.pointerEvents = 'none';
+          }
           return;
         }
         value.textContent = score.toFixed(1);
-        if (clear) clear.style.display = 'inline-flex';
+        if (clear) {
+          clear.style.visibility = 'visible';
+          clear.style.pointerEvents = 'auto';
+        }
       }
 
       function renderEntry(entry) {
@@ -1669,12 +1729,15 @@
             const editor = getEditor(author);
             const editorPill = getEditorPill(author);
             if (topPill) {
-              const hideOnTop = multiOpen && visibleAuthors.indexOf(author) !== -1;
+              // When multiple editors are open, active authors move their pill to the editor header
+              // except Joe, whose pill always stays in the top row.
+              const hideOnTop = multiOpen && author !== 'Joe' && visibleAuthors.indexOf(author) !== -1;
               topPill.style.display = hideOnTop ? 'none' : '';
             }
             if (editor) {
               const head = editor.querySelector('.notes-editor-head');
-              if (head) head.style.display = multiOpen ? '' : 'none';
+              // Joe's pill stays on the top row even when active; avoid duplicate header pill for Joe.
+              if (head) head.style.display = (multiOpen && author !== 'Joe') ? '' : 'none';
             }
             if (editorPill) {
               editorPill.setAttribute('data-active', isAuthorVisible(author) ? 'true' : 'false');
@@ -1786,6 +1849,10 @@
             const author = pill.getAttribute('data-author');
             const nextVisible = !isAuthorVisible(author);
             setAuthorVisible(author, nextVisible);
+            if (!nextVisible) {
+              const topPill = getTopPill(author);
+              if (topPill) topPill.style.display = '';
+            }
             refreshPills();
           });
         });
