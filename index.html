@@ -5,27 +5,208 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tokyo Property Shortlist</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-    h1 { color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 10px; }
-    .property { background: white; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .property h2 { margin: 0 0 8px 0; color: #0066cc; font-size: 18px; }
-    .property h2 a { text-decoration: none; color: #0066cc; }
-    .property h2 a:hover { text-decoration: underline; }
-    .meta { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; }
-    .tag { background: #e8f4fd; color: #0066cc; padding: 4px 10px; border-radius: 4px; font-size: 14px; }
-    .price { font-size: 20px; font-weight: bold; color: #2a9d8f; }
-    .transit { background: #fef3cd; color: #856404; }
-    .station-link { background: #e8f4fd; color: #0066cc; padding: 4px 10px; border-radius: 4px; font-size: 14px; text-decoration: none; }
-    .station-link:hover { text-decoration: underline; }
-    .sort-note { background: #d4edda; color: #155724; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
-    .rank { font-size: 24px; font-weight: bold; color: #666; margin-right: 12px; }
-    .property-header { display: flex; align-items: baseline; }
-    .footer { text-align: center; color: #666; margin-top: 30px; font-size: 14px; }
+    :root {
+      --primary: #0066cc;
+      --primary-dark: #004c99;
+      --success: #2a9d8f;
+      --warning: #f4a261;
+      --muted: #6c757d;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+      background: var(--bg);
+      color: #333;
+      line-height: 1.5;
+    }
+
+    h1 {
+      color: #222;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .sort-note {
+      background: #d4edda;
+      color: #155724;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+
+    .property {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .property:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    .property-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .rank {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted);
+      width: 32px;
+    }
+
+    .property h2 {
+      margin: 0;
+      font-size: 18px;
+      flex: 1;
+    }
+
+    .property h2 a {
+      text-decoration: none;
+      color: var(--primary);
+    }
+
+    .property h2 a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    .price {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .station-card {
+      background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
+      border: 1px solid #d0e8f8;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .station-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .station-icon {
+      font-size: 20px;
+    }
+
+    .station-name {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .station-name a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .station-name a:hover {
+      text-decoration: underline;
+    }
+
+    .station-line {
+      color: var(--muted);
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .walk-badge {
+      background: var(--primary);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      background: #f0f0f0;
+      color: #444;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .tag.transit {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .tag.ward {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+
+    .total-time {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 40px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .station-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .property-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .price {
+        align-self: flex-end;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>🏠 Tokyo Property Shortlist</h1>
-  <p>Last updated: February 18, 2026</p>
+  <p class="subtitle">Last updated: February 18, 2026</p>
   
   <div class="sort-note">
     Sorted by <strong>Ginza door-to-door time</strong> (walk to station + transit)
@@ -35,200 +216,317 @@
     <div class="property-header">
       <span class="rank">#1</span>
       <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=79031765&ta=13&sc=13117" target="_blank">Tabata Mansion (田端マンション)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥29.8M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Tabata+Station+Tokyo" target="_blank">Tabata Station</a>
+          <span class="station-line">JR Yamanote Line</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 5 min walk</span>
+    </div>
+    <div class="total-time">🚇 5 min → Ginza (10 min total)</div>
+    <div class="meta">
       <span class="tag">2LDK</span>
       <span class="tag">45.76m²</span>
-      <span class="tag transit">🚇 10 min to Ginza</span>
-      <span class="tag">Kita-ku</span>
+      <span class="tag ward">Kita-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Tabata+Station+Tokyo" target="_blank">Tabata Station</a> (JR Yamanote Line) · 5 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Tabata+Station/Tokyo+Station" target="_blank">5→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#2</span>
       <h2><a href="https://suumo.jp/ms/chuko/tokyo/sc_bunkyo/nc_79060154/" target="_blank">Heitsu Otowa (ハイツ音羽)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥29.99M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Gokokuji+Station+Tokyo" target="_blank">Gokokuji Station</a>
+          <span class="station-line">Tokyo Metro Yurakucho</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 3 min walk</span>
+    </div>
+    <div class="total-time">🚇 11 min → Ginza (14 min total)</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">37.44m²</span>
-      <span class="tag transit">🚇 14 min to Ginza</span>
-      <span class="tag">Bunkyo-ku</span>
+      <span class="tag ward">Bunkyo-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Gokokuji+Station+Tokyo" target="_blank">Gokokuji Station</a> (Tokyo Metro Yurakucho) · 3 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Gokokuji+Station/Tokyo+Station" target="_blank">3→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#3</span>
       <h2><a href="https://suumo.jp/ms/chuko/tokyo/sc_bunkyo/nc_78616622/" target="_blank">Kasuga Town Home (春日タウンホーム)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥24.8M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Korakuen+Station+Tokyo" target="_blank">Korakuen Station</a>
+          <span class="station-line">Tokyo Metro Marunouchi</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 8 min walk</span>
+    </div>
+    <div class="total-time">🚇 9 min → Ginza (17 min total)</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">50.51m²</span>
-      <span class="tag transit">🚇 17 min to Ginza</span>
-      <span class="tag">Bunkyo-ku</span>
+      <span class="tag ward">Bunkyo-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Korakuen+Station+Tokyo" target="_blank">Korakuen Station</a> (Tokyo Metro Marunouchi) · 8 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Korakuen+Station/Tokyo+Station" target="_blank">8→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#4</span>
       <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=78258114&ta=13&sc=13108" target="_blank">Nakamachi Corp (仲町コーポラス)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥26.2M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Monzen-Nakacho+Station+Tokyo" target="_blank">Monzen-Nakacho Station</a>
+          <span class="station-line">Toei Oedo</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 7 min walk</span>
+    </div>
+    <div class="total-time">🚇 11 min → Ginza (18 min total) · ⚠️ Sold Feb 2026</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">47.21m²</span>
-      <span class="tag transit">🚇 18 min to Ginza</span>
-      <span class="tag">Koto-ku</span>
+      <span class="tag ward">Koto-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Monzen-Nakacho+Station+Tokyo" target="_blank">Monzen-Nakacho Station</a> (Toei Oedo) · 7 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Monzen-Nakacho+Station/Tokyo+Station" target="_blank">7→Ginza</a> · ⚠️ Sold Feb 2026</p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#5</span>
-      <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=78109773&ta=13&sc=13104" target="_blank">Yotsuya High Corp (四谷ハイコーポ)</a></h2>
-    </div>
-    <div class="meta">
+      <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=78109773&ta=13&sc=13104" target="_blank">Yotsuya High Corp (四谷ハイコーパ)</a></h2>
       <span class="price">¥29.98M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Yotsuya+Sanchome+Station+Tokyo" target="_blank">Yotsuya Sanchome Station</a>
+          <span class="station-line">Tokyo Metro Marunouchi</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 7 min walk</span>
+    </div>
+    <div class="total-time">🚇 14 min → Ginza (21 min total)</div>
+    <div class="meta">
       <span class="tag">2DK</span>
       <span class="tag">41.68m²</span>
-      <span class="tag transit">🚇 21 min to Ginza</span>
-      <span class="tag">Shinjuku-ku</span>
+      <span class="tag ward">Shinjuku-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Yotsuya+Sanchome+Station+Tokyo" target="_blank">Yotsuya Sanchome Station</a> (Tokyo Metro Marunouchi) · 7 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Yotsuya+Sanchome+Station/Tokyo+Station" target="_blank">7→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#6</span>
-      <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=78515092&ta=13&sc=13114" target="_blank">Oedo Corp (大江戸コーポ)</a></h2>
-    </div>
-    <div class="meta">
+      <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=78515092&ta=13&sc=13114" target="_blank">Oedo Corp (大江戸コーパ)</a></h2>
       <span class="price">¥29.8M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Nakano-Sakaue+Station+Tokyo" target="_blank">Nakano-Sakaue Station</a>
+          <span class="station-line">Tokyo Metro Marunouchi</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 1 min walk</span>
+    </div>
+    <div class="total-time">🚇 24 min → Ginza (25 min total)</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">46.28m²</span>
-      <span class="tag transit">🚇 25 min to Ginza</span>
-      <span class="tag">Nakano-ku</span>
+      <span class="tag ward">Nakano-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Nakano-Sakaue+Station+Tokyo" target="_blank">Nakano-Sakaue Station</a> (Tokyo Metro Marunouchi) · 1 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Nakano-Sakaue+Station/Tokyo+Station" target="_blank">1→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#7</span>
       <h2><a href="https://suumo.jp/ms/chuko/tokyo/sc_bunkyo/nc_78243269/" target="_blank">Palm House Bunkyo (パルムハウス文京)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥31.8M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Edogawabashi+Station+Tokyo" target="_blank">Edogawabashi Station</a>
+          <span class="station-line">Tokyo Metro Yurakucho</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 7 min walk</span>
+    </div>
+    <div class="total-time">🚇 19 min → Ginza (26 min total)</div>
+    <div class="meta">
       <span class="tag">2DK</span>
       <span class="tag">47.43m²</span>
-      <span class="tag transit">🚇 26 min to Ginza</span>
-      <span class="tag">Bunkyo-ku</span>
+      <span class="tag ward">Bunkyo-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Edogawabashi+Station+Tokyo" target="_blank">Edogawabashi Station</a> (Tokyo Metro Yurakucho) · 7 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Edogawabashi+Station/Tokyo+Station" target="_blank">7→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#8</span>
       <h2><a href="https://suumo.jp/ms/chuko/tokyo/sc_arakawa/nc_79112310/" target="_blank">Palast Nippori (パラスト日暮里)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥26.99M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Nippori+Station+Tokyo" target="_blank">Nippori Station</a>
+          <span class="station-line">JR Yamanote</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 14 min walk</span>
+    </div>
+    <div class="total-time">🚇 14 min → Ginza (28 min total)</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">44.7m²</span>
-      <span class="tag transit">🚇 28 min to Ginza</span>
-      <span class="tag">Arakawa-ku</span>
+      <span class="tag ward">Arakawa-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Nippori+Station+Tokyo" target="_blank">Nippori Station</a> (JR Yamanote) · 14 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Nippori+Station/Tokyo+Station" target="_blank">14→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#9</span>
       <h2><a href="https://suumo.jp/ms/chuko/tokyo/sc_bunkyo/nc_20143678/" target="_blank">Hasegawa Heights (ハセガワハイツ)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥27.8M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Gokokuji+Station+Tokyo" target="_blank">Gokokuji Station</a>
+          <span class="station-line">Tokyo Metro Yurakucho</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 4 min walk</span>
+    </div>
+    <div class="total-time">🚇 24 min → Ginza (28 min total)</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">47.04m²</span>
-      <span class="tag transit">🚇 28 min to Ginza</span>
-      <span class="tag">Bunkyo-ku</span>
+      <span class="tag ward">Bunkyo-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Gokokuji+Station+Tokyo" target="_blank">Gokokuji Station</a> (Tokyo Metro Yurakucho) · 4 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Gokokuji+Station/Tokyo+Station" target="_blank">4→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#10</span>
-      <h2><a href="https://realestate.yahoo.co.jp/used/mansion/detail_corp/b0024085388/" target="_blank">Kikugawa Royal Corp (菊川ローヤルコーポ)</a></h2>
-    </div>
-    <div class="meta">
+      <h2><a href="https://realestate.yahoo.co.jp/used/mansion/detail_corp/b0024085388/" target="_blank">Kikugawa Royal Corp (菊川ローヤルコーパ)</a></h2>
       <span class="price">¥26.8M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Kikugawa+Station+Tokyo" target="_blank">Kikugawa Station</a>
+          <span class="station-line">Toei Shinjuku</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 4 min walk</span>
+    </div>
+    <div class="total-time">🚇 26 min → Ginza (30 min total)</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">40.16m²</span>
-      <span class="tag transit">🚇 30 min to Ginza</span>
-      <span class="tag">Sumida-ku</span>
+      <span class="tag ward">Sumida-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Kikugawa+Station+Tokyo" target="_blank">Kikugawa Station</a> (Toei Shinjuku) · 4 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Kikugawa+Station/Tokyo+Station" target="_blank">4→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#11</span>
       <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=20050927&ta=13" target="_blank">Happy Heights Kameido (ハピーハイツ亀戸)</a></h2>
+      <span class="price">¥25.8M</span>
     </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Kameido+Station+Tokyo" target="_blank">Kameido Station</a>
+          <span class="station-line">JR Sobu</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 3 min walk</span>
+    </div>
+    <div class="total-time">🚇 28 min → Ginza (31 min total)</div>
     <div class="meta">
-      <span name="price">¥25.8M</span>
       <span class="tag">2LDK</span>
       <span class="tag">46.18m²</span>
-      <span class="tag transit">🚇 31 min to Ginza</span>
-      <span class="tag">Koto-ku</span>
+      <span class="tag ward">Koto-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Kameido+Station+Tokyo" target="_blank">Kameido Station</a> (JR Sobu) · 3 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Kameido+Station/Tokyo+Station" target="_blank">3→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#12</span>
       <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=20035299&ta=13&sc=13116" target="_blank">Koken Heights Mejiro (光建ハイツ目白)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥27.5M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Shiinamachi+Station+Tokyo" target="_blank">Shiinamachi Station</a>
+          <span class="station-line">Seibu Ikebukuro</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 7 min walk</span>
+    </div>
+    <div class="total-time">🚇 32 min → Ginza (39 min total)</div>
+    <div class="meta">
       <span class="tag">2DK</span>
       <span class="tag">49.77m²</span>
-      <span class="tag transit">🚇 39 min to Ginza</span>
-      <span class="tag">Toshima-ku</span>
+      <span class="tag ward">Toshima-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Shiinamachi+Station+Tokyo" target="_blank">Shiinamachi Station</a> (Seibu Ikebukuro) · 7 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Shiinamachi+Station/Tokyo+Station" target="_blank">7→Ginza</a></p>
   </div>
 
   <div class="property">
     <div class="property-header">
       <span class="rank">#13</span>
       <h2><a href="https://suumo.jp/jj/bukken/shosai/JJ010FJ100/?ar=030&bs=011&nc=20189225&ta=13&sc=13108" target="_blank">Oshima Royal Mansion (大島ロイヤルマンション)</a></h2>
-    </div>
-    <div class="meta">
       <span class="price">¥22.8M</span>
+    </div>
+    <div class="station-card">
+      <div class="station-main">
+        <span class="station-icon">🚉</span>
+        <span class="station-name">
+          <a href="https://www.google.com/maps/search/Oshima+Station+Tokyo" target="_blank">Oshima Station</a>
+          <span class="station-line">Toei Shinjuku</span>
+        </span>
+      </div>
+      <span class="walk-badge">🚶 7 min walk</span>
+    </div>
+    <div class="total-time">🚇 33 min → Ginza (40 min total)</div>
+    <div class="meta">
       <span class="tag">1LDK</span>
       <span class="tag">40.01m²</span>
-      <span class="tag transit">🚇 40 min to Ginza</span>
-      <span class="tag">Koto-ku</span>
+      <span class="tag ward">Koto-ku</span>
     </div>
-    <p>🚉 <a class="station-link" href="https://www.google.com/maps/search/Oshima+Station+Tokyo" target="_blank">Oshima Station</a> (Toei Shinjuku) · 7 min walk · <a class="station-link" href="https://www.google.com/maps/dir/Oshima+Station/Tokyo+Station" target="_blank">7→Ginza</a></p>
   </div>
 
   <div class="footer">
-    <p>Built with ❤️ by Juan Deere-4000</p>
+    <p>Built with ❤️ by juan</p>
   </div>
 </body>
 </html>
-<!-- Wed Feb 18 15:45:48 +07 2026 -->
+<!-- Wed Feb 18 15:48:00 +07 2026 -->
