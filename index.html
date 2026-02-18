@@ -169,15 +169,20 @@
       font-size: 13px;
     }
     .tag.notes-toggle {
-      border: 0;
+      border: 1px solid #d6deea;
       cursor: pointer;
       font-size: 13px;
       display: inline-flex;
       align-items: center;
+      margin-left: auto;
+      background: #f8fbff;
+      color: #2f4058;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
     }
     .tag.notes-toggle[data-expanded="true"] {
-      background: #e8f4fd;
-      color: var(--primary-dark);
+      background: #eef5ff;
+      color: #1f3555;
+      border-color: #c6d4ea;
     }
     .notes-panel {
       background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
@@ -614,12 +619,7 @@
       toggle.setAttribute('data-expanded', 'false');
       toggle.textContent = 'Notes';
 
-      const firstChild = meta.firstChild;
-      if (firstChild) {
-        meta.insertBefore(toggle, firstChild);
-      } else {
-        meta.appendChild(toggle);
-      }
+      meta.appendChild(toggle);
 
       const panel = document.createElement('div');
       panel.className = 'notes-panel collapsed';
