@@ -910,6 +910,14 @@
       return Number.isFinite(n) ? n : null;
     }
 
+    function ratingKey(slug, rater, metric) {
+      return slug + '||' + rater + '||' + metric;
+    }
+
+    function vetoKey(slug, rater) {
+      return slug + '||' + rater;
+    }
+
     function sortCards() {
       const sortEl = document.getElementById('sort-by');
       if (!sortEl) return;
