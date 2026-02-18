@@ -171,11 +171,9 @@
     .tag.notes-toggle {
       border: 0;
       cursor: pointer;
-      font: inherit;
-      line-height: 1.2;
+      font-size: 13px;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
     }
     .tag.notes-toggle[data-expanded="true"] {
       background: #e8f4fd;
@@ -202,30 +200,6 @@
       resize: vertical;
       box-sizing: border-box;
     }
-    .notes-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .notes-save {
-      background: var(--primary);
-      color: #fff;
-      border: 0;
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .notes-save:disabled {
-      opacity: 0.7;
-      cursor: wait;
-    }
-    .notes-status {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
     .tag.transit {
       background: #fff3cd;
       color: #856404;
@@ -638,11 +612,11 @@
       toggle.type = 'button';
       toggle.className = 'tag notes-toggle';
       toggle.setAttribute('data-expanded', 'false');
-      toggle.textContent = 'Notes ▼';
+      toggle.textContent = 'Notes';
 
-      const firstTag = meta.querySelector('.tag');
-      if (firstTag && firstTag.nextSibling) {
-        meta.insertBefore(toggle, firstTag.nextSibling);
+      const firstChild = meta.firstChild;
+      if (firstChild) {
+        meta.insertBefore(toggle, firstChild);
       } else {
         meta.appendChild(toggle);
       }
@@ -651,16 +625,12 @@
       panel.className = 'notes-panel collapsed';
       panel.setAttribute('aria-hidden', 'true');
       panel.innerHTML =
-        '<textarea class="notes-input" placeholder="Add shared notes for this property..."></textarea>' +
-        '<div class="notes-actions">' +
-        '  <button type="button" class="notes-save">Save</button>' +
-        '  <span class="notes-status"></span>' +
-        '</div>';
+        '<textarea class="notes-input" placeholder="Add shared notes for this property..."></textarea>';
       card.appendChild(panel);
 
       function setExpanded(expanded) {
         toggle.setAttribute('data-expanded', expanded ? 'true' : 'false');
-        toggle.textContent = expanded ? 'Notes ▲' : 'Notes ▼';
+        toggle.textContent = 'Notes';
         panel.classList.toggle('collapsed', !expanded);
         panel.setAttribute('aria-hidden', expanded ? 'false' : 'true');
       }
@@ -703,23 +673,15 @@
 
       entries.forEach(function (entry) {
         const input = entry.panel.querySelector('.notes-input');
-        const save = entry.panel.querySelector('.notes-save');
-        const status = entry.panel.querySelector('.notes-status');
         const existing = hasSupabase ? (remoteStore[entry.slug] || '') : (localStore[entry.slug] || '');
+        let saveTimer = null;
 
         if (existing.trim()) {
           input.value = existing;
           entry.setExpanded(true);
         }
 
-        if (!hasSupabase) {
-          status.textContent = 'Local only (configure Supabase for shared notes).';
-        }
-
-        save.addEventListener('click', async function () {
-          const value = input.value.trim();
-          save.disabled = true;
-          status.textContent = 'Saving...';
+        async function persistNote(value) {
           try {
             if (hasSupabase) {
               if (value) {
@@ -740,16 +702,18 @@
             } else {
               localStorage.setItem('tokyo_notes_' + entry.slug, value);
             }
-            if (value) entry.setExpanded(true);
-            status.textContent = 'Saved';
           } catch (err) {
-            status.textContent = 'Save failed';
-          } finally {
-            save.disabled = false;
-            setTimeout(function () {
-              if (status.textContent === 'Saved') status.textContent = hasSupabase ? 'Shared note saved.' : 'Local note saved.';
-            }, 1200);
+            console.error('Notes autosave failed for', entry.slug, err);
           }
+        }
+
+        input.addEventListener('input', function () {
+          const value = input.value.trim();
+          if (value) entry.setExpanded(true);
+          if (saveTimer) clearTimeout(saveTimer);
+          saveTimer = setTimeout(function () {
+            persistNote(value);
+          }, 500);
         });
       });
     }
