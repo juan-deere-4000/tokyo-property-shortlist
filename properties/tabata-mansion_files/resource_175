@@ -1,0 +1,269 @@
+//印刷ボタン押下時用ログ取得Function
+function logPushPrintButton(printType,option){
+	//第三引数にログ取得対象を判断するための情報を送る
+	//(1:印刷ボタン、2:リンク操作、3:動画再生、4:ライトボックス操作)
+	flontPageLogOutput(printType,option,'1',null);
+}
+
+//リンク押下時用ログ取得Function
+function logClickLink(linkType){
+	//第三引数にログ取得対象を判断するための情報を送る
+	//(1:印刷ボタン、2:リンク操作、3:動画再生、4:ライトボックス操作)
+	flontPageLogOutput(linkType,null,'2',null);
+}
+
+//不動産ガイド画面_行動履歴捕捉対応20091029
+//リンク押下時用ログ取得Function(不動産ガイド)
+function logClickLinkEx(linkType,linkKey){
+	//第三引数にログ取得対象を判断するための情報を送る
+	//(1:印刷ボタン、2:リンク操作、3:動画再生、4:ライトボックス操作)
+	flontPageLogOutput(linkType,linkKey,'2',null);
+}
+
+//不動産ガイド画面_行動履歴捕捉対応20091216
+//リンク押下時用ログ取得Function(不動産ガイド)
+//汎用特集テンプレートファイルへの埋め込み用
+function logClickLinkHpAr(linkType,hp,ar){
+
+	//クリック時間用
+	dd = new Date();
+	var time = dd.getHours() + ":" + dd.getMinutes() + ":" + dd.getSeconds();
+
+	var param1 = linkType;
+	var param2 = hp;
+	var param3 = ar;
+
+	//パラメータチェック(リンクタイプ)
+	if(param1 != null){
+		param_1 = encodeURI(param1);
+	} else {
+		param_1 = "";
+	}
+	//パラメータチェック(HPコード)
+	if(param2 != null){
+		param_2 = encodeURI(param2);
+	} else {
+		param_2 = "";
+	}
+	//パラメータチェック(エリアコード)
+	if(param3 != null){
+		param_3 = encodeURI(param3);
+	} else {
+		param_3 = "";
+	}
+	//ログタイプセット
+	logType = 2;
+
+	//ログ情報埋め込みJSP呼出
+	$.get("/jj/log/common/JJ700FK001/",{ clickTime:time,ar:param_3,nc:encodeURI(""),bs:encodeURI(""),kiss:encodeURI(""),hp:param_2,ssk2:encodeURI(""),linkType:param_1,logType:logType });
+}
+
+//リンク押下時ログ取得Function(KRコマ用)
+function logClickLinkP(linkType,nc){
+	//第三引数にログ取得対象を判断するための情報を送る
+	//(1:印刷ボタン、2:リンク操作、3:動画再生、4:ライトボックス操作)
+	flontPageLogOutput(linkType,nc,'2',null);
+}
+
+//動画再生用ログ取得Function
+function logPlayReportMovie(movieID,roomTypeID){
+	//第三引数にログ取得対象を判断するための情報を送る
+	//(1:印刷ボタン、2:リンク操作、3:動画再生、4:ライトボックス操作)
+	flontPageLogOutput(movieID,roomTypeID,'3',null);
+}
+
+//ライトボックス表示用ログ取得Function
+function logShowItemDetail(itemType,roomTypeID){
+	//第三引数にログ取得対象を判断するための情報を送る
+	//(1:印刷ボタン、2:リンク操作、3：動画再生、4:ライトボックス操作)
+	flontPageLogOutput(itemType,roomTypeID,'4',null);
+}
+
+//ライトボックス表示用ログ取得Function(KRコマ用)
+function logShowItemDetailP(itemType,roomTypeID,nc){
+	//第三引数にログ取得対象を判断するための情報を送る
+	//(1:印刷ボタン、2:リンク操作、3：動画再生、4:ライトボックス操作)
+	flontPageLogOutput(itemType,roomTypeID,'4',nc);
+}
+
+
+//手作りページログ取得用
+function logHtmlPageInfo(param1,param2){
+	//パラメータチェック(エリアコード)
+	if(param1 != null){
+		param_1 = encodeURI(param1);
+	} else {
+		param_1 = "";
+	}
+
+	//パラメータチェック(画面ID)
+	if(param2 != null){
+		param_2 = encodeURI(param2);
+	} else {
+		param_2 = "";
+	}
+
+	//ログ情報埋め込みJSP呼出
+	$.get("/jj/log/common/JJ700FK001/",{ fromAreaCD:param_1,fromGamenID:param_2,logType:"5" });
+}
+
+//window.open()による画面遷移(Referer情報の取得)(オプション指定)
+//引数(1：遷移先URL、2：ウィンドウ名、3：ステータス情報)
+function logWindowOpenOptionWithReferer(transitionUrl,windowName,status){
+	//ブラウザ情報の取得
+	var ua = $.browser;
+
+	if(ua.msie){
+		//IEの場合の処理
+
+		//cookieに自画面情報セット
+		document.cookie = "referer" + "=" + escape(location.href) + ";path=" + "/";
+
+		//次画面へ遷移
+		//次画面遷移のパターン訳
+		if(windowName == null && status == null){
+			//ウインドウ名、ステータスの指定なし
+			window.open(transitionUrl);
+		}
+		if(windowName == null && status != null){
+			//ウィンドウ名指定なし、ステータス指定あり
+			window.open(transitionUrl,null,status);
+		}
+		if(windowName != null && status == null){
+			//ウィンドウ名指定あり、ステータス指定なし
+			window.open(transitionUrl,windowName);
+		}
+		if(windowName != null && status != null){
+			//ウィンドウ名、ステータス指定あり
+			window.open(transitionUrl,windowName,status);
+		}
+
+		//有効期限を1年前の日付とする
+		dd = new Date();
+		dd.setYear(dd.getYear() -1);
+
+		//Cookieの削除
+		document.cookie="referer=;path=/;expires=" + dd.toGMTString();
+	} else {
+		//IE以外の処理
+		//次画面遷移のパターン訳
+		if(windowName == null && status == null){
+			//ウインドウ名、ステータスの指定なし
+			window.open(transitionUrl);
+		}
+		if(windowName == null && status != null){
+			//ウィンドウ名指定なし、ステータス指定あり
+			window.open(transitionUrl,null,status);
+		}
+		if(windowName != null && status == null){
+			//ウィンドウ名指定あり、ステータス指定なし
+			window.open(transitionUrl,windowName);
+		}
+		if(windowName != null && status != null){
+			//ウィンドウ名、ステータス指定あり
+			window.open(transitionUrl,windowName,status);
+		}
+	}
+}
+
+//window.open()による画面遷移(Referer情報の取得)
+function logWindowOpenWithReferer(transitionUrl){
+	//ブラウザ情報の取得
+	var ua = $.browser;
+
+	if(ua.msie){
+		//IEの場合の処理
+		//bodyのオブジェクト作成
+		var body = document.getElementsByTagName("body")[0];
+
+		//ダミーエレメント(aタグ)作成
+		var dummyLink = document.createElement("a");
+
+		//作成したaタグのhref属性に遷移先情報のセット
+		dummyLink.href = transitionUrl;
+
+		//作成したaタグのtarget属性に「_blank」をセット(ポップアップ表示のため)
+		dummyLink.target = "_blank";
+
+		//bodyオブジェクトに作成したaタグを追加
+		body.appendChild(dummyLink);
+
+		//body内に作成したaタグをクリック
+		dummyLink.click();
+
+		//body内よりaタグを削除
+		body.removeChild(dummyLink);
+
+	} else {
+		//IE以外の処理
+		window.open(transitionUrl);
+	}
+}
+
+//window.open()による画面遷移(遷移先画面がhttp限定)(Referer情報の取得)
+function logWindowOpenHttpWithReferer(transitionUrl){
+	//ブラウザ情報の取得
+	var ua = $.browser;
+
+	// 相対URLを絶対URLに補完
+	var absTransitionUrl = 'http://' + document.location.host + transitionUrl;
+
+	if(ua.msie){
+		//IEの場合の処理
+		//bodyのオブジェクト作成
+		var body = document.getElementsByTagName("body")[0];
+
+		//ダミーエレメント(aタグ)作成
+		var dummyLink = document.createElement("a");
+
+		//作成したaタグのhref属性に遷移先情報のセット
+		dummyLink.href = absTransitionUrl;
+
+		//作成したaタグのtarget属性に「_blank」をセット(ポップアップ表示のため)
+		dummyLink.target = "_blank";
+
+		//bodyオブジェクトに作成したaタグを追加
+		body.appendChild(dummyLink);
+
+		//body内に作成したaタグをクリック
+		dummyLink.click();
+
+		//body内よりaタグを削除
+		body.removeChild(dummyLink);
+
+	} else {
+		//IE以外の処理
+		window.open(absTransitionUrl);
+	}
+}
+
+//location.hrefによる画面遷移(Referer情報の取得)
+function logLocationHrefWithReferer(transitionUrl){
+	//ブラウザ情報の取得
+	var ua = $.browser;
+
+	if(ua.msie){
+		//IEの場合の処理
+		//bodyのオブジェクト作成
+		var body = document.getElementsByTagName("body")[0];
+
+		//ダミーエレメント(aタグ)作成
+		var dummyLink = document.createElement("a");
+
+		//作成したaタグのhref属性に遷移先情報のセット
+		dummyLink.href = transitionUrl;
+
+		//bodyオブジェクトに作成したaタグを追加
+		body.appendChild(dummyLink);
+
+		//body内に作成したaタグをクリック
+		dummyLink.click();
+
+		//body内よりaタグを削除
+		body.removeChild(dummyLink);
+
+	} else {
+		//IE以外の処理
+		location.href = transitionUrl;
+	}
+}
