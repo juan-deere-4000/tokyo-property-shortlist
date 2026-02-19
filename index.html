@@ -369,6 +369,9 @@
       color: #1f3555;
       border-color: #c6d4ea;
     }
+    .tag.notes-toggle[aria-disabled="true"] {
+      opacity: 0.45;
+    }
     .tag.ratings-toggle {
       border: 1px solid #d6deea;
       cursor: pointer;
@@ -829,6 +832,7 @@
         <label><input type="checkbox" id="hide-unstarred"> Unstarred</label>
         <label><input type="checkbox" id="hide-sold" checked> Sold</label>
         <label><input type="checkbox" id="hide-vetoed"> Vetoed</label>
+        <label><input type="checkbox" id="hide-notes"> Notes</label>
       </div>
     </span>
   </div>
@@ -1260,7 +1264,7 @@
 	        const stationLine = normalizeLineName(stationLineRaw);
 	        const link = row.source_url || '#';
 	        const stationMapsUrl = buildMapsSearchUrl(stationName + ' Tokyo');
-	        const jpMapsUrl = buildMapsSearchUrl((titleJa || titleEn) + ' Tokyo');
+	        const jpMapsUrl = buildMapsSearchUrl(titleJa || titleEn);
 	        const tagDate = row.display_date || formatTagDate(row.updated_at);
 
 	        const card = document.createElement('div');
@@ -1533,7 +1537,7 @@
 	      const stationNameValue = payload.station_name != null ? payload.station_name : (stationLink ? stationLink.textContent : '');
 	      if (stationLink && payload.station_name != null) stationLink.textContent = payload.station_name || '';
 	      if (stationLink) stationLink.href = buildMapsSearchUrl((stationNameValue || '') + ' Tokyo');
-	      if (jp) jp.href = buildMapsSearchUrl((titleJa || titleEn || '') + ' Tokyo');
+	      if (jp) jp.href = buildMapsSearchUrl(titleJa || titleEn || '');
 	      if (stationLine && payload.station_line != null) stationLine.textContent = normalizeLineName(payload.station_line || '');
 	      if (layoutTag && payload.layout != null) layoutTag.textContent = payload.layout || 'TBD';
 	      if (sqmTag) {
@@ -1569,7 +1573,8 @@
 	        sort_key: 'score',
 	        hide_unstarred: false,
 	        hide_sold: true,
-	        hide_vetoed: false
+	        hide_vetoed: false,
+	        hide_notes: false
 	      };
 	      try {
 	        const raw = localStorage.getItem(UI_PREFS_STORAGE_KEY);
@@ -1580,7 +1585,8 @@
 	          sort_key: SORT_OPTIONS.includes(sortKey) ? sortKey : defaults.sort_key,
 	          hide_unstarred: Boolean(parsed.hide_unstarred),
 	          hide_sold: parsed.hide_sold !== false, // default true
-	          hide_vetoed: Boolean(parsed.hide_vetoed)
+	          hide_vetoed: Boolean(parsed.hide_vetoed),
+	          hide_notes: Boolean(parsed.hide_notes)
 	        };
 	      } catch (err) {
 	        return defaults;
@@ -1658,9 +1664,16 @@
     }
 
     function updateRanks() {
-      document.querySelectorAll('.property').forEach(function (card, idx) {
+      let n = 0;
+      document.querySelectorAll('.property').forEach(function (card) {
         const rankEl = card.querySelector('.rank');
-        if (rankEl) rankEl.textContent = '#' + (idx + 1);
+        if (!rankEl) return;
+        if (card.style.display === 'none') {
+          rankEl.textContent = '';
+          return;
+        }
+        n += 1;
+        rankEl.textContent = '#' + n;
       });
     }
 
@@ -1767,10 +1780,12 @@
 	      const hideUnstarredEl = document.getElementById('hide-unstarred');
 	      const hideSoldEl = document.getElementById('hide-sold');
       const hideVetoedEl = document.getElementById('hide-vetoed');
-      if (!hideUnstarredEl || !hideSoldEl || !hideVetoedEl) return;
+      const hideNotesEl = document.getElementById('hide-notes');
+      if (!hideUnstarredEl || !hideSoldEl || !hideVetoedEl || !hideNotesEl) return;
       const hideUnstarred = hideUnstarredEl.checked;
       const hideSold = hideSoldEl.checked;
       const hideVetoed = hideVetoedEl.checked;
+      const hideNotes = hideNotesEl.checked;
       document.querySelectorAll('.property').forEach(function (card) {
         const starred = card.getAttribute('data-starred') === 'true';
         const sold = card.getAttribute('data-sold') === 'true';
@@ -1778,7 +1793,20 @@
 	        const show = (!hideUnstarred || starred) && (!hideSold || !sold) && (!hideVetoed || !vetoed);
 	        card.style.display = show ? '' : 'none';
 	      });
-	      saveUiPrefs({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed });
+	      document.querySelectorAll('.property .notes-toggle').forEach(function (btn) {
+	        btn.setAttribute('aria-disabled', hideNotes ? 'true' : 'false');
+	        if (hideNotes) {
+	          btn.setAttribute('data-expanded', 'false');
+	        }
+	      });
+	      if (hideNotes) {
+	        document.querySelectorAll('.property .notes-panel').forEach(function (panel) {
+	          panel.classList.add('collapsed');
+	          panel.setAttribute('aria-hidden', 'true');
+	        });
+	      }
+	      updateRanks();
+	      saveUiPrefs({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed, hide_notes: hideNotes });
 	    }
 
 	    async function initStarsAndFilters() {
@@ -1906,17 +1934,20 @@
 
       const hideToggle = document.getElementById('hide-toggle');
       const hideMenu = document.getElementById('hide-menu');
-      const hideUnstarredEl = document.getElementById('hide-unstarred');
+	      const hideUnstarredEl = document.getElementById('hide-unstarred');
 	      const hideSoldEl = document.getElementById('hide-sold');
 	      const hideVetoedEl = document.getElementById('hide-vetoed');
+	      const hideNotesEl = document.getElementById('hide-notes');
 	      const sortEl = document.getElementById('sort-by');
 	      if (hideUnstarredEl) hideUnstarredEl.checked = uiPrefs.hide_unstarred;
 	      if (hideSoldEl) hideSoldEl.checked = uiPrefs.hide_sold;
 	      if (hideVetoedEl) hideVetoedEl.checked = uiPrefs.hide_vetoed;
+	      if (hideNotesEl) hideNotesEl.checked = uiPrefs.hide_notes;
 	      if (sortEl) sortEl.value = uiPrefs.sort_key;
 	      if (hideUnstarredEl) hideUnstarredEl.addEventListener('change', applyFilters);
 	      if (hideSoldEl) hideSoldEl.addEventListener('change', applyFilters);
 	      if (hideVetoedEl) hideVetoedEl.addEventListener('change', applyFilters);
+	      if (hideNotesEl) hideNotesEl.addEventListener('change', applyFilters);
 	      if (sortEl) sortEl.addEventListener('change', sortCards);
       if (hideToggle && hideMenu) {
         hideToggle.addEventListener('click', function (e) {
@@ -1981,9 +2012,14 @@
         panel.setAttribute('aria-hidden', expanded ? 'false' : 'true');
       }
 
-      toggle.addEventListener('click', function () {
-        setExpanded(toggle.getAttribute('data-expanded') !== 'true');
-      });
+	      toggle.addEventListener('click', function () {
+	        const hideNotesEl = document.getElementById('hide-notes');
+	        if (hideNotesEl && hideNotesEl.checked) {
+	          hideNotesEl.checked = false;
+	          applyFilters();
+	        }
+	        setExpanded(toggle.getAttribute('data-expanded') !== 'true');
+	      });
 
       return { slug, panel, toggle, setExpanded, card };
     }
