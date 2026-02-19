@@ -5,6 +5,7 @@
 	      const starredSet = new Set();
 	      const soldSet = new Set();
       const exclusiveSet = new Set();
+      const leaseSet = new Set();
 
       const cards = Array.from(document.querySelectorAll('.property'));
       const slugs = cards.map(function (card, idx) {
@@ -15,7 +16,7 @@
       try {
 	        const { data } = await supabaseClient
 	          .from(NOTES_CONFIG.starTable)
-          .select('property_slug, starred, sold, exclusive')
+          .select('property_slug, starred, sold, exclusive, lease')
 	          .in('property_slug', slugs);
 	        (data || []).forEach(function (row) {
 	          if (row.starred) starredSet.add(row.property_slug);
@@ -24,6 +25,8 @@
 	          else soldSet.delete(row.property_slug);
           if (row.exclusive) exclusiveSet.add(row.property_slug);
           else exclusiveSet.delete(row.property_slug);
+          if (row.lease) leaseSet.add(row.property_slug);
+          else leaseSet.delete(row.property_slug);
 	        });
       } catch (err) {
         console.error('Failed to load stars from Supabase', err);
@@ -49,6 +52,7 @@
 	        const soldActive = soldSet.has(slug) || isSoldCard(card);
 	        card.setAttribute('data-sold', soldActive ? 'true' : 'false');
         card.setAttribute('data-exclusive', exclusiveSet.has(slug) ? 'true' : 'false');
+        card.setAttribute('data-lease', leaseSet.has(slug) ? 'true' : 'false');
 	        card.setAttribute('data-vetoed', card.getAttribute('data-vetoed') || 'false');
         parseCardMetrics(card);
 

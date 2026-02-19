@@ -10,9 +10,11 @@
         console.error('Failed to load per-author notes from Supabase', err);       }       slugs.forEach(function (slug) { 
         const legacy = (legacyStore[slug] || '').trim();         const joeKey = slug + '||Joe';         if (legacy && !notesStore[joeKey]) notesStore[joeKey] = legacy; 
       });       entries.forEach(function (entry) {         const meta = entry.card.querySelector('.meta'); 
-        const actions = meta ? ensureMetaActions(meta) : null;         const soldToggle = entry.panel.querySelector('.notes-sold-toggle');         const exclusiveToggle = entry.panel.querySelector('.notes-exclusive-toggle'); 
+        const actions = meta ? ensureMetaActions(meta) : null;         const soldToggle = entry.panel.querySelector('.notes-sold-toggle');         const exclusiveToggle = entry.panel.querySelector('.notes-exclusive-toggle');         const leaseToggle = entry.panel.querySelector('.notes-lease-toggle'); 
         function isSold() {           return entry.card.getAttribute('data-sold') === 'true';         } 
         function isExclusive() {           return entry.card.getAttribute('data-exclusive') === 'true';         } 
+        function isLease() {           return entry.card.getAttribute('data-lease') === 'true';         } 
+        function applyFlagToggleAlignment() {           const soldHidden = isSold();           if (soldToggle) soldToggle.style.display = soldHidden ? 'none' : '';           if (exclusiveToggle) exclusiveToggle.style.marginLeft = soldHidden ? 'auto' : '';           if (leaseToggle) leaseToggle.style.marginLeft = soldHidden && isExclusive() ? 'auto' : '';         } 
         function renderSoldPill() {           if (!meta) return;           let pill = meta.querySelector('.sold-pill'); 
           if (!isSold()) {             if (pill) pill.remove();             return; 
           }           if (!pill) {             pill = document.createElement('button'); 
@@ -21,7 +23,7 @@
             });           }           if (actions && actions.parentNode === meta) { 
             meta.insertBefore(pill, actions);           } else {             meta.appendChild(pill); 
           }         }         function renderSoldToggle() { 
-          if (!soldToggle) return;           const soldHidden = isSold();           soldToggle.style.display = soldHidden ? 'none' : '';           if (exclusiveToggle) exclusiveToggle.style.marginLeft = soldHidden ? 'auto' : '';         } 
+          if (!soldToggle) return;           applyFlagToggleAlignment();         } 
         function renderExclusivePill() {           if (!meta) return;           let pill = meta.querySelector('.exclusive-pill'); 
           if (!isExclusive()) {             if (pill) pill.remove();             return; 
           }           if (!pill) {             pill = document.createElement('button'); 
@@ -30,7 +32,16 @@
             });           }           if (actions && actions.parentNode === meta) { 
             meta.insertBefore(pill, actions);           } else {             meta.appendChild(pill); 
           }         }         function renderExclusiveToggle() { 
-          if (!exclusiveToggle) return;           exclusiveToggle.style.display = isExclusive() ? 'none' : '';         } 
+          if (!exclusiveToggle) return;           exclusiveToggle.style.display = isExclusive() ? 'none' : '';           applyFlagToggleAlignment();         } 
+        function renderLeasePill() {           if (!meta) return;           let pill = meta.querySelector('.lease-pill'); 
+          if (!isLease()) {             if (pill) pill.remove();             return; 
+          }           if (!pill) {             pill = document.createElement('button'); 
+            pill.type = 'button';             pill.className = 'tag lease-pill';             pill.textContent = 'Lease'; 
+            pill.title = 'Mark as non-lease';             pill.addEventListener('click', function () {               persistLease(false); 
+            });           }           if (actions && actions.parentNode === meta) { 
+            meta.insertBefore(pill, actions);           } else {             meta.appendChild(pill); 
+          }         }         function renderLeaseToggle() { 
+          if (!leaseToggle) return;           leaseToggle.style.display = isLease() ? 'none' : '';           applyFlagToggleAlignment();         } 
         async function persistSold(nextSold) {           entry.card.setAttribute('data-sold', nextSold ? 'true' : 'false');           renderSoldPill(); 
           renderSoldToggle();           applyFilters();           try { 
             await supabaseClient               .from(NOTES_CONFIG.starTable)               .upsert( 
@@ -41,12 +52,19 @@
           try {             await supabaseClient               .from(NOTES_CONFIG.starTable) 
               .upsert(                 { property_slug: entry.slug, exclusive: nextExclusive, updated_at: new Date().toISOString() },                 { onConflict: 'property_slug' } 
               );           } catch (err) {             console.error('Exclusive save failed for', entry.slug, err); 
+          }         }         async function persistLease(nextLease) {           entry.card.setAttribute('data-lease', nextLease ? 'true' : 'false'); 
+          renderLeasePill();           renderLeaseToggle();           applyFilters(); 
+          try {             await supabaseClient               .from(NOTES_CONFIG.starTable) 
+              .upsert(                 { property_slug: entry.slug, lease: nextLease, updated_at: new Date().toISOString() },                 { onConflict: 'property_slug' } 
+              );           } catch (err) {             console.error('Lease save failed for', entry.slug, err); 
           }         }         if (soldToggle) { 
           soldToggle.addEventListener('click', function () {             persistSold(true);           }); 
         }         if (exclusiveToggle) {           exclusiveToggle.addEventListener('click', function () { 
             persistExclusive(true);           });         } 
+        if (leaseToggle) {           leaseToggle.addEventListener('click', function () { 
+            persistLease(true);           });         } 
         renderSoldPill();         renderSoldToggle();         renderExclusivePill(); 
-        renderExclusiveToggle();         const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]'));         const topPills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]:not(.notes-editor-pill)')); 
+        renderExclusiveToggle();         renderLeasePill();         renderLeaseToggle();         const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]'));         const topPills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]:not(.notes-editor-pill)')); 
         const editors = Array.from(entry.panel.querySelectorAll('.notes-editor'));         const hint = entry.panel.querySelector('.notes-hint');         const saveTimers = {}; 
         function notesKey(author) {           return entry.slug + '||' + author;         } 
         function getEditor(author) {           return entry.panel.querySelector('.notes-editor[data-author="' + author + '"]');         } 

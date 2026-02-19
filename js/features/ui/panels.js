@@ -28,6 +28,7 @@
       });
       pillsHtml += '<button type="button" class="notes-author-pill notes-sold-toggle">Sold</button>';
       pillsHtml += '<button type="button" class="notes-author-pill notes-exclusive-toggle">Exclusive</button>';
+      pillsHtml += '<button type="button" class="notes-author-pill notes-lease-toggle">Lease</button>';
       panel.innerHTML =
         '<div class="notes-authors">' + pillsHtml + '</div>' +
         '<div class="notes-editors">' +

@@ -49,6 +49,9 @@
     .notes-exclusive-toggle {
       order: 999;
     }
+    .notes-lease-toggle {
+      order: 1000;
+    }
     body.notes-hidden .property .notes-panel {
       display: none !important;
     }

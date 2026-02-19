@@ -14,7 +14,8 @@
     .tag.sold-pill:hover {
       filter: brightness(0.95);
     }
-    .tag.exclusive-pill {
+    .tag.exclusive-pill,
+    .tag.lease-pill {
       background: #fef9c3;
       color: #854d0e;
       border: 0;
@@ -27,7 +28,8 @@
       line-height: 1.2;
       font-family: inherit;
     }
-    .tag.exclusive-pill:hover {
+    .tag.exclusive-pill:hover,
+    .tag.lease-pill:hover {
       filter: brightness(0.95);
     }
 
