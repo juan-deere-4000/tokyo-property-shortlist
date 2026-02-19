@@ -439,6 +439,9 @@
     }
     .notes-sold-toggle {
       margin-left: auto;
+      order: 998;
+    }
+    .notes-exclusive-toggle {
       order: 999;
     }
     body.notes-hidden .property .notes-panel {
@@ -563,6 +566,16 @@
       cursor: pointer;
     }
     .tag.sold-pill:hover {
+      filter: brightness(0.95);
+    }
+    .tag.exclusive-pill {
+      background: #f4b400;
+      color: #111;
+      border: 0;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .tag.exclusive-pill:hover {
       filter: brightness(0.95);
     }
 
@@ -1809,8 +1822,9 @@
 	      formatPrices();
 	      const uiPrefs = loadUiPrefs();
 
-      const starredSet = new Set();
-      const soldSet = new Set();
+	      const starredSet = new Set();
+	      const soldSet = new Set();
+      const exclusiveSet = new Set();
 
       const cards = Array.from(document.querySelectorAll('.property'));
       const slugs = cards.map(function (card, idx) {
@@ -1819,16 +1833,18 @@
 
       // Load stars from Supabase
       try {
-        const { data } = await supabaseClient
-          .from(NOTES_CONFIG.starTable)
-          .select('property_slug, starred, sold')
-          .in('property_slug', slugs);
-        (data || []).forEach(function (row) {
-          if (row.starred) starredSet.add(row.property_slug);
-          else starredSet.delete(row.property_slug);
-          if (row.sold) soldSet.add(row.property_slug);
-          else soldSet.delete(row.property_slug);
-        });
+	        const { data } = await supabaseClient
+	          .from(NOTES_CONFIG.starTable)
+          .select('property_slug, starred, sold, exclusive')
+	          .in('property_slug', slugs);
+	        (data || []).forEach(function (row) {
+	          if (row.starred) starredSet.add(row.property_slug);
+	          else starredSet.delete(row.property_slug);
+	          if (row.sold) soldSet.add(row.property_slug);
+	          else soldSet.delete(row.property_slug);
+          if (row.exclusive) exclusiveSet.add(row.property_slug);
+          else exclusiveSet.delete(row.property_slug);
+	        });
       } catch (err) {
         console.error('Failed to load stars from Supabase', err);
       }
@@ -1848,11 +1864,12 @@
       }
 
       cards.forEach(function (card, idx) {
-        const slug = getPropertySlug(card, idx + 1);
-        card.setAttribute('data-property-slug', slug);
-        const soldActive = soldSet.has(slug) || isSoldCard(card);
-        card.setAttribute('data-sold', soldActive ? 'true' : 'false');
-        card.setAttribute('data-vetoed', card.getAttribute('data-vetoed') || 'false');
+	        const slug = getPropertySlug(card, idx + 1);
+	        card.setAttribute('data-property-slug', slug);
+	        const soldActive = soldSet.has(slug) || isSoldCard(card);
+	        card.setAttribute('data-sold', soldActive ? 'true' : 'false');
+        card.setAttribute('data-exclusive', exclusiveSet.has(slug) ? 'true' : 'false');
+	        card.setAttribute('data-vetoed', card.getAttribute('data-vetoed') || 'false');
         parseCardMetrics(card);
 
         const header = card.querySelector('.property-header');
@@ -1993,6 +2010,7 @@
           '</div>';
       });
       pillsHtml += '<button type="button" class="notes-author-pill notes-sold-toggle">Sold</button>';
+      pillsHtml += '<button type="button" class="notes-author-pill notes-exclusive-toggle">Exclusive</button>';
       panel.innerHTML =
         '<div class="notes-authors">' + pillsHtml + '</div>' +
         '<div class="notes-editors">' +
@@ -2317,9 +2335,13 @@
         const meta = entry.card.querySelector('.meta');
         const actions = meta ? ensureMetaActions(meta) : null;
         const soldToggle = entry.panel.querySelector('.notes-sold-toggle');
+        const exclusiveToggle = entry.panel.querySelector('.notes-exclusive-toggle');
 
         function isSold() {
           return entry.card.getAttribute('data-sold') === 'true';
+        }
+        function isExclusive() {
+          return entry.card.getAttribute('data-exclusive') === 'true';
         }
 
         function renderSoldPill() {
@@ -2350,6 +2372,33 @@
           if (!soldToggle) return;
           soldToggle.style.display = isSold() ? 'none' : '';
         }
+        function renderExclusivePill() {
+          if (!meta) return;
+          let pill = meta.querySelector('.exclusive-pill');
+          if (!isExclusive()) {
+            if (pill) pill.remove();
+            return;
+          }
+          if (!pill) {
+            pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = 'tag exclusive-pill';
+            pill.textContent = 'Exclusive';
+            pill.title = 'Mark as non-exclusive';
+            pill.addEventListener('click', function () {
+              persistExclusive(false);
+            });
+          }
+          if (actions && actions.parentNode === meta) {
+            meta.insertBefore(pill, actions);
+          } else {
+            meta.appendChild(pill);
+          }
+        }
+        function renderExclusiveToggle() {
+          if (!exclusiveToggle) return;
+          exclusiveToggle.style.display = isExclusive() ? 'none' : '';
+        }
 
         async function persistSold(nextSold) {
           entry.card.setAttribute('data-sold', nextSold ? 'true' : 'false');
@@ -2367,15 +2416,38 @@
             console.error('Sold save failed for', entry.slug, err);
           }
         }
+        async function persistExclusive(nextExclusive) {
+          entry.card.setAttribute('data-exclusive', nextExclusive ? 'true' : 'false');
+          renderExclusivePill();
+          renderExclusiveToggle();
+          applyFilters();
+          try {
+            await supabaseClient
+              .from(NOTES_CONFIG.starTable)
+              .upsert(
+                { property_slug: entry.slug, exclusive: nextExclusive, updated_at: new Date().toISOString() },
+                { onConflict: 'property_slug' }
+              );
+          } catch (err) {
+            console.error('Exclusive save failed for', entry.slug, err);
+          }
+        }
 
         if (soldToggle) {
           soldToggle.addEventListener('click', function () {
             persistSold(true);
           });
         }
+        if (exclusiveToggle) {
+          exclusiveToggle.addEventListener('click', function () {
+            persistExclusive(true);
+          });
+        }
 
         renderSoldPill();
         renderSoldToggle();
+        renderExclusivePill();
+        renderExclusiveToggle();
 
         const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]'));
         const topPills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]:not(.notes-editor-pill)'));
