@@ -438,7 +438,11 @@
       border-color: #9dc0ea;
     }
     .notes-sold-toggle {
-      margin-left: 2px;
+      margin-left: auto;
+      order: 999;
+    }
+    body.notes-hidden .property .notes-panel {
+      display: none !important;
     }
     .notes-editor[aria-hidden="true"] {
       display: none;
@@ -1665,7 +1669,7 @@
 
     function updateRanks() {
       let n = 0;
-      document.querySelectorAll('.property').forEach(function (card) {
+	      document.querySelectorAll('.property').forEach(function (card) {
         const rankEl = card.querySelector('.rank');
         if (!rankEl) return;
         if (card.style.display === 'none') {
@@ -1795,16 +1799,8 @@
 	      });
 	      document.querySelectorAll('.property .notes-toggle').forEach(function (btn) {
 	        btn.setAttribute('aria-disabled', hideNotes ? 'true' : 'false');
-	        if (hideNotes) {
-	          btn.setAttribute('data-expanded', 'false');
-	        }
 	      });
-	      if (hideNotes) {
-	        document.querySelectorAll('.property .notes-panel').forEach(function (panel) {
-	          panel.classList.add('collapsed');
-	          panel.setAttribute('aria-hidden', 'true');
-	        });
-	      }
+	      document.body.classList.toggle('notes-hidden', hideNotes);
 	      updateRanks();
 	      saveUiPrefs({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed, hide_notes: hideNotes });
 	    }
