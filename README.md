@@ -2,6 +2,30 @@
 
 Live site: https://juan-deere-4000.github.io/tokyo-property-shortlist/
 
+## Local Server (Quick Start)
+Use this exact setup when previewing local changes.
+
+1. Start server from repo root:
+```bash
+cd /Users/joe/projects/tokyo-shortlist
+/usr/bin/python3 -m http.server 8020 --bind 127.0.0.1
+```
+
+2. Open in browser:
+- `http://127.0.0.1:8020/`
+
+3. Verify with curl (from a second terminal):
+```bash
+curl -sS -I http://127.0.0.1:8020/ | head -n 8
+curl -sS -I http://127.0.0.1:8020/styles/base.css | head -n 8
+curl -sS -I http://127.0.0.1:8020/js/app/bootstrap.js | head -n 8
+```
+
+Expected result: all three return `HTTP/1.0 200 OK`.
+
+4. Stop server:
+- `Ctrl+C` in the terminal running `http.server`.
+
 ## Goal
 Given a new `.webarchive` property page, produce a working local page:
 - `properties/<slug>.html`

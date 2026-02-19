@@ -7,6 +7,7 @@
 # Supabase local CLI artifacts and dumps
 supabase/.temp/
 supabase/backups/
+supabase/migrations/
 
 # Node / package manager artifacts
 node_modules/
