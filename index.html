@@ -2013,6 +2013,8 @@
 	        if (hideNotesEl && hideNotesEl.checked) {
 	          hideNotesEl.checked = false;
 	          applyFilters();
+	          setExpanded(true);
+	          return;
 	        }
 	        setExpanded(toggle.getAttribute('data-expanded') !== 'true');
 	      });
