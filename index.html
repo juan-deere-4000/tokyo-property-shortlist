@@ -1087,10 +1087,10 @@
 	        const wardText = row.ward || 'Unknown';
 	        const titleEn = row.title_en || ('Property ' + (idx + 1));
 	        const titleJa = row.title_ja || '';
-	        const stationName = wardText + ' area';
-	        const stationLine = row.source ? String(row.source).toUpperCase() : 'SOURCE';
+	        const stationName = row.station_name || (wardText + ' area');
+	        const stationLine = row.station_line || (row.source ? String(row.source).toUpperCase() : 'SOURCE');
 	        const link = row.source_url || '#';
-	        const tagDate = formatTagDate(row.updated_at);
+	        const tagDate = row.display_date || formatTagDate(row.updated_at);
 
 	        const card = document.createElement('div');
 	        card.className = 'property';
@@ -1129,7 +1129,7 @@
 	    async function loadPublishedProperties() {
 	      const { data, error } = await supabaseClient
 	        .from('properties')
-	        .select('external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,updated_at,status')
+	        .select('external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,display_date,updated_at,status')
 	        .eq('status', 'published')
 	        .order('total_transit_min', { ascending: true, nullsFirst: false })
 	        .order('price_m', { ascending: true, nullsFirst: false });
