@@ -87,7 +87,7 @@
         html += '<tr><th>' + rater + '</th>';
         METRICS.forEach(function (metric) {
           html += '<td><div class="rating-control" data-rater="' + rater + '" data-metric="' + metric + '">' +
-            '<input class="rating-range" type="range" min="0" max="10" step="0.1" value="0">' +
+            '<input class="rating-range" type="range" min="0" max="10" step="0.01" value="0">' +
             '<span class="rating-value">—</span>' +
             '<button type="button" class="rating-clear" aria-label="Clear rating">×</button>' +
             '</div></td>';
