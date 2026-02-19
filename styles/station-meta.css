@@ -1,0 +1,117 @@
+    .station-card {
+      background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
+      border: 1px solid #d0e8f8;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .station-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .station-icon {
+      font-size: 20px;
+    }
+
+    .station-name {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .station-name a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .station-name a:hover {
+      text-decoration: underline;
+    }
+
+    .station-line {
+      color: var(--muted);
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .walk-badge, .transit-badge, .total-badge, .transit-pills {
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .transit-pills {
+      /* background: #f0f7ff; */
+      padding: 4px 10px;
+      border-radius: 16px;
+    }
+
+    .station-badges {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      background: #f0f0f0;
+      color: #444;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .tag.notes-toggle {
+      border: 1px solid #d6deea;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      background: #f8fbff;
+      color: #2f4058;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
+    }
+    .tag.notes-toggle[data-expanded="true"] {
+      background: #eef5ff;
+      color: #1f3555;
+      border-color: #c6d4ea;
+    }
+    .tag.notes-toggle[aria-disabled="true"] {
+      opacity: 0.45;
+    }
+    .tag.ratings-toggle {
+      border: 1px solid #d6deea;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      background: #f8fbff;
+      color: #2f4058;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
+    }
+    .tag.ratings-toggle[data-expanded="true"] {
+      background: #eef5ff;
+      color: #1f3555;
+      border-color: #c6d4ea;
+    }
+    .meta-actions {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }

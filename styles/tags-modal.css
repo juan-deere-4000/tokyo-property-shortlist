@@ -1,0 +1,146 @@
+	    .tag.sold-pill {
+	      background: #fee2e2;
+	      color: #991b1b;
+      border: 0;
+      cursor: pointer;
+      font-weight: 400;
+      appearance: none;
+      -webkit-appearance: none;
+      display: inline-flex;
+      align-items: center;
+      line-height: 1.2;
+      font-family: inherit;
+    }
+    .tag.sold-pill:hover {
+      filter: brightness(0.95);
+    }
+    .tag.exclusive-pill {
+      background: #fef9c3;
+      color: #854d0e;
+      border: 0;
+      cursor: pointer;
+      font-weight: 400;
+      appearance: none;
+      -webkit-appearance: none;
+      display: inline-flex;
+      align-items: center;
+      line-height: 1.2;
+      font-family: inherit;
+    }
+    .tag.exclusive-pill:hover {
+      filter: brightness(0.95);
+    }
+
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 40px;
+      font-size: 14px;
+    }
+
+    dialog.edit-dialog {
+      width: min(520px, calc(100vw - 24px));
+      max-height: 85vh;
+      border: 1px solid #d6deea;
+      border-radius: 12px;
+      padding: 0;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+    }
+    dialog.edit-dialog::backdrop {
+      background: rgba(20, 28, 40, 0.45);
+    }
+    .edit-form {
+      display: flex;
+      flex-direction: column;
+      max-height: 85vh;
+    }
+    .edit-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2eaf4;
+      background: #f8fbff;
+      font-weight: 700;
+      color: #21364f;
+    }
+    .edit-body {
+      padding: 12px 16px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .edit-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a5f7a;
+    }
+    .edit-field input,
+    .edit-field select,
+    .edit-field textarea {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      color: #1f3555;
+    }
+    .edit-field input[readonly] {
+      background: #f7f9fc;
+      color: #5a6f88;
+    }
+    .edit-advanced {
+      margin-top: 6px;
+      border: 1px solid #d8e4f3;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #f8fbff;
+    }
+    .edit-advanced > summary {
+      cursor: pointer;
+      font-size: 13px;
+      color: #2f4058;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .edit-msg {
+      min-height: 18px;
+      font-size: 12px;
+      color: #b42318;
+    }
+    .edit-msg.ok {
+      color: #1d7a5f;
+    }
+    .edit-actions {
+      border-top: 1px solid #e2eaf4;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: #fbfdff;
+    }
+    .edit-actions button {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #fff;
+      color: #2f4058;
+    }
+    .edit-actions .edit-save {
+      background: #1f77d0;
+      border-color: #1a68b5;
+      color: #fff;
+      font-weight: 600;
+    }

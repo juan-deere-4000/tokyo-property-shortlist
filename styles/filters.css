@@ -1,0 +1,96 @@
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 0 0 18px 0;
+      color: #4a5568;
+      font-size: 14px;
+      align-items: center;
+    }
+    .filters label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .filters .sort-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filters .select-prefix {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .filters .select-prefix-label {
+      position: absolute;
+      left: 10px;
+      color: #2f4058;
+      font-weight: 600;
+      font-size: 13px;
+      pointer-events: none;
+    }
+    .filters .hide-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .filters .hide-toggle {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      background: #fff;
+      color: #2f4058;
+      cursor: pointer;
+      font-weight: 600;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .filters .hide-toggle:hover {
+      border-color: #b9c7da;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    .filters .hide-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 150px;
+      background: #fff;
+      border: 1px solid #d6deea;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      padding: 8px;
+      z-index: 20;
+      display: none;
+    }
+    .filters .hide-menu.open {
+      display: block;
+    }
+    .filters .hide-menu label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 2px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .filters select {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      background: #fff;
+      color: #2f4058;
+      font-weight: 600;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .filters .select-prefix select {
+      padding-left: 56px; /* room for "Sort:" */
+    }
+    .filters select:hover {
+      border-color: #b9c7da;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
