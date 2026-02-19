@@ -52,7 +52,7 @@
 
     .property-header {
       display: grid;
-      grid-template-columns: 5ch 1fr auto;
+      grid-template-columns: 4ch 1fr auto;
       align-items: end;
       column-gap: 8px;
       margin-bottom: 12px;
@@ -62,7 +62,7 @@
       font-size: 20px;
       font-weight: 700;
       color: var(--muted);
-      text-align: right;
+      text-align: left;
       font-variant-numeric: tabular-nums;
       flex-shrink: 0;
       align-self: start;
@@ -762,7 +762,7 @@
     @media (max-width: 760px) {
       /* Header: put score/price/star under the title and allow wrapping. */
       .property-header {
-        grid-template-columns: 5ch 1fr;
+        grid-template-columns: 4ch 1fr;
         grid-template-areas:
           "rank title"
           "rank price";
