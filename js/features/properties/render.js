@@ -54,7 +54,6 @@
 	          '</div>' +
 	          '<div class=\"station-card\">' +
 	            '<div class=\"station-main\">' +
-	              '<span class=\"station-icon\">🚉</span>' +
 	              '<span class=\"station-name\">' +
 	                '<a class=\"station-link\" href=\"' + escapeHtml(stationMapsUrl) + '\" target=\"_blank\">' + escapeHtml(stationName) + '</a>' +
 	                '<span class=\"station-line\">' + escapeHtml(stationLine) + '</span>' +
