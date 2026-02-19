@@ -73,7 +73,7 @@
       }
       const avg = values.reduce(function (a, b) { return a + b; }, 0) / values.length;
       badge.style.display = '';
-      badge.textContent = avg.toFixed(1);
+      badge.textContent = avg.toFixed(2);
       subheader.style.display = metricParts.length ? '' : 'none';
       subheader.textContent = metricParts.join(' · ');
       if (metricAverages.Neighborhood != null) card.dataset.neighborhood_rating = metricAverages.Neighborhood.toFixed(2);

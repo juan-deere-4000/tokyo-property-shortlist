@@ -24,7 +24,7 @@
           }
           return;
         }
-        value.textContent = score.toFixed(2);
+        value.textContent = Math.round(score);
         if (clear) {
           clear.style.visibility = 'visible';
           clear.style.pointerEvents = 'auto';
