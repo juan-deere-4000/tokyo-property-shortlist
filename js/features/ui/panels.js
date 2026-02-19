@@ -78,7 +78,7 @@
 
       let html = '<table class="ratings-table"><thead><tr><th></th>';
       METRICS.forEach(function (metric) {
-        html += '<th>' + metric + '</th>';
+        html += '<th>' + (METRIC_LABELS[metric] || metric) + '</th>';
       });
       html += '<th>Veto</th>';
       html += '</tr></thead><tbody>';

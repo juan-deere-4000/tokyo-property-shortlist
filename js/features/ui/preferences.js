@@ -1,6 +1,6 @@
 	    function loadUiPrefs() {
 	      const defaults = {
-	        sort_key: 'score',
+	        sort_key: 'rating',
 	        hide_unstarred: false,
 	        hide_sold: true,
 	        hide_vetoed: false,
@@ -10,7 +10,8 @@
 	        const raw = localStorage.getItem(UI_PREFS_STORAGE_KEY);
 	        if (!raw) return defaults;
 	        const parsed = JSON.parse(raw);
-	        const sortKey = typeof parsed.sort_key === 'string' ? parsed.sort_key : defaults.sort_key;
+	        const rawSortKey = typeof parsed.sort_key === 'string' ? parsed.sort_key : defaults.sort_key;
+	        const sortKey = rawSortKey === 'score' ? 'rating' : rawSortKey;
 	        return {
 	          sort_key: SORT_OPTIONS.includes(sortKey) ? sortKey : defaults.sort_key,
 	          hide_unstarred: Boolean(parsed.hide_unstarred),

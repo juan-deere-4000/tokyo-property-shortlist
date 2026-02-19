@@ -137,8 +137,9 @@
     }
     .price-wrap {
       display: inline-flex;
-      align-items: flex-start;
-      gap: 12px;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
       justify-self: end;
       align-self: start;
     }
@@ -155,6 +156,14 @@
       font-weight: 700;
       min-width: 38px;
       text-align: right;
+    }
+    .metric-subheader {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+      text-align: right;
+      white-space: nowrap;
     }
     .star-toggle {
       border: 1px solid #d8dee8;
@@ -173,4 +182,3 @@
       border-color: #e6c96d;
       background: #fff8dc;
     }
-

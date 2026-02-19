@@ -78,6 +78,14 @@
           aggregate.style.display = 'none';
           main.insertBefore(aggregate, price);
         }
+        let metricSubheader = wrap.querySelector('.metric-subheader');
+        if (!metricSubheader) {
+          metricSubheader = document.createElement('div');
+          metricSubheader.className = 'metric-subheader';
+          metricSubheader.style.display = 'none';
+          metricSubheader.textContent = '';
+          wrap.appendChild(metricSubheader);
+        }
 
         const star = document.createElement('button');
         star.type = 'button';

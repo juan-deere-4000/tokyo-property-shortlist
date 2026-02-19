@@ -18,8 +18,19 @@
 
 	    const RATERS = ['Joe', 'Max', 'Michelle'];
 	    const NOTE_AUTHORS = ['Joe', 'Max', 'Michelle', 'Agent'];
-	    const METRICS = ['Neighborhood', 'Transit', 'Layout'];
-	    const SORT_OPTIONS = ['score', 'date', 'price', 'cpsqm', 'sqm', 'walk', 'train', 'total'];
+	    const METRICS = ['Neighborhood', 'Transit', 'Interior'];
+	    const METRIC_LABELS = {
+	      Neighborhood: '🌳 Neighborhood',
+	      Transit: '🚇 Transit',
+	      Interior: '🏠 Interior'
+	    };
+	    const METRIC_UI_TO_STORAGE = {
+	      Interior: 'Layout'
+	    };
+	    const METRIC_STORAGE_TO_UI = {
+	      Layout: 'Interior'
+	    };
+	    const SORT_OPTIONS = ['rating', 'neighborhood_rating', 'transit_rating', 'interior_rating', 'date', 'price', 'cpsqm', 'sqm', 'walk', 'train', 'total'];
 	    const UI_PREFS_STORAGE_KEY = 'tokyo_property_shortlist_ui_prefs_v1';
 
 	    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);

@@ -1,7 +1,7 @@
 	    function sortCards() {
 	      const sortEl = document.getElementById('sort-by');
 	      if (!sortEl) return;
-	      const sortKey = sortEl.value || 'score';
+	      const sortKey = sortEl.value || 'rating';
 	      saveUiPrefs({ sort_key: sortKey });
 
       const cards = Array.from(document.querySelectorAll('.property'));
@@ -32,23 +32,57 @@
       if (!wrap) return;
       const badge = wrap.querySelector('.aggregate-score');
       if (!badge) return;
+      let subheader = wrap.querySelector('.metric-subheader');
+      if (!subheader) {
+        subheader = document.createElement('div');
+        subheader.className = 'metric-subheader';
+        wrap.appendChild(subheader);
+      }
       const values = [];
+      const metricAverages = {};
       RATERS.forEach(function (rater) {
         METRICS.forEach(function (metric) {
           const v = ratingsStore[ratingKey(slug, rater, metric)];
           if (typeof v === 'number' && Number.isFinite(v)) values.push(v);
         });
       });
+      METRICS.forEach(function (metric) {
+        const metricValues = [];
+        RATERS.forEach(function (rater) {
+          const v = ratingsStore[ratingKey(slug, rater, metric)];
+          if (typeof v === 'number' && Number.isFinite(v)) metricValues.push(v);
+        });
+        metricAverages[metric] = metricValues.length
+          ? (metricValues.reduce(function (a, b) { return a + b; }, 0) / metricValues.length)
+          : null;
+      });
+      const metricParts = [];
+      if (metricAverages.Neighborhood != null) metricParts.push('🌳 ' + metricAverages.Neighborhood.toFixed(1));
+      if (metricAverages.Transit != null) metricParts.push('🚇 ' + metricAverages.Transit.toFixed(1));
+      if (metricAverages.Interior != null) metricParts.push('🏠 ' + metricAverages.Interior.toFixed(1));
       if (!values.length) {
         badge.style.display = 'none';
         badge.textContent = '';
-        delete card.dataset.score;
+        subheader.style.display = metricParts.length ? '' : 'none';
+        subheader.textContent = metricParts.join(' · ');
+        delete card.dataset.rating;
+        delete card.dataset.neighborhood_rating;
+        delete card.dataset.transit_rating;
+        delete card.dataset.interior_rating;
         return;
       }
       const avg = values.reduce(function (a, b) { return a + b; }, 0) / values.length;
       badge.style.display = '';
       badge.textContent = avg.toFixed(1);
-      card.dataset.score = avg.toFixed(2);
+      subheader.style.display = metricParts.length ? '' : 'none';
+      subheader.textContent = metricParts.join(' · ');
+      if (metricAverages.Neighborhood != null) card.dataset.neighborhood_rating = metricAverages.Neighborhood.toFixed(2);
+      else delete card.dataset.neighborhood_rating;
+      if (metricAverages.Transit != null) card.dataset.transit_rating = metricAverages.Transit.toFixed(2);
+      else delete card.dataset.transit_rating;
+      if (metricAverages.Interior != null) card.dataset.interior_rating = metricAverages.Interior.toFixed(2);
+      else delete card.dataset.interior_rating;
+      card.dataset.rating = avg.toFixed(2);
     }
 
 	    function updateVetoPill(card, slug, vetoStore) {

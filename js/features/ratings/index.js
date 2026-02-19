@@ -3,6 +3,10 @@
       const ratingsStore = {};
       const vetoStore = {};
       const saveTimers = {};
+      const isRatingsSortActive = function () {
+        const key = document.getElementById('sort-by')?.value;
+        return key === 'rating' || key === 'neighborhood_rating' || key === 'transit_rating' || key === 'interior_rating';
+      };
 
       const entries = cards
         .map((card, idx) => createRatingsUI(card, getPropertySlug(card, idx + 1)))
@@ -66,6 +70,7 @@
           const persist = function (score) {
             if (score == null || !Number.isFinite(score)) delete ratingsStore[key];
             else ratingsStore[key] = score;
+            const storageMetric = METRIC_UI_TO_STORAGE[metric] || metric;
 
             (async function () {
               try {
@@ -76,7 +81,7 @@
                     .delete()
                     .eq('property_slug', entry.slug)
                     .eq('rater', rater)
-                    .eq('metric', metric);
+                    .eq('metric', storageMetric);
                   error = res.error;
                 } else {
                   const res = await supabaseClient
@@ -85,7 +90,7 @@
                       {
                         property_slug: entry.slug,
                         rater: rater,
-                        metric: metric,
+                        metric: storageMetric,
                         score: score,
                         updated_at: new Date().toISOString()
                       },
@@ -100,7 +105,7 @@
             })();
           };
 
-          const onChange = function () {
+          const onInput = function () {
             const score = Number(range.value);
             renderControl(control, score);
             ratingsStore[key] = score;
@@ -110,9 +115,12 @@
               persist(score);
             }, 400);
           };
+          const onCommit = function () {
+            if (isRatingsSortActive()) sortCards();
+          };
 
-          range.addEventListener('input', onChange);
-          range.addEventListener('change', onChange);
+          range.addEventListener('input', onInput);
+          range.addEventListener('change', onCommit);
 
           if (clear) {
             clear.addEventListener('click', function () {
@@ -120,6 +128,7 @@
               renderControl(control, null);
               delete ratingsStore[key];
               updateAggregateForCard(entry.card, entry.slug, ratingsStore);
+              if (isRatingsSortActive()) sortCards();
               if (saveTimers[key]) clearTimeout(saveTimers[key]);
               saveTimers[key] = setTimeout(function () {
                 persist(null);
@@ -162,7 +171,7 @@
       });
 
       applyFilters();
-      if (document.getElementById('sort-by')?.value === 'score') sortCards();
+      if (isRatingsSortActive()) sortCards();
 
       // Hydrate from Supabase after listeners are live.
       try {
@@ -173,7 +182,8 @@
         (data || []).forEach(function (row) {
           const score = Number(row.score);
           if (!Number.isFinite(score)) return;
-          ratingsStore[ratingKey(row.property_slug, row.rater, row.metric)] = score;
+          const metric = METRIC_STORAGE_TO_UI[row.metric] || row.metric;
+          ratingsStore[ratingKey(row.property_slug, row.rater, metric)] = score;
         });
       } catch (err) {
         console.error('Failed to load ratings from Supabase', err);
@@ -193,5 +203,5 @@
 
       entries.forEach(renderEntry);
       applyFilters();
-      if (document.getElementById('sort-by')?.value === 'score') sortCards();
+      if (isRatingsSortActive()) sortCards();
     }
