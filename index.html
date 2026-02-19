@@ -100,6 +100,40 @@
       color: var(--muted);
       line-height: 1.2;
     }
+    .jp-subtitle-link {
+      color: var(--muted);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .jp-subtitle-link:hover {
+      color: var(--muted);
+      text-decoration: underline;
+    }
+    .jp-subtitle-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .edit-btn {
+      border: 1px solid #d6deea;
+      background: #fff;
+      color: #6c7d92;
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      font-size: 12px;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      opacity: 0.55;
+    }
+    .edit-btn:hover {
+      opacity: 1;
+      border-color: #b9c7da;
+      color: #1f3555;
+      background: #f6faff;
+    }
 
     .price {
       font-size: 22px;
@@ -521,6 +555,112 @@
       font-size: 14px;
     }
 
+    dialog.edit-dialog {
+      width: min(520px, calc(100vw - 24px));
+      max-height: 85vh;
+      border: 1px solid #d6deea;
+      border-radius: 12px;
+      padding: 0;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+    }
+    dialog.edit-dialog::backdrop {
+      background: rgba(20, 28, 40, 0.45);
+    }
+    .edit-form {
+      display: flex;
+      flex-direction: column;
+      max-height: 85vh;
+    }
+    .edit-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2eaf4;
+      background: #f8fbff;
+      font-weight: 700;
+      color: #21364f;
+    }
+    .edit-body {
+      padding: 12px 16px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .edit-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a5f7a;
+    }
+    .edit-field input,
+    .edit-field select,
+    .edit-field textarea {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      color: #1f3555;
+    }
+    .edit-field input[readonly] {
+      background: #f7f9fc;
+      color: #5a6f88;
+    }
+    .edit-advanced {
+      margin-top: 6px;
+      border: 1px solid #d8e4f3;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #f8fbff;
+    }
+    .edit-advanced > summary {
+      cursor: pointer;
+      font-size: 13px;
+      color: #2f4058;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .edit-msg {
+      min-height: 18px;
+      font-size: 12px;
+      color: #b42318;
+    }
+    .edit-msg.ok {
+      color: #1d7a5f;
+    }
+    .edit-actions {
+      border-top: 1px solid #e2eaf4;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: #fbfdff;
+    }
+    .edit-actions button {
+      border: 1px solid #cfd7e3;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #fff;
+      color: #2f4058;
+    }
+    .edit-actions .edit-save {
+      background: #1f77d0;
+      border-color: #1a68b5;
+      color: #fff;
+      font-weight: 600;
+    }
+
     @media (max-width: 820px) {
       /* Ratings: switch to stacked layout earlier to avoid overflow. */
       .ratings-panel {
@@ -646,6 +786,9 @@
       .notes-input {
         min-height: 80px;
         font-size: 14px;
+      }
+      dialog.edit-dialog {
+        width: calc(100vw - 12px);
       }
     }
 
@@ -1049,6 +1192,8 @@
 	    const UI_PREFS_STORAGE_KEY = 'tokyo_property_shortlist_ui_prefs_v1';
 
 	    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
+	    let editDialog = null;
+	    let editHandlersBound = false;
 
 	    function escapeHtml(value) {
 	      return String(value || '')
@@ -1064,6 +1209,17 @@
 	      const dt = new Date(isoValue);
 	      if (Number.isNaN(dt.getTime())) return 'N/A';
 	      return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+	    }
+
+	    function buildMapsSearchUrl(query) {
+	      const q = (String(query || '').trim() || 'Tokyo');
+	      return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+	    }
+
+	    function normalizeLineName(line) {
+	      const raw = String(line || '').trim();
+	      if (!raw) return raw;
+	      return /line$/i.test(raw) ? raw : (raw + ' Line');
 	    }
 
 	    function renderPropertyCards(rows) {
@@ -1088,8 +1244,11 @@
 	        const titleEn = row.title_en || ('Property ' + (idx + 1));
 	        const titleJa = row.title_ja || '';
 	        const stationName = row.station_name || (wardText + ' area');
-	        const stationLine = row.station_line || (row.source ? String(row.source).toUpperCase() : 'SOURCE');
+	        const stationLineRaw = row.station_line || (row.source ? String(row.source).toUpperCase() : 'SOURCE');
+	        const stationLine = normalizeLineName(stationLineRaw);
 	        const link = row.source_url || '#';
+	        const stationMapsUrl = buildMapsSearchUrl(stationName + ' Tokyo');
+	        const jpMapsUrl = buildMapsSearchUrl((titleJa || titleEn) + ' Tokyo');
 	        const tagDate = row.display_date || formatTagDate(row.updated_at);
 
 	        const card = document.createElement('div');
@@ -1099,15 +1258,16 @@
 	        card.innerHTML =
 	          '<div class=\"property-header\">' +
 	            '<span class=\"rank\">#' + (idx + 1) + '</span>' +
-	            '<h2><a href=\"' + escapeHtml(link) + '\" target=\"_blank\">' + escapeHtml(titleEn) + '</a>' +
-	              '<span class=\"jp-subtitle\">' + escapeHtml(titleJa) + '</span></h2>' +
+	            '<h2><a class=\"property-link\" href=\"' + escapeHtml(link) + '\" target=\"_blank\">' + escapeHtml(titleEn) + '</a>' +
+	              '<span class=\"jp-subtitle-row\"><a class=\"jp-subtitle jp-subtitle-link\" href=\"' + escapeHtml(jpMapsUrl) + '\" target=\"_blank\">' + escapeHtml(titleJa) + '</a>' +
+	              '<button type=\"button\" class=\"edit-btn\" aria-label=\"Edit property\" data-external-id=\"' + escapeHtml(row.external_id || '') + '\">&#9998;</button></span></h2>' +
 	            '<span class=\"price\">¥' + escapeHtml(price) + 'M</span>' +
 	          '</div>' +
 	          '<div class=\"station-card\">' +
 	            '<div class=\"station-main\">' +
 	              '<span class=\"station-icon\">🚉</span>' +
 	              '<span class=\"station-name\">' +
-	                '<a href=\"' + escapeHtml(link) + '\" target=\"_blank\">' + escapeHtml(stationName) + '</a>' +
+	                '<a class=\"station-link\" href=\"' + escapeHtml(stationMapsUrl) + '\" target=\"_blank\">' + escapeHtml(stationName) + '</a>' +
 	                '<span class=\"station-line\">' + escapeHtml(stationLine) + '</span>' +
 	              '</span>' +
 	            '</div>' +
@@ -1116,8 +1276,8 @@
 	            '</div>' +
 	          '</div>' +
 	          '<div class=\"meta\">' +
-	            '<span class=\"tag\">' + escapeHtml(layoutText) + '</span>' +
-	            '<span class=\"tag\">' + escapeHtml(sqmText) + '</span>' +
+	            '<span class=\"tag layout-tag\">' + escapeHtml(layoutText) + '</span>' +
+	            '<span class=\"tag sqm-tag\">' + escapeHtml(sqmText) + '</span>' +
 	            '<span class=\"tag ward\">' + escapeHtml(wardText) + '-ku</span>' +
 	            '<span class=\"tag date\">' + escapeHtml(tagDate) + '</span>' +
 	          '</div>';
@@ -1135,6 +1295,250 @@
 	        .order('price_m', { ascending: true, nullsFirst: false });
 	      if (error) throw error;
 	      renderPropertyCards(data || []);
+	    }
+
+	    function cleanWard(value) {
+	      const raw = String(value || '').trim();
+	      if (!raw) return '';
+	      return raw.replace(/-ku$/i, '').trim();
+	    }
+
+	    function parseIntOrNull(value) {
+	      if (value == null || String(value).trim() === '') return null;
+	      const n = parseInt(String(value).trim(), 10);
+	      return Number.isFinite(n) ? n : null;
+	    }
+
+	    function parseFloatOrNull(value) {
+	      if (value == null || String(value).trim() === '') return null;
+	      const n = Number(String(value).trim());
+	      return Number.isFinite(n) ? n : null;
+	    }
+
+	    function createEditDialog() {
+	      if (editDialog) return editDialog;
+	      const dialog = document.createElement('dialog');
+	      dialog.className = 'edit-dialog';
+	      dialog.id = 'edit-dialog';
+	      dialog.innerHTML =
+	        '<form class="edit-form" id="edit-form" method="dialog">' +
+	          '<div class="edit-head">Edit Published Property</div>' +
+	          '<div class="edit-body">' +
+	            '<div class="edit-grid">' +
+	              '<div class="edit-field"><label>English Name</label><input name="title_en" required></div>' +
+	              '<div class="edit-field"><label>Japanese Name</label><input name="title_ja"></div>' +
+	              '<div class="edit-field"><label>Price (¥M)</label><input name="price_m" type="number" step="0.01" min="0"></div>' +
+	              '<div class="edit-field"><label>Walk Min</label><input name="walk_min" type="number" step="1" min="0"></div>' +
+	              '<div class="edit-field"><label>Train Min</label><input name="train_min" type="number" step="1" min="0"></div>' +
+	              '<div class="edit-field"><label>Layout</label><input name="layout"></div>' +
+	              '<div class="edit-field"><label>Size (m²)</label><input name="sqm" type="number" step="0.01" min="0"></div>' +
+	              '<div class="edit-field"><label>Ward</label><input name="ward"></div>' +
+	              '<div class="edit-field"><label>Station Name</label><input name="station_name"></div>' +
+	              '<div class="edit-field"><label>Station Line</label><input name="station_line"></div>' +
+	              '<div class="edit-field"><label>Display Date</label><input name="display_date"></div>' +
+	              '<div class="edit-field"><label>Source URL</label><input name="source_url" type="url"></div>' +
+	            '</div>' +
+	            '<details class="edit-advanced">' +
+	              '<summary>Advanced (Read-only)</summary>' +
+	              '<div class="edit-grid">' +
+	                '<div class="edit-field"><label>External ID</label><input name="external_id" readonly></div>' +
+	                '<div class="edit-field"><label>Source</label><input name="source" readonly></div>' +
+	                '<div class="edit-field"><label>Source Listing ID</label><input name="source_listing_id" readonly></div>' +
+	                '<div class="edit-field"><label>Status</label><input name="status" readonly></div>' +
+	                '<div class="edit-field"><label>Presented At (UTC)</label><input name="presented_at" readonly></div>' +
+	                '<div class="edit-field"><label>Approved At (UTC)</label><input name="approved_at" readonly></div>' +
+	                '<div class="edit-field"><label>Rejected At (UTC)</label><input name="rejected_at" readonly></div>' +
+	                '<div class="edit-field"><label>Published At (UTC)</label><input name="published_at" readonly></div>' +
+	                '<div class="edit-field"><label>Rejection Reason</label><input name="rejection_reason" readonly></div>' +
+	                '<div class="edit-field"><label>Created At (UTC)</label><input name="created_at" readonly></div>' +
+	              '</div>' +
+	            '</details>' +
+	            '<div class="edit-msg" id="edit-msg"></div>' +
+	          '</div>' +
+	          '<div class="edit-actions">' +
+	            '<button type="button" class="edit-cancel">Cancel</button>' +
+	            '<button type="submit" class="edit-save">Save</button>' +
+	          '</div>' +
+	        '</form>';
+	      document.body.appendChild(dialog);
+	      editDialog = dialog;
+
+	      const form = dialog.querySelector('#edit-form');
+	      const msg = dialog.querySelector('#edit-msg');
+	      const cancel = dialog.querySelector('.edit-cancel');
+	      const save = dialog.querySelector('.edit-save');
+	      cancel.addEventListener('click', function () {
+	        dialog.close();
+	      });
+
+		      form.addEventListener('submit', async function (e) {
+	        e.preventDefault();
+	        msg.classList.remove('ok');
+	        msg.textContent = '';
+	        save.disabled = true;
+		        try {
+		          const externalId = form.elements.external_id.value;
+		          const walkMin = parseIntOrNull(form.elements.walk_min.value);
+		          const trainMin = parseIntOrNull(form.elements.train_min.value);
+		          const wardClean = cleanWard(form.elements.ward.value);
+		          const payload = {
+		            title_en: form.elements.title_en.value.trim(),
+		            title_ja: form.elements.title_ja.value.trim(),
+		            price_m: parseFloatOrNull(form.elements.price_m.value),
+		            walk_min: walkMin,
+		            train_min: trainMin,
+		            total_transit_min: walkMin != null && trainMin != null ? walkMin + trainMin : null,
+		            layout: form.elements.layout.value.trim(),
+		            sqm: parseFloatOrNull(form.elements.sqm.value),
+		            ward: wardClean || null,
+		            station_name: form.elements.station_name.value.trim(),
+		            station_line: form.elements.station_line.value.trim(),
+		            display_date: form.elements.display_date.value.trim(),
+		            source_url: form.elements.source_url.value.trim(),
+		          };
+		          const { data, error } = await supabaseClient.rpc('update_published_property', {
+		            p_external_id: externalId,
+		            p_title_en: payload.title_en,
+		            p_title_ja: payload.title_ja,
+		            p_price_m: payload.price_m,
+		            p_walk_min: payload.walk_min,
+		            p_train_min: payload.train_min,
+		            p_layout: payload.layout,
+		            p_sqm: payload.sqm,
+		            p_ward: payload.ward,
+		            p_station_name: payload.station_name,
+		            p_station_line: payload.station_line,
+		            p_display_date: payload.display_date,
+		            p_source_url: payload.source_url,
+		          });
+		          if (error) throw error;
+		          if (!data) throw new Error('Update did not match a published row');
+		          updateCardDOM(externalId, payload);
+		          msg.textContent = 'Saved';
+	          msg.classList.add('ok');
+	          setTimeout(function () { dialog.close(); }, 400);
+	        } catch (err) {
+	          msg.textContent = String(err.message || err);
+	        } finally {
+	          save.disabled = false;
+	        }
+	      });
+
+	      if (!editHandlersBound) {
+	        document.addEventListener('click', function (e) {
+	          const btn = e.target.closest('.edit-btn');
+	          if (!btn) return;
+	          e.preventDefault();
+	          const card = btn.closest('.property');
+	          const externalId = btn.getAttribute('data-external-id') || card?.getAttribute('data-external-id') || '';
+	          if (externalId) openEditDialog(externalId);
+	        });
+	        editHandlersBound = true;
+	      }
+	      return dialog;
+	    }
+
+	    async function openEditDialog(externalId) {
+	      const dialog = createEditDialog();
+	      const form = dialog.querySelector('#edit-form');
+	      const msg = dialog.querySelector('#edit-msg');
+	      msg.classList.remove('ok');
+	      msg.textContent = '';
+	      const { data, error } = await supabaseClient
+	        .from('properties')
+	        .select('external_id,source,source_listing_id,status,title_en,title_ja,price_m,walk_min,train_min,total_transit_min,layout,sqm,ward,source_url,station_name,station_line,display_date,presented_at,approved_at,rejected_at,published_at,rejection_reason,created_at')
+	        .eq('external_id', externalId)
+	        .single();
+	      if (error) {
+	        msg.textContent = error.message;
+	        dialog.showModal();
+	        return;
+	      }
+	      form.elements.title_en.value = data.title_en || '';
+	      form.elements.title_ja.value = data.title_ja || '';
+	      form.elements.price_m.value = data.price_m == null ? '' : data.price_m;
+	      form.elements.walk_min.value = data.walk_min == null ? '' : data.walk_min;
+	      form.elements.train_min.value = data.train_min == null ? '' : data.train_min;
+	      form.elements.layout.value = data.layout || '';
+	      form.elements.sqm.value = data.sqm == null ? '' : data.sqm;
+	      form.elements.ward.value = data.ward || '';
+	      form.elements.station_name.value = data.station_name || '';
+	      form.elements.station_line.value = data.station_line || '';
+	      form.elements.display_date.value = data.display_date || '';
+	      form.elements.source_url.value = data.source_url || '';
+	      form.elements.external_id.value = data.external_id || '';
+	      form.elements.source.value = data.source || '';
+	      form.elements.source_listing_id.value = data.source_listing_id || '';
+	      form.elements.status.value = data.status || '';
+	      form.elements.presented_at.value = data.presented_at || '';
+	      form.elements.approved_at.value = data.approved_at || '';
+	      form.elements.rejected_at.value = data.rejected_at || '';
+	      form.elements.published_at.value = data.published_at || '';
+	      form.elements.rejection_reason.value = data.rejection_reason || '';
+	      form.elements.created_at.value = data.created_at || '';
+	      dialog.showModal();
+	    }
+
+	    function updateCardDOM(externalId, payload) {
+	      const card = Array.from(document.querySelectorAll('.property')).find(function (node) {
+	        return node.getAttribute('data-external-id') === externalId;
+	      });
+	      if (!card) return;
+	      const link = card.querySelector('.property-link');
+	      const jp = card.querySelector('.jp-subtitle-link');
+	      const price = card.querySelector('.price');
+	      const stationLink = card.querySelector('.station-link');
+	      const stationLine = card.querySelector('.station-line');
+	      const transit = card.querySelector('.transit-pills');
+	      const layoutTag = card.querySelector('.layout-tag');
+	      const sqmTag = card.querySelector('.sqm-tag');
+	      const wardTag = card.querySelector('.tag.ward');
+	      const dateTag = card.querySelector('.tag.date');
+
+	      if (link && payload.title_en != null) link.textContent = payload.title_en || '';
+	      if (jp && payload.title_ja != null) jp.textContent = payload.title_ja || '';
+	      const titleEn = payload.title_en != null ? payload.title_en : (link ? link.textContent : '');
+	      const titleJa = payload.title_ja != null ? payload.title_ja : (jp ? jp.textContent : '');
+	      if (payload.source_url) {
+	        if (link) link.href = payload.source_url;
+	      }
+	      if (price && payload.price_m != null && Number.isFinite(Number(payload.price_m))) {
+	        const p = Number(payload.price_m);
+	        price.textContent = '¥' + p.toFixed(1) + 'M';
+	        card.dataset.price = String(p);
+	      }
+	      const stationNameValue = payload.station_name != null ? payload.station_name : (stationLink ? stationLink.textContent : '');
+	      if (stationLink && payload.station_name != null) stationLink.textContent = payload.station_name || '';
+	      if (stationLink) stationLink.href = buildMapsSearchUrl((stationNameValue || '') + ' Tokyo');
+	      if (jp) jp.href = buildMapsSearchUrl((titleJa || titleEn || '') + ' Tokyo');
+	      if (stationLine && payload.station_line != null) stationLine.textContent = normalizeLineName(payload.station_line || '');
+	      if (layoutTag && payload.layout != null) layoutTag.textContent = payload.layout || 'TBD';
+	      if (sqmTag) {
+	        const sqm = Number(payload.sqm);
+	        sqmTag.textContent = Number.isFinite(sqm) ? (sqm.toFixed(2).replace(/\\.00$/, '') + 'm²') : 'TBD';
+	        if (Number.isFinite(sqm)) card.dataset.sqm = String(sqm);
+	      }
+	      if (wardTag && payload.ward != null) {
+	        const ward = cleanWard(payload.ward) || 'Unknown';
+	        wardTag.textContent = ward + '-ku';
+	      }
+	      if (dateTag && payload.display_date != null) dateTag.textContent = payload.display_date || 'N/A';
+
+	      const walk = Number(payload.walk_min);
+	      const train = Number(payload.train_min);
+	      const total = Number(payload.total_transit_min);
+	      if (transit) {
+	        if (Number.isFinite(walk) && Number.isFinite(train) && Number.isFinite(total)) {
+	          transit.textContent = '🚶 ' + walk + ' min → 🚇 ' + train + ' min → ' + total + ' min';
+	          card.dataset.walk = String(walk);
+	          card.dataset.train = String(train);
+	          card.dataset.total = String(total);
+	        } else {
+	          transit.textContent = 'Transit TBD';
+	        }
+	      }
+	      sortCards();
+	      applyFilters();
 	    }
 
 	    function loadUiPrefs() {
@@ -2087,6 +2491,7 @@
 	      document.querySelectorAll('.property').forEach(function (node) {
 	        node.remove();
 	      });
+	      createEditDialog();
 	      try {
 	        await loadPublishedProperties();
 	      } catch (err) {
