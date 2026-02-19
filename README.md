@@ -73,7 +73,8 @@ Use only if English rendering is needed for review.
 - This is runtime translation, not permanent rewritten English HTML.
 
 ## Data Model Note
-Primary sort metric:
+Published cards are now sourced from Supabase `properties` where `status='published'`.
+Primary sort metric remains:
 - `door_to_door_min = walk_min + transit_min`
 
 ## Shared Notes Setup
@@ -104,4 +105,4 @@ Notes behavior:
 - If a property already has a note, its notes panel auto-expands.
 - Star state is shared via Supabase (`property_flags`).
 - Ratings state is shared via Supabase (`property_ratings`).
-- If Supabase config is empty, app falls back to local-only `localStorage`.
+- Supabase config is required.

@@ -1050,6 +1050,93 @@
 
 	    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
 
+	    function escapeHtml(value) {
+	      return String(value || '')
+	        .replace(/&/g, '&amp;')
+	        .replace(/</g, '&lt;')
+	        .replace(/>/g, '&gt;')
+	        .replace(/"/g, '&quot;')
+	        .replace(/'/g, '&#39;');
+	    }
+
+	    function formatTagDate(isoValue) {
+	      if (!isoValue) return 'N/A';
+	      const dt = new Date(isoValue);
+	      if (Number.isNaN(dt.getTime())) return 'N/A';
+	      return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+	    }
+
+	    function renderPropertyCards(rows) {
+	      const footer = document.querySelector('.footer');
+	      if (!footer || !footer.parentNode) return;
+
+	      document.querySelectorAll('.property').forEach(function (node) {
+	        node.remove();
+	      });
+
+	      rows.forEach(function (row, idx) {
+	        const price = row.price_m == null ? 'TBD' : Number(row.price_m).toFixed(1);
+	        const walk = row.walk_min == null ? null : Number(row.walk_min);
+	        const train = row.train_min == null ? null : Number(row.train_min);
+	        const total = row.total_transit_min == null ? null : Number(row.total_transit_min);
+	        const transitText = walk != null && train != null && total != null
+	          ? ('🚶 ' + walk + ' min → 🚇 ' + train + ' min → ' + total + ' min')
+	          : 'Transit TBD';
+	        const sqmText = row.sqm == null ? 'TBD' : (Number(row.sqm).toFixed(2).replace(/\\.00$/, '') + 'm²');
+	        const layoutText = row.layout || 'TBD';
+	        const wardText = row.ward || 'Unknown';
+	        const titleEn = row.title_en || ('Property ' + (idx + 1));
+	        const titleJa = row.title_ja || '';
+	        const stationName = wardText + ' area';
+	        const stationLine = row.source ? String(row.source).toUpperCase() : 'SOURCE';
+	        const link = row.source_url || '#';
+	        const tagDate = formatTagDate(row.updated_at);
+
+	        const card = document.createElement('div');
+	        card.className = 'property';
+	        card.setAttribute('data-external-id', row.external_id || ('row-' + idx));
+
+	        card.innerHTML =
+	          '<div class=\"property-header\">' +
+	            '<span class=\"rank\">#' + (idx + 1) + '</span>' +
+	            '<h2><a href=\"' + escapeHtml(link) + '\" target=\"_blank\">' + escapeHtml(titleEn) + '</a>' +
+	              '<span class=\"jp-subtitle\">' + escapeHtml(titleJa) + '</span></h2>' +
+	            '<span class=\"price\">¥' + escapeHtml(price) + 'M</span>' +
+	          '</div>' +
+	          '<div class=\"station-card\">' +
+	            '<div class=\"station-main\">' +
+	              '<span class=\"station-icon\">🚉</span>' +
+	              '<span class=\"station-name\">' +
+	                '<a href=\"' + escapeHtml(link) + '\" target=\"_blank\">' + escapeHtml(stationName) + '</a>' +
+	                '<span class=\"station-line\">' + escapeHtml(stationLine) + '</span>' +
+	              '</span>' +
+	            '</div>' +
+	            '<div class=\"station-badges\">' +
+	              '<span class=\"transit-pills\">' + escapeHtml(transitText) + '</span>' +
+	            '</div>' +
+	          '</div>' +
+	          '<div class=\"meta\">' +
+	            '<span class=\"tag\">' + escapeHtml(layoutText) + '</span>' +
+	            '<span class=\"tag\">' + escapeHtml(sqmText) + '</span>' +
+	            '<span class=\"tag ward\">' + escapeHtml(wardText) + '-ku</span>' +
+	            '<span class=\"tag date\">' + escapeHtml(tagDate) + '</span>' +
+	          '</div>';
+
+	        footer.parentNode.insertBefore(card, footer);
+	      });
+	    }
+
+	    async function loadPublishedProperties() {
+	      const { data, error } = await supabaseClient
+	        .from('properties')
+	        .select('external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,updated_at,status')
+	        .eq('status', 'published')
+	        .order('total_transit_min', { ascending: true, nullsFirst: false })
+	        .order('price_m', { ascending: true, nullsFirst: false });
+	      if (error) throw error;
+	      renderPropertyCards(data || []);
+	    }
+
 	    function loadUiPrefs() {
 	      const defaults = {
 	        sort_key: 'score',
@@ -1083,10 +1170,12 @@
 	      return next;
 	    }
 
-    function getPropertySlug(card, idx) {
-      const link = card.querySelector('.property-header h2 a');
-      const href = link ? (link.getAttribute('href') || '') : '';
-      const m = href.match(/properties\/([^/.]+)\.html/i);
+	    function getPropertySlug(card, idx) {
+	      const externalId = card.getAttribute('data-external-id');
+	      if (externalId) return externalId.replace(/[^a-zA-Z0-9_-]/g, '_');
+	      const link = card.querySelector('.property-header h2 a');
+	      const href = link ? (link.getAttribute('href') || '') : '';
+	      const m = href.match(/properties\/([^/.]+)\.html/i);
       if (m) return m[1];
       const text = (link ? link.textContent : '').toLowerCase();
       if (text.includes('kikugawa')) return 'kikugawa-royal-corp';
@@ -1993,10 +2082,19 @@
       });
     }
 
-    (async function () {
-      try {
-        await initStarsAndFilters();
-      } catch (err) {
+	    (async function () {
+	      // Hard-cutover behavior: inventory is Supabase-driven only.
+	      document.querySelectorAll('.property').forEach(function (node) {
+	        node.remove();
+	      });
+	      try {
+	        await loadPublishedProperties();
+	      } catch (err) {
+	        console.error('loadPublishedProperties failed', err);
+	      }
+	      try {
+	        await initStarsAndFilters();
+	      } catch (err) {
         console.error('initStarsAndFilters failed', err);
       }
       try {

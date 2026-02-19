@@ -1,0 +1,16 @@
+.DS_Store
+
+# Local env/config
+.env
+.env.*
+
+# Supabase local CLI artifacts and dumps
+supabase/.temp/
+supabase/backups/
+
+# Node / package manager artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
