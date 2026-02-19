@@ -106,3 +106,30 @@ Notes behavior:
 - Star state is shared via Supabase (`property_flags`).
 - Ratings state is shared via Supabase (`property_ratings`).
 - Supabase config is required.
+
+## Juan: Adding New Sources Safely
+
+When adding a property from a new upstream source (example: `higherground`), do this in order:
+
+1. Check source constraint first
+- If `properties.source` does not allow the new value, add a migration in:
+  - `supabase/migrations/<timestamp>_add_<source>_source.sql`
+- Example pattern:
+```sql
+ALTER TABLE properties DROP CONSTRAINT IF EXISTS properties_source_check;
+ALTER TABLE properties ADD CONSTRAINT properties_source_check CHECK (source IN ('suumo', 'yahoo', 'higherground'));
+```
+
+2. Apply migration before inserting rows
+- Run `supabase db push --linked`.
+- Confirm migration is applied before any insert.
+
+3. Insert with the true source value
+- Use the real source in `properties.source` (example: `higherground`).
+- Do not use `source='suumo'` as a workaround.
+
+4. If a workaround row was already inserted, fix it immediately
+- Update the row to the correct source value (do not leave hacks in DB).
+
+5. Publish workflow remains the same
+- Only rows with `status='published'` render on the site.

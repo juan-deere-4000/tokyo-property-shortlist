@@ -528,9 +528,10 @@
       cursor: pointer;
     }
     .veto-btn.active {
-      border-color: #dc3545;
-      color: #fff;
-      background: #dc3545;
+      border-color: #fca5a5;
+      color: #991b1b;
+      background: #fee2e2;
+      font-weight: 400;
     }
     .notes-panel.collapsed {
       display: none;
@@ -554,26 +555,32 @@
       background: #fff3cd;
       color: #856404;
     }
+    .tag.date.recent {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
 
     .tag.veto-pill {
-      background: #dc3545;
-      color: #fff;
+      background: #fee2e2;
+      color: #991b1b;
+      font-weight: 400;
     }
     .tag.sold-pill {
-      background: #dc3545;
-      color: #fff;
+      background: #fee2e2;
+      color: #991b1b;
       border: 0;
       cursor: pointer;
+      font-weight: 400;
     }
     .tag.sold-pill:hover {
       filter: brightness(0.95);
     }
     .tag.exclusive-pill {
-      background: #f4b400;
-      color: #111;
+      background: #fef9c3;
+      color: #854d0e;
       border: 0;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 400;
     }
     .tag.exclusive-pill:hover {
       filter: brightness(0.95);
@@ -835,6 +842,7 @@
         <span class="select-prefix-label">Sort:</span>
         <select id="sort-by" aria-label="Sort">
           <option value="score">Score</option>
+          <option value="date">Date</option>
           <option value="price">Price</option>
           <option value="sqm">Sqm</option>
           <option value="walk">Walking Distance</option>
@@ -1221,7 +1229,7 @@
 	    const RATERS = ['Joe', 'Max', 'Michelle'];
 	    const NOTE_AUTHORS = ['Joe', 'Max', 'Michelle', 'Agent'];
 	    const METRICS = ['Neighborhood', 'Transit', 'Layout'];
-	    const SORT_OPTIONS = ['score', 'price', 'sqm', 'walk', 'train', 'total'];
+	    const SORT_OPTIONS = ['score', 'date', 'price', 'sqm', 'walk', 'train', 'total'];
 	    const UI_PREFS_STORAGE_KEY = 'tokyo_property_shortlist_ui_prefs_v1';
 
 	    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, NOTES_CONFIG.supabaseAnonKey);
@@ -1242,6 +1250,13 @@
 	      const dt = new Date(isoValue);
 	      if (Number.isNaN(dt.getTime())) return 'N/A';
 	      return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+	    }
+
+	    function isRecentDate(isoValue) {
+	      if (!isoValue) return false;
+	      const dt = new Date(isoValue);
+	      if (Number.isNaN(dt.getTime())) return false;
+	      return (Date.now() - dt.getTime()) <= (48 * 60 * 60 * 1000);
 	    }
 
 	    function buildMapsSearchUrl(query) {
@@ -1282,11 +1297,14 @@
 	        const link = row.source_url || '#';
 	        const stationMapsUrl = buildMapsSearchUrl(stationName + ' Tokyo');
 	        const jpMapsUrl = buildMapsSearchUrl(titleJa || titleEn);
-	        const tagDate = row.display_date || formatTagDate(row.updated_at);
+	        const tagDate = formatTagDate(row.created_at);
+	        const recentDateClass = isRecentDate(row.created_at) ? ' recent' : '';
+	        const createdTs = Date.parse(row.created_at || '');
 
 	        const card = document.createElement('div');
 	        card.className = 'property';
 	        card.setAttribute('data-external-id', row.external_id || ('row-' + idx));
+	        if (Number.isFinite(createdTs)) card.dataset.date = String(createdTs);
 
 	        card.innerHTML =
 	          '<div class=\"property-header\">' +
@@ -1312,7 +1330,7 @@
 	            '<span class=\"tag layout-tag\">' + escapeHtml(layoutText) + '</span>' +
 	            '<span class=\"tag sqm-tag\">' + escapeHtml(sqmText) + '</span>' +
 	            '<span class=\"tag ward\">' + escapeHtml(wardText) + '-ku</span>' +
-	            '<span class=\"tag date\">' + escapeHtml(tagDate) + '</span>' +
+	            '<span class=\"tag date' + recentDateClass + '\">' + escapeHtml(tagDate) + '</span>' +
 	          '</div>';
 
 	        footer.parentNode.insertBefore(card, footer);
@@ -1322,7 +1340,7 @@
 	    async function loadPublishedProperties() {
 	      const { data, error } = await supabaseClient
 	        .from('properties')
-	        .select('external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,display_date,updated_at,status')
+	        .select('external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,created_at,status')
 	        .eq('status', 'published')
 	        .order('total_transit_min', { ascending: true, nullsFirst: false })
 	        .order('price_m', { ascending: true, nullsFirst: false });
@@ -1537,7 +1555,6 @@
 	      const layoutTag = card.querySelector('.layout-tag');
 	      const sqmTag = card.querySelector('.sqm-tag');
 	      const wardTag = card.querySelector('.tag.ward');
-	      const dateTag = card.querySelector('.tag.date');
 
 	      if (link && payload.title_en != null) link.textContent = payload.title_en || '';
 	      if (jp && payload.title_ja != null) jp.textContent = payload.title_ja || '';
@@ -1566,8 +1583,6 @@
 	        const ward = cleanWard(payload.ward) || 'Unknown';
 	        wardTag.textContent = ward + '-ku';
 	      }
-	      if (dateTag && payload.display_date != null) dateTag.textContent = payload.display_date || 'N/A';
-
 	      const walk = Number(payload.walk_min);
 	      const train = Number(payload.train_min);
 	      const total = Number(payload.total_transit_min);
@@ -2713,4 +2728,3 @@
   </script>
 </body>
 </html>
-<!-- Wed Feb 18 16:28:00 +07 2026 -->
