@@ -13,7 +13,7 @@
         .filter(Boolean);
       const slugs = entries.map(function (e) { return e.slug; });
 
-      function renderControl(control, score) {
+      function renderControl(control, score, isDragging = false) {
         const value = control.querySelector('.rating-value');
         const clear = control.querySelector('.rating-clear');
         if (score == null || !Number.isFinite(score)) {
@@ -24,7 +24,12 @@
           }
           return;
         }
-        value.textContent = score.toFixed(2);
+        // Only round display during drag for Michelle's rating slider
+        if (control.getAttribute('data-rater') === 'michelle' && control.getAttribute('data-metric') === 'rating' && isDragging) {
+          value.textContent = Math.round(score);
+        } else {
+          value.textContent = score.toFixed(2);
+        }
         if (clear) {
           clear.style.visibility = 'visible';
           clear.style.pointerEvents = 'auto';
@@ -107,7 +112,7 @@
 
           const onInput = function () {
             const score = Number(range.value);
-            renderControl(control, score);
+            renderControl(control, score, true);
             ratingsStore[key] = score;
             updateAggregateForCard(entry.card, entry.slug, ratingsStore);
             if (saveTimers[key]) clearTimeout(saveTimers[key]);
@@ -115,12 +120,18 @@
               persist(score);
             }, 400);
           };
+          const onRelease = function () {
+            const score = Number(range.value);
+            renderControl(control, score, false);
+          };
           const onCommit = function () {
             if (isRatingsSortActive()) sortCards();
           };
 
           range.addEventListener('input', onInput);
+          range.addEventListener('change', onRelease);
           range.addEventListener('change', onCommit);
+          range.addEventListener('pointerup', onRelease);
 
           if (clear) {
             clear.addEventListener('click', function () {
