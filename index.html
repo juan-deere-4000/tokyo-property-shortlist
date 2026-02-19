@@ -434,6 +434,9 @@
     .notes-author-pill[data-has-content="true"] {
       border-color: #9dc0ea;
     }
+    .notes-sold-toggle {
+      margin-left: 2px;
+    }
     .notes-editor[aria-hidden="true"] {
       display: none;
     }
@@ -545,6 +548,15 @@
     .tag.veto-pill {
       background: #dc3545;
       color: #fff;
+    }
+    .tag.sold-pill {
+      background: #dc3545;
+      color: #fff;
+      border: 0;
+      cursor: pointer;
+    }
+    .tag.sold-pill:hover {
+      filter: brightness(0.95);
     }
 
 
@@ -1315,6 +1327,17 @@
 	      return Number.isFinite(n) ? n : null;
 	    }
 
+	    function normalizeSourceUrl(value) {
+	      const raw = String(value || '').trim();
+	      if (!raw) return '';
+	      const stripped = raw.replace(/[\u0000-\u001F\u007F]/g, '');
+	      try {
+	        return encodeURI(stripped);
+	      } catch (err) {
+	        return stripped.replace(/\s+/g, '%20');
+	      }
+	    }
+
 	    function createEditDialog() {
 	      if (editDialog) return editDialog;
 	      const dialog = document.createElement('dialog');
@@ -1336,7 +1359,7 @@
 	              '<div class="edit-field"><label>Station Name</label><input name="station_name"></div>' +
 	              '<div class="edit-field"><label>Station Line</label><input name="station_line"></div>' +
 	              '<div class="edit-field"><label>Display Date</label><input name="display_date"></div>' +
-	              '<div class="edit-field"><label>Source URL</label><input name="source_url" type="url"></div>' +
+	              '<div class="edit-field"><label>Source URL</label><input name="source_url" type="text"></div>' +
 	            '</div>' +
 	            '<details class="edit-advanced">' +
 	              '<summary>Advanced (Read-only)</summary>' +
@@ -1394,7 +1417,7 @@
 		            station_name: form.elements.station_name.value.trim(),
 		            station_line: form.elements.station_line.value.trim(),
 		            display_date: form.elements.display_date.value.trim(),
-		            source_url: form.elements.source_url.value.trim(),
+			            source_url: normalizeSourceUrl(form.elements.source_url.value),
 		          };
 		          const { data, error } = await supabaseClient.rpc('update_published_property', {
 		            p_external_id: externalId,
@@ -1763,6 +1786,7 @@
 	      const uiPrefs = loadUiPrefs();
 
       const starredSet = new Set();
+      const soldSet = new Set();
 
       const cards = Array.from(document.querySelectorAll('.property'));
       const slugs = cards.map(function (card, idx) {
@@ -1773,11 +1797,13 @@
       try {
         const { data } = await supabaseClient
           .from(NOTES_CONFIG.starTable)
-          .select('property_slug, starred')
+          .select('property_slug, starred, sold')
           .in('property_slug', slugs);
         (data || []).forEach(function (row) {
           if (row.starred) starredSet.add(row.property_slug);
           else starredSet.delete(row.property_slug);
+          if (row.sold) soldSet.add(row.property_slug);
+          else soldSet.delete(row.property_slug);
         });
       } catch (err) {
         console.error('Failed to load stars from Supabase', err);
@@ -1800,7 +1826,8 @@
       cards.forEach(function (card, idx) {
         const slug = getPropertySlug(card, idx + 1);
         card.setAttribute('data-property-slug', slug);
-        card.setAttribute('data-sold', isSoldCard(card) ? 'true' : 'false');
+        const soldActive = soldSet.has(slug) || isSoldCard(card);
+        card.setAttribute('data-sold', soldActive ? 'true' : 'false');
         card.setAttribute('data-vetoed', card.getAttribute('data-vetoed') || 'false');
         parseCardMetrics(card);
 
@@ -1938,6 +1965,7 @@
             '<textarea class="notes-input" data-author="' + author + '" placeholder="Add ' + author + '\'s notes..."></textarea>' +
           '</div>';
       });
+      pillsHtml += '<button type="button" class="notes-author-pill notes-sold-toggle">Sold</button>';
       panel.innerHTML =
         '<div class="notes-authors">' + pillsHtml + '</div>' +
         '<div class="notes-editors">' +
@@ -2252,8 +2280,71 @@
       });
 
       entries.forEach(function (entry) {
-        const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill'));
-        const topPills = Array.from(entry.panel.querySelectorAll('.notes-author-pill:not(.notes-editor-pill)'));
+        const meta = entry.card.querySelector('.meta');
+        const actions = meta ? ensureMetaActions(meta) : null;
+        const soldToggle = entry.panel.querySelector('.notes-sold-toggle');
+
+        function isSold() {
+          return entry.card.getAttribute('data-sold') === 'true';
+        }
+
+        function renderSoldPill() {
+          if (!meta) return;
+          let pill = meta.querySelector('.sold-pill');
+          if (!isSold()) {
+            if (pill) pill.remove();
+            return;
+          }
+          if (!pill) {
+            pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = 'tag sold-pill';
+            pill.textContent = 'Sold';
+            pill.title = 'Mark as unsold';
+            pill.addEventListener('click', function () {
+              persistSold(false);
+            });
+          }
+          if (actions && actions.parentNode === meta) {
+            meta.insertBefore(pill, actions);
+          } else {
+            meta.appendChild(pill);
+          }
+        }
+
+        function renderSoldToggle() {
+          if (!soldToggle) return;
+          soldToggle.style.display = isSold() ? 'none' : '';
+        }
+
+        async function persistSold(nextSold) {
+          entry.card.setAttribute('data-sold', nextSold ? 'true' : 'false');
+          renderSoldPill();
+          renderSoldToggle();
+          applyFilters();
+          try {
+            await supabaseClient
+              .from(NOTES_CONFIG.starTable)
+              .upsert(
+                { property_slug: entry.slug, sold: nextSold, updated_at: new Date().toISOString() },
+                { onConflict: 'property_slug' }
+              );
+          } catch (err) {
+            console.error('Sold save failed for', entry.slug, err);
+          }
+        }
+
+        if (soldToggle) {
+          soldToggle.addEventListener('click', function () {
+            persistSold(true);
+          });
+        }
+
+        renderSoldPill();
+        renderSoldToggle();
+
+        const pills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]'));
+        const topPills = Array.from(entry.panel.querySelectorAll('.notes-author-pill[data-author]:not(.notes-editor-pill)'));
         const editors = Array.from(entry.panel.querySelectorAll('.notes-editor'));
         const hint = entry.panel.querySelector('.notes-hint');
         const saveTimers = {};
