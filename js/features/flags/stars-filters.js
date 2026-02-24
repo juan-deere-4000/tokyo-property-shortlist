@@ -142,16 +142,22 @@
 	      const hideUnstarredEl = document.getElementById('hide-unstarred');
 	      const hideSoldEl = document.getElementById('hide-sold');
 	      const hideVetoedEl = document.getElementById('hide-vetoed');
+	      const hideUnsoldEl = document.getElementById('hide-unsold');
+	      const hideUnvetoedEl = document.getElementById('hide-unvetoed');
 	      const hideNotesEl = document.getElementById('hide-notes');
 	      const sortEl = document.getElementById('sort-by');
 	      if (hideUnstarredEl) hideUnstarredEl.checked = uiPrefs.hide_unstarred;
 	      if (hideSoldEl) hideSoldEl.checked = uiPrefs.hide_sold;
 	      if (hideVetoedEl) hideVetoedEl.checked = uiPrefs.hide_vetoed;
+	      if (hideUnsoldEl) hideUnsoldEl.checked = uiPrefs.hide_unsold;
+	      if (hideUnvetoedEl) hideUnvetoedEl.checked = uiPrefs.hide_unvetoed;
 	      if (hideNotesEl) hideNotesEl.checked = uiPrefs.hide_notes;
 	      if (sortEl) sortEl.value = uiPrefs.sort_key;
 	      if (hideUnstarredEl) hideUnstarredEl.addEventListener('change', applyFilters);
 	      if (hideSoldEl) hideSoldEl.addEventListener('change', applyFilters);
 	      if (hideVetoedEl) hideVetoedEl.addEventListener('change', applyFilters);
+	      if (hideUnsoldEl) hideUnsoldEl.addEventListener('change', applyFilters);
+	      if (hideUnvetoedEl) hideUnvetoedEl.addEventListener('change', applyFilters);
 	      if (hideNotesEl) hideNotesEl.addEventListener('change', applyFilters);
 	      if (sortEl) sortEl.addEventListener('change', sortCards);
       if (hideToggle && hideMenu) {

@@ -4,6 +4,8 @@
 	        hide_unstarred: false,
 	        hide_sold: true,
 	        hide_vetoed: false,
+	        hide_unsold: false,
+	        hide_unvetoed: false,
 	        hide_notes: false
 	      };
 	      try {
@@ -17,6 +19,8 @@
 	          hide_unstarred: Boolean(parsed.hide_unstarred),
 	          hide_sold: parsed.hide_sold !== false, // default true
 	          hide_vetoed: Boolean(parsed.hide_vetoed),
+	          hide_unsold: Boolean(parsed.hide_unsold),
+	          hide_unvetoed: Boolean(parsed.hide_unvetoed),
 	          hide_notes: Boolean(parsed.hide_notes)
 	        };
 	      } catch (err) {

@@ -121,17 +121,25 @@
 	      const hideUnstarredEl = document.getElementById('hide-unstarred');
 	      const hideSoldEl = document.getElementById('hide-sold');
       const hideVetoedEl = document.getElementById('hide-vetoed');
+      const hideUnsoldEl = document.getElementById('hide-unsold');
+      const hideUnvetoedEl = document.getElementById('hide-unvetoed');
       const hideNotesEl = document.getElementById('hide-notes');
       if (!hideUnstarredEl || !hideSoldEl || !hideVetoedEl || !hideNotesEl) return;
       const hideUnstarred = hideUnstarredEl.checked;
       const hideSold = hideSoldEl.checked;
       const hideVetoed = hideVetoedEl.checked;
+      const hideUnsold = hideUnsoldEl ? hideUnsoldEl.checked : false;
+      const hideUnvetoed = hideUnvetoedEl ? hideUnvetoedEl.checked : false;
       const hideNotes = hideNotesEl.checked;
       document.querySelectorAll('.property').forEach(function (card) {
         const starred = card.getAttribute('data-starred') === 'true';
         const sold = card.getAttribute('data-sold') === 'true';
         const vetoed = card.getAttribute('data-vetoed') === 'true';
-	        const show = (!hideUnstarred || starred) && (!hideSold || !sold) && (!hideVetoed || !vetoed);
+	        const show = (!hideUnstarred || starred)
+          && (!hideSold || !sold)
+          && (!hideVetoed || !vetoed)
+          && (!hideUnsold || sold)
+          && (!hideUnvetoed || vetoed);
 	        card.style.display = show ? '' : 'none';
 	      });
 	      document.querySelectorAll('.property .notes-toggle').forEach(function (btn) {
@@ -139,5 +147,5 @@
 	      });
 	      document.body.classList.toggle('notes-hidden', hideNotes);
 	      updateRanks();
-	      saveUiPrefs({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed, hide_notes: hideNotes });
+	      saveUiPrefs({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed, hide_unsold: hideUnsold, hide_unvetoed: hideUnvetoed, hide_notes: hideNotes });
 	    }
