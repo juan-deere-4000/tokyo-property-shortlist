@@ -20,6 +20,9 @@
 	              '<div class="edit-field"><label>Station Line</label><input name="station_line"></div>' +
 	              '<div class="edit-field"><label>Display Date</label><input name="display_date"></div>' +
 	              '<div class="edit-field"><label>Source URL</label><input name="source_url" type="text"></div>' +
+	              '<div class="edit-field edit-field--full"><label>Google Maps URL <span class="edit-hint">(paste to auto-fill coordinates)</span></label><input name="maps_url" type="text" placeholder="https://maps.google.com/..."></div>' +
+	              '<div class="edit-field"><label>Latitude</label><input name="latitude" type="number" step="any"></div>' +
+	              '<div class="edit-field"><label>Longitude</label><input name="longitude" type="number" step="any"></div>' +
 	            '</div>' +
 	            '<details class="edit-advanced">' +
 	              '<summary>Advanced (Read-only)</summary>' +
@@ -54,6 +57,16 @@
 	        dialog.close();
 	      });
 
+	      form.elements.maps_url.addEventListener('change', function () {
+	        var val = this.value.trim();
+	        var m = val.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/)
+	               || val.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+	        if (m) {
+	          form.elements.latitude.value  = m[1];
+	          form.elements.longitude.value = m[2];
+	        }
+	      });
+
 		      form.addEventListener('submit', async function (e) {
 	        e.preventDefault();
 	        msg.classList.remove('ok');
@@ -78,6 +91,8 @@
 		            station_line: form.elements.station_line.value.trim(),
 		            display_date: form.elements.display_date.value.trim(),
 			            source_url: normalizeSourceUrl(form.elements.source_url.value),
+		            latitude:  parseFloatOrNull(form.elements.latitude.value),
+		            longitude: parseFloatOrNull(form.elements.longitude.value),
 		          };
 		          const { data, error } = await supabaseClient.rpc('update_published_property', {
 		            p_external_id: externalId,
@@ -93,10 +108,18 @@
 		            p_station_line: payload.station_line,
 		            p_display_date: payload.display_date,
 		            p_source_url: payload.source_url,
+		            p_latitude:  payload.latitude,
+		            p_longitude: payload.longitude,
 		          });
 		          if (error) throw error;
 		          if (!data) throw new Error('Update did not match a published row');
 		          updateCardDOM(externalId, payload);
+		          var card = document.querySelector('[data-external-id="' + externalId + '"]');
+		          if (card) {
+		            card.dataset.lat = payload.latitude  != null ? String(payload.latitude)  : '';
+		            card.dataset.lng = payload.longitude != null ? String(payload.longitude) : '';
+		            if (typeof refreshMarker === 'function') refreshMarker(externalId);
+		          }
 		          msg.textContent = 'Saved';
 	          msg.classList.add('ok');
 	          setTimeout(function () { dialog.close(); }, 400);
@@ -127,12 +150,22 @@
 	      const msg = dialog.querySelector('#edit-msg');
 	      msg.classList.remove('ok');
 	      msg.textContent = '';
-	      const { data, error } = await supabaseClient
+	      const BASE_SELECT = 'external_id,source,source_listing_id,status,title_en,title_ja,price_m,walk_min,train_min,total_transit_min,layout,sqm,ward,source_url,station_name,station_line,display_date,presented_at,approved_at,rejected_at,published_at,rejection_reason,created_at';
+	      let result = await supabaseClient
 	        .from('properties')
-	        .select('external_id,source,source_listing_id,status,title_en,title_ja,price_m,walk_min,train_min,total_transit_min,layout,sqm,ward,source_url,station_name,station_line,display_date,presented_at,approved_at,rejected_at,published_at,rejection_reason,created_at')
+	        .select(BASE_SELECT + ',latitude,longitude')
 	        .eq('external_id', externalId)
 	        .single();
+	      if (result.error) {
+	        result = await supabaseClient
+	          .from('properties')
+	          .select(BASE_SELECT)
+	          .eq('external_id', externalId)
+	          .single();
+	      }
+	      const { data, error } = result;
 	      if (error) {
+	        console.error('openEditDialog fetch failed', error);
 	        msg.textContent = error.message;
 	        dialog.showModal();
 	        return;
@@ -159,5 +192,8 @@
 	      form.elements.published_at.value = data.published_at || '';
 	      form.elements.rejection_reason.value = data.rejection_reason || '';
 	      form.elements.created_at.value = data.created_at || '';
+	      form.elements.maps_url.value  = '';
+	      form.elements.latitude.value  = data.latitude  == null ? '' : data.latitude;
+	      form.elements.longitude.value = data.longitude == null ? '' : data.longitude;
 	      dialog.showModal();
 	    }

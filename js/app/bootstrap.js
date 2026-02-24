@@ -24,4 +24,9 @@
       } catch (err) {
         console.error('initRatings failed', err);
       }
+      try {
+        initMap();
+      } catch (err) {
+        console.error('initMap failed', err);
+      }
     })();

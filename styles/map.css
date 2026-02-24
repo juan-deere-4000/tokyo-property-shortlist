@@ -1,0 +1,34 @@
+body {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+.page-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+.list-panel {
+  flex: 0 0 520px;
+  overflow-y: auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+.map-panel {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+#property-map {
+  position: absolute;
+  inset: 0;
+}
+.property.map-highlight {
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
+}
+@media (max-width: 900px) {
+  .page-layout { display: block; height: auto; overflow: visible; }
+  .list-panel { padding: 14px; }
+  .map-panel { display: none; }
+}
