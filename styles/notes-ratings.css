@@ -87,6 +87,13 @@
       color: #42566f;
       font-weight: 600;
     }
+    .ratings-table thead th[title] {
+      cursor: help;
+      position: relative;
+    }
+    .ratings-table thead th[title]:hover {
+      color: #2d4057;
+    }
     .rating-control {
       display: inline-flex;
       align-items: center;

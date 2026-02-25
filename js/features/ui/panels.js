@@ -79,7 +79,9 @@
 
       let html = '<table class="ratings-table"><thead><tr><th></th>';
       METRICS.forEach(function (metric) {
-        html += '<th>' + (METRIC_LABELS[metric] || metric) + '</th>';
+        const label = METRIC_LABELS[metric] || metric;
+        const tooltip = METRIC_TOOLTIPS[metric] || '';
+        html += '<th' + (tooltip ? ' title="' + tooltip + '"' : '') + '>' + label + '</th>';
       });
       html += '<th>Veto</th>';
       html += '</tr></thead><tbody>';

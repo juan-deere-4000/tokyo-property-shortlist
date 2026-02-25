@@ -24,6 +24,11 @@
 	      Transit: '🚇 Transit',
 	      Interior: '🏠 Interior'
 	    };
+	    const METRIC_TOOLTIPS = {
+	      Neighborhood: 'How nice of a location is this property from the perspective of a walker. Low traffic? Trees? Parks? Local restaurants? Pleasant walk to the train?',
+	      Transit: 'How good are the transit options from this property\'s home station to places in Tokyo you care about going to? How long is the walk to that station?',
+	      Interior: 'Everything relating to the interior of the property. How nice will it be to spend time there? How convenient and usable will it be for various sleeping configurations? Has it be recently renovated?'
+	    };
 	    const METRIC_UI_TO_STORAGE = {
 	      Interior: 'Layout'
 	    };
