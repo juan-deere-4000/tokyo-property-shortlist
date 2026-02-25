@@ -81,7 +81,14 @@
       METRICS.forEach(function (metric) {
         const label = METRIC_LABELS[metric] || metric;
         const tooltip = METRIC_TOOLTIPS[metric] || '';
-        html += '<th' + (tooltip ? ' title="' + tooltip + '"' : '') + '>' + label + '</th>';
+        if (tooltip) {
+          html += '<th><span class="metric-label-wrap">' + label +
+                  '<span class="metric-tooltip-trigger">?</span>' +
+                  '<span class="metric-tooltip-popup">' + tooltip + '</span>' +
+                  '</span></th>';
+        } else {
+          html += '<th>' + label + '</th>';
+        }
       });
       html += '<th>Veto</th>';
       html += '</tr></thead><tbody>';
