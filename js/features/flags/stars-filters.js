@@ -139,6 +139,8 @@
 
       const hideToggle = document.getElementById('hide-toggle');
       const hideMenu = document.getElementById('hide-menu');
+      const showOnlyToggle = document.getElementById('show-only-toggle');
+      const showOnlyMenu = document.getElementById('show-only-menu');
 	      const hideUnstarredEl = document.getElementById('hide-unstarred');
 	      const hideSoldEl = document.getElementById('hide-sold');
 	      const hideVetoedEl = document.getElementById('hide-vetoed');
@@ -165,15 +167,35 @@
           e.stopPropagation();
           const open = hideMenu.classList.toggle('open');
           hideToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if (open && showOnlyMenu) {
+            showOnlyMenu.classList.remove('open');
+            if (showOnlyToggle) showOnlyToggle.setAttribute('aria-expanded', 'false');
+          }
         });
         hideMenu.addEventListener('click', function (e) {
           e.stopPropagation();
         });
-        document.addEventListener('click', function () {
-          hideMenu.classList.remove('open');
-          hideToggle.setAttribute('aria-expanded', 'false');
+      }
+      if (showOnlyToggle && showOnlyMenu) {
+        showOnlyToggle.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const open = showOnlyMenu.classList.toggle('open');
+          showOnlyToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if (open && hideMenu) {
+            hideMenu.classList.remove('open');
+            if (hideToggle) hideToggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+        showOnlyMenu.addEventListener('click', function (e) {
+          e.stopPropagation();
         });
       }
+      document.addEventListener('click', function () {
+        if (hideMenu) hideMenu.classList.remove('open');
+        if (hideToggle) hideToggle.setAttribute('aria-expanded', 'false');
+        if (showOnlyMenu) showOnlyMenu.classList.remove('open');
+        if (showOnlyToggle) showOnlyToggle.setAttribute('aria-expanded', 'false');
+      });
 
       sortCards();
       applyFilters();
