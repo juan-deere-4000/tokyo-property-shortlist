@@ -57,9 +57,9 @@
           : null;
       });
       const metricParts = [];
+      if (metricAverages.Interior != null) metricParts.push('🏠 ' + metricAverages.Interior.toFixed(1));
       if (metricAverages.Neighborhood != null) metricParts.push('🌳 ' + metricAverages.Neighborhood.toFixed(1));
       if (metricAverages.Transit != null) metricParts.push('🚇 ' + metricAverages.Transit.toFixed(1));
-      if (metricAverages.Interior != null) metricParts.push('🏠 ' + metricAverages.Interior.toFixed(1));
       if (!values.length) {
         badge.style.display = 'none';
         badge.textContent = '';

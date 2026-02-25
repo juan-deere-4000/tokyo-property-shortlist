@@ -18,16 +18,16 @@
 
 	    const RATERS = ['Joe', 'Max', 'Michelle'];
 	    const NOTE_AUTHORS = ['Joe', 'Max', 'Michelle', 'Agent'];
-	    const METRICS = ['Neighborhood', 'Transit', 'Interior'];
+	    const METRICS = ['Interior', 'Neighborhood', 'Transit'];
 	    const METRIC_LABELS = {
+	      Interior: '🏠 Interior',
 	      Neighborhood: '🌳 Neighborhood',
-	      Transit: '🚇 Transit',
-	      Interior: '🏠 Interior'
+	      Transit: '🚇 Transit'
 	    };
 	    const METRIC_TOOLTIPS = {
+	      Interior: 'Life inside, and everything relating to the interior of the property. How nice will it be to spend time there? How convenient and usable will it be for various sleeping configurations? Has it be recently renovated?',
 	      Neighborhood: 'Life outside. How nice of a location is this property from the perspective of a walker? Low traffic? Trees? Parks? Local restaurants? Pleasant walk to the train?',
-	      Transit: 'Getting to town. How good are the transit options from this property\'s home station to places in Tokyo you care about going to? How long is the walk to that station?',
-	      Interior: 'Life inside, and everything relating to the interior of the property. How nice will it be to spend time there? How convenient and usable will it be for various sleeping configurations? Has it be recently renovated?'
+	      Transit: 'Getting to town. How good are the transit options from this property\'s home station to places in Tokyo you care about going to? How long is the walk to that station?'
 	    };
 	    const METRIC_UI_TO_STORAGE = {
 	      Interior: 'Layout'
