@@ -148,4 +148,5 @@
 	      document.body.classList.toggle('notes-hidden', hideNotes);
 	      updateRanks();
 	      saveUiPrefs({ hide_unstarred: hideUnstarred, hide_sold: hideSold, hide_vetoed: hideVetoed, hide_unsold: hideUnsold, hide_unvetoed: hideUnvetoed, hide_notes: hideNotes });
+	      document.dispatchEvent(new CustomEvent('filtersChanged'));
 	    }

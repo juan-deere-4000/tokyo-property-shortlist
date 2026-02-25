@@ -43,6 +43,8 @@
 	          card.dataset.cpsqm = String(Math.round((priceNum * 1000) / sqmNum));
 	        }
 	        if (Number.isFinite(createdTs)) card.dataset.date = String(createdTs);
+	        if (row.latitude  != null) card.dataset.lat = String(row.latitude);
+	        if (row.longitude != null) card.dataset.lng = String(row.longitude);
 
 	        card.innerHTML =
 	          '<div class=\"property-header\">' +
@@ -76,12 +78,23 @@
 	    }
 
 	    async function loadPublishedProperties() {
-	      const { data, error } = await supabaseClient
+	      const BASE_COLS = 'external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,created_at,status';
+	      const COORD_COLS = ',latitude,longitude';
+	      let result = await supabaseClient
 	        .from('properties')
-	        .select('external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,created_at,status')
+	        .select(BASE_COLS + COORD_COLS)
 	        .eq('status', 'published')
 	        .order('total_transit_min', { ascending: true, nullsFirst: false })
 	        .order('price_m', { ascending: true, nullsFirst: false });
-	      if (error) throw error;
-	      renderPropertyCards(data || []);
+	      if (result.error) {
+	        // Fall back without coordinate columns if migration hasn't been run yet
+	        result = await supabaseClient
+	          .from('properties')
+	          .select(BASE_COLS)
+	          .eq('status', 'published')
+	          .order('total_transit_min', { ascending: true, nullsFirst: false })
+	          .order('price_m', { ascending: true, nullsFirst: false });
+	      }
+	      if (result.error) throw result.error;
+	      renderPropertyCards(result.data || []);
 	    }

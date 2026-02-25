@@ -10,8 +10,12 @@
   <link rel="stylesheet" href="styles/notes-ratings.css">
   <link rel="stylesheet" href="styles/tags-modal.css">
   <link rel="stylesheet" href="styles/responsive.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="styles/map.css">
 </head>
 <body>
+<div class="page-layout">
+  <div class="list-panel">
   <h1>🏠 Tokyo Property Shortlist</h1>
   <div class="filters">
     <span class="sort-wrap">
@@ -380,6 +384,11 @@
   <div class="footer">
     <p>Built with ❤️ by juan</p>
   </div>
+  </div><!-- /.list-panel -->
+  <div class="map-panel">
+    <div id="property-map"></div>
+  </div>
+</div><!-- /.page-layout -->
   <script src="notes-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/core/config.js"></script>
@@ -394,6 +403,8 @@
   <script src="js/features/ui/panels.js"></script>
   <script src="js/features/ratings/index.js"></script>
   <script src="js/features/notes/index.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/features/map/index.js"></script>
   <script src="js/app/bootstrap.js"></script>
 </body>
 </html>
