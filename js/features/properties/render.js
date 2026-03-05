@@ -27,7 +27,7 @@
 	        const stationName = row.station_name || (wardText + ' area');
 	        const stationLineRaw = row.station_line || (row.source ? String(row.source).toUpperCase() : 'SOURCE');
 	        const stationLine = normalizeLineName(stationLineRaw);
-	        const link = row.source_url || '#';
+	        const link = row.source_url_translated || row.source_url || '#';
 	        const stationMapsUrl = buildMapsSearchUrl(stationName + ' Tokyo');
 	        const jpMapsUrl = buildMapsSearchUrl(titleJa || titleEn);
 	        const tagDate = formatTagDate(row.created_at);
@@ -78,7 +78,7 @@
 	    async function loadPublishedProperties() {
 	      const { data, error } = await supabaseClient
 	        .from('properties')
-	        .select('external_id,source,source_url,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,created_at,status')
+	        .select('external_id,source,source_url,source_url_translated,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,created_at,status')
 	        .eq('status', 'published')
 	        .order('total_transit_min', { ascending: true, nullsFirst: false })
 	        .order('price_m', { ascending: true, nullsFirst: false });

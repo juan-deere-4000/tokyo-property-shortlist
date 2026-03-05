@@ -19,7 +19,9 @@
 	      const titleEn = payload.title_en != null ? payload.title_en : (link ? link.textContent : '');
 	      const titleJa = payload.title_ja != null ? payload.title_ja : (jp ? jp.textContent : '');
 	      if (payload.source_url) {
-	        if (link) link.href = payload.source_url;
+	        // Use translated URL if available, fallback to original
+	        const href = payload.source_url_translated || payload.source_url;
+	        if (link) link.href = href;
 	      }
 	      if (price && payload.price_m != null && Number.isFinite(Number(payload.price_m))) {
 	        const p = Number(payload.price_m);
