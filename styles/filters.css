@@ -90,10 +90,11 @@
       background: #fff;
       color: #2f4058;
       font-weight: 600;
+      width: 190px;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
     .filters .select-prefix select {
-      padding-left: 56px; /* room for "Sort:" */
+      padding-left: 44px; /* room for "Sort:" */
     }
     .filters select:hover {
       border-color: #b9c7da;
