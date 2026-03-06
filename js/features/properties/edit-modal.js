@@ -56,7 +56,6 @@
 	        dialog.close();
 	      });
 	      hide.addEventListener('click', async function () {
-	        if (!confirm('Hide this property from the shortlist?')) return;
 	        hide.disabled = true;
 	        try {
 	          const externalId = form.elements.external_id.value;
