@@ -39,6 +39,7 @@
 	            '<div class="edit-msg" id="edit-msg"></div>' +
 	          '</div>' +
 	          '<div class="edit-actions">' +
+	            '<button type="button" class="edit-hide">Hide</button>' +
 	            '<button type="button" class="edit-cancel">Cancel</button>' +
 	            '<button type="submit" class="edit-save">Save</button>' +
 	          '</div>' +
@@ -50,8 +51,25 @@
 	      const msg = dialog.querySelector('#edit-msg');
 	      const cancel = dialog.querySelector('.edit-cancel');
 	      const save = dialog.querySelector('.edit-save');
+	      const hide = dialog.querySelector('.edit-hide');
 	      cancel.addEventListener('click', function () {
 	        dialog.close();
+	      });
+	      hide.addEventListener('click', async function () {
+	        if (\!confirm('Hide this property from the shortlist?')) return;
+	        hide.disabled = true;
+	        try {
+	          const externalId = form.elements.external_id.value;
+	          const { error } = await supabaseClient.rpc('hide_property', { p_external_id: externalId });
+	          if (error) throw error;
+	          const card = document.querySelector('[data-external-id="' + externalId + '"]');
+	          if (card) card.remove();
+	          dialog.close();
+	        } catch (err) {
+	          msg.textContent = String(err.message || err);
+	        } finally {
+	          hide.disabled = false;
+	        }
 	      });
 
 		      form.addEventListener('submit', async function (e) {

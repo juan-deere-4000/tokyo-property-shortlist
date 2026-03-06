@@ -146,3 +146,11 @@
       color: #fff;
       font-weight: 600;
     }
+    .edit-actions .edit-hide {
+      margin-right: auto;
+      color: #b42318;
+      border-color: #e2cdd0;
+    }
+    .edit-actions .edit-hide:hover {
+      background: #fff5f5;
+    }
