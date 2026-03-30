@@ -115,7 +115,7 @@ Ratings are shared across devices.
 - Copy `notes-config.example.js` to `notes-config.js` (already included with placeholders).
 - Fill:
   - `supabaseUrl`
-  - `supabaseAnonKey`
+  - `supabasePublishableKey`
   - keep `table: 'property_notes'`
   - keep `starTable: 'property_flags'`
   - keep `ratingTable: 'property_ratings'`
