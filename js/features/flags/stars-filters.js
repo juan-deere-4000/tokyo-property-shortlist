@@ -14,10 +14,10 @@
 
       // Load stars from Supabase
       try {
-	        const { data } = await supabaseClient
+	        const { data } = await checkedQuery(supabaseClient
 	          .from(NOTES_CONFIG.starTable)
           .select('property_slug, starred, sold, exclusive, lease')
-	          .in('property_slug', slugs);
+	          .in('property_slug', slugs));
 	        (data || []).forEach(function (row) {
 	          if (row.starred) starredSet.add(row.property_slug);
 	          else starredSet.delete(row.property_slug);
@@ -29,21 +29,21 @@
           else leaseSet.delete(row.property_slug);
 	        });
       } catch (err) {
-        console.error('Failed to load stars from Supabase', err);
+        reportAppError('Could not load property flags.', err);
       }
 
       // Load vetoes from Supabase
       const vetoStore = {};
       try {
-        const { data } = await supabaseClient
+        const { data } = await checkedQuery(supabaseClient
           .from(NOTES_CONFIG.vetoTable)
           .select('property_slug, rater, vetoed')
-          .in('property_slug', slugs);
+          .in('property_slug', slugs));
         (data || []).forEach(function (row) {
           vetoStore[vetoKey(row.property_slug, row.rater)] = row.vetoed;
         });
       } catch (err) {
-        console.error('Failed to load vetoes from Supabase', err);
+        reportAppError('Could not load vetoes.', err);
       }
 
       cards.forEach(function (card, idx) {
@@ -101,6 +101,8 @@
         card.setAttribute('data-starred', active ? 'true' : 'false');
 
         star.addEventListener('click', function () {
+          const wasActive = star.classList.contains('active');
+          star.disabled = true;
           const isActive = star.classList.toggle('active');
           star.textContent = isActive ? '★' : '☆';
           card.setAttribute('data-starred', isActive ? 'true' : 'false');
@@ -109,14 +111,21 @@
           // Save to Supabase
           (async function () {
             try {
-              await supabaseClient
+              await checkedQuery(supabaseClient
                 .from(NOTES_CONFIG.starTable)
                 .upsert(
                   { property_slug: slug, starred: isActive, updated_at: new Date().toISOString() },
                   { onConflict: 'property_slug' }
-                );
+                ));
             } catch (err) {
-              console.error('Star save failed for', slug, err);
+              star.classList.toggle('active', wasActive);
+              star.textContent = wasActive ? '★' : '☆';
+              card.setAttribute('data-starred', wasActive ? 'true' : 'false');
+              if (wasActive) starredSet.add(slug); else starredSet.delete(slug);
+              applyFilters();
+              reportAppError('Could not save this star.', err);
+            } finally {
+              star.disabled = false;
             }
           })();
 

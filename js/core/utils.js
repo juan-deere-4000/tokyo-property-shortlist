@@ -1,5 +1,5 @@
 	    function escapeHtml(value) {
-	      return String(value || '')
+	      return String(value == null ? '' : value)
 	        .replace(/&/g, '&amp;')
 	        .replace(/</g, '&lt;')
 	        .replace(/>/g, '&gt;')
@@ -18,7 +18,8 @@
 	      if (!isoValue) return false;
 	      const dt = new Date(isoValue);
 	      if (Number.isNaN(dt.getTime())) return false;
-	      return (Date.now() - dt.getTime()) <= (48 * 60 * 60 * 1000);
+	      const age = Date.now() - dt.getTime();
+	      return age >= 0 && age <= (48 * 60 * 60 * 1000);
 	    }
 
 	    function buildMapsSearchUrl(query) {
@@ -53,9 +54,31 @@
 	      const raw = String(value || '').trim();
 	      if (!raw) return '';
 	      const stripped = raw.replace(/[\u0000-\u001F\u007F]/g, '');
-	      try {
-	        return encodeURI(stripped);
-	      } catch (err) {
-	        return stripped.replace(/\s+/g, '%20');
+	      const url = new URL(stripped, document.baseURI);
+	      if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+	        throw new Error('Source URL must start with https:// or http://');
 	      }
+	      return /^[a-z][a-z0-9+.-]*:/i.test(stripped) ? url.href : stripped;
 	    }
+
+    function safeSourceUrl(value) {
+      try {
+        return normalizeSourceUrl(value) || '#';
+      } catch (error) {
+        return '#';
+      }
+    }
+
+    function propertySourceUrl(source, translated) {
+      // Archived pages already live on this site and must not go through Translate.
+      if (/^properties\//.test(String(source || ''))) return safeSourceUrl(source);
+      const preferred = safeSourceUrl(translated);
+      return preferred === '#' ? safeSourceUrl(source) : preferred;
+    }
+
+    function formatTransit(walk, train, total) {
+      if (walk == null && train == null) return total == null ? 'Transit TBD' : total + ' min total';
+      const parts = ['🚶 ' + (walk == null ? 'TBD' : walk + ' min'), '🚇 ' + (train == null ? 'TBD' : train + ' min')];
+      if (total != null) parts.push(total + ' min');
+      return parts.join(' → ');
+    }

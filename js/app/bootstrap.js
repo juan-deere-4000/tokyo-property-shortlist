@@ -1,27 +1,27 @@
-	    (async function () {
-	      // Hard-cutover behavior: inventory is Supabase-driven only.
-	      document.querySelectorAll('.property').forEach(function (node) {
-	        node.remove();
-	      });
-	      createEditDialog();
-	      try {
-	        await loadPublishedProperties();
-	      } catch (err) {
-	        console.error('loadPublishedProperties failed', err);
-	      }
-	      try {
-	        await initStarsAndFilters();
-	      } catch (err) {
-        console.error('initStarsAndFilters failed', err);
-      }
-      try {
-        await initNotes();
-      } catch (err) {
-        console.error('initNotes failed', err);
-      }
-      try {
-        await initRatings();
-      } catch (err) {
-        console.error('initRatings failed', err);
-      }
-    })();
+(async function () {
+  try {
+    initializeSupabase();
+    createEditDialog();
+    await loadPublishedProperties();
+    const hasProperties = document.querySelector('.property');
+    setAppStatus(hasProperties ? '' : 'No properties are currently published.');
+    if (!hasProperties) return;
+  } catch (error) {
+    console.error('Could not load properties', error);
+    setAppStatus('Could not load the shortlist. Check your connection and retry.', true);
+    return;
+  }
+
+  for (const [name, initialize] of [
+    ['property flags', initStarsAndFilters],
+    ['notes', initNotes],
+    ['ratings', initRatings]
+  ]) {
+    try {
+      await initialize();
+    } catch (error) {
+      reportAppError('Could not load ' + name + '.', error);
+    }
+  }
+  document.body.dataset.ready = 'true';
+})();

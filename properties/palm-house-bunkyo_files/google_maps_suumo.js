@@ -96,7 +96,7 @@ GMAPS = {
 			width: defaultsSettings.width -4,
 			height: defaultsSettings.height,
 			'border': '2px solid #6699FF',
-			'background-image': 'url(/jj/jjcommon/img/spinner2.gif)',
+			'background-image': 'url(palm-house-bunkyo_files/spinner2.gif)',
 			'background-repeat': 'no-repeat',
 			'background-position': 'center'
 		}
@@ -124,7 +124,7 @@ GMAPS = {
 			'cursor': 'pointer'
 		}
 		var mapBackBtn = document.createElement("img");
-		mapBackBtn.src = '/jj/jjcommon/img/btn_map_901.gif';
+		mapBackBtn.src = 'palm-house-bunkyo_files/btn_map_901.gif';
 		mapBackBtn.index = 1;
 		$(mapBackBtn).css(mapBackBtnStyle);
 		GMAPS.gMapsMap.controls[google.maps.ControlPosition.TOP_LEFT].push(mapBackBtn);

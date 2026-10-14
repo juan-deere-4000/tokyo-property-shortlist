@@ -9,14 +9,12 @@
 	      rows.forEach(function (row, idx) {
 	        const priceNum = row.price_m == null ? null : Number(row.price_m);
 	        const sqmNum = row.sqm == null ? null : Number(row.sqm);
-	        const price = row.price_m == null ? 'TBD' : Number(row.price_m).toFixed(1);
+	        const price = row.price_m == null ? 'TBD' : '¥' + Number(row.price_m).toFixed(1) + 'M';
 	        const walk = row.walk_min == null ? null : Number(row.walk_min);
 	        const train = row.train_min == null ? null : Number(row.train_min);
 	        const total = row.total_transit_min == null ? null : Number(row.total_transit_min);
-	        const transitText = walk != null && train != null && total != null
-	          ? ('🚶 ' + walk + ' min → 🚇 ' + train + ' min → ' + total + ' min')
-	          : 'Transit TBD';
-	        const sqmText = row.sqm == null ? 'TBD' : (Number(row.sqm).toFixed(2).replace(/\\.00$/, '') + 'm²');
+	        const transitText = formatTransit(walk, train, total);
+	        const sqmText = row.sqm == null ? 'TBD' : (Number(row.sqm).toFixed(2).replace(/\.00$/, '') + 'm²');
 	        const costPerSqmText = Number.isFinite(priceNum) && Number.isFinite(sqmNum) && sqmNum > 0
 	          ? ('¥' + Math.round((priceNum * 1000) / sqmNum).toLocaleString('en-US') + 'k/m²')
 	          : 'TBD';
@@ -27,7 +25,7 @@
 	        const stationName = row.station_name || (wardText + ' area');
 	        const stationLineRaw = row.station_line || (row.source ? String(row.source).toUpperCase() : 'SOURCE');
 	        const stationLine = normalizeLineName(stationLineRaw);
-	        const link = row.source_url_translated || row.source_url || '#';
+	        const link = propertySourceUrl(row.source_url, row.source_url_translated);
 	        const stationMapsUrl = buildMapsSearchUrl(stationName + ' Tokyo');
 	        const jpMapsUrl = buildMapsSearchUrl(titleJa || titleEn);
 	        const tagDate = formatTagDate(row.created_at);
@@ -39,6 +37,9 @@
 	        card.setAttribute('data-external-id', row.external_id || ('row-' + idx));
 	        if (Number.isFinite(priceNum)) card.dataset.price = String(priceNum);
 	        if (Number.isFinite(sqmNum)) card.dataset.sqm = String(sqmNum);
+	        if (Number.isFinite(walk)) card.dataset.walk = String(walk);
+	        if (Number.isFinite(train)) card.dataset.train = String(train);
+	        if (Number.isFinite(total)) card.dataset.total = String(total);
 	        if (Number.isFinite(priceNum) && Number.isFinite(sqmNum) && sqmNum > 0) {
 	          card.dataset.cpsqm = String(Math.round((priceNum * 1000) / sqmNum));
 	        }
@@ -50,7 +51,7 @@
 	            '<h2><a class=\"property-link\" href=\"' + escapeHtml(link) + '\" target=\"_blank\">' + escapeHtml(titleEn) + '</a>' +
 	              '<span class=\"jp-subtitle-row\"><a class=\"jp-subtitle jp-subtitle-link\" href=\"' + escapeHtml(jpMapsUrl) + '\" target=\"_blank\">' + escapeHtml(titleJa) + '</a>' +
 	              '<button type=\"button\" class=\"edit-btn\" aria-label=\"Edit property\" data-external-id=\"' + escapeHtml(row.external_id || '') + '\">&#9998;</button></span></h2>' +
-	            '<span class=\"price\">¥' + escapeHtml(price) + 'M</span>' +
+	            '<span class=\"price\">' + escapeHtml(price) + '</span>' +
 	          '</div>' +
 	          '<div class=\"station-card\">' +
 	            '<div class=\"station-main\">' +
@@ -76,12 +77,12 @@
 	    }
 
 	    async function loadPublishedProperties() {
-	      const { data, error } = await supabaseClient
+	      const { data, error } = await checkedQuery(supabaseClient
 	        .from('properties')
 	        .select('external_id,source,source_url,source_url_translated,title_ja,title_en,ward,layout,sqm,price_m,walk_min,train_min,total_transit_min,station_name,station_line,created_at,status')
 	        .eq('status', 'published')
 	        .order('total_transit_min', { ascending: true, nullsFirst: false })
-	        .order('price_m', { ascending: true, nullsFirst: false });
+	        .order('price_m', { ascending: true, nullsFirst: false }));
 	      if (error) throw error;
 	      renderPropertyCards(data || []);
 	    }

@@ -3472,7 +3472,7 @@ center; }
 
 /* ============================== hi12004 */
 #hi12004 .explan_link { text-align:right; }
-#hi12004 .explan_link a {background: url("../img/bullet.gif") no-repeat 0 50%; padding-left: 8px;}
+#hi12004 .explan_link a {background: url("bullet.gif") no-repeat 0 50%; padding-left: 8px;}
 #hi12004 .section h2{ margin-top: 20px ; }
 #hi12004 .comment{ line-height: 1.5; }
 #hi12004 .data_table td { text-align: left; vertical-align: middle; }
@@ -3489,7 +3489,7 @@ center; }
 
 /* ============================== hi12009 */
 #hi12009 .explan_link { text-align:right; }
-#hi12009 .explan_link a {background: url("../img/bullet.gif") no-repeat 0 50%; padding-left: 8px;}
+#hi12009 .explan_link a {background: url("bullet.gif") no-repeat 0 50%; padding-left: 8px;}
 #hi12009 .data_table td { text-align: left; vertical-align: top; }
 #hi12009 .data_table th { text-align: left; vertical-align: top; }
 #hi12009 p.notes { line-height: 1.5; }

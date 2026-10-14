@@ -64,7 +64,7 @@ visibility: hidden;
 #jokenHeader .ryo_main_section .right_column .main_section .left_column h1 { width: 350px; height :15px; background: none; padding-top: 26px; padding-left: 0; padding-bottom: 0; padding-right:0px;}
 
 .bullet_link {
-background: url(/jj/jjcommon/img/bullet.gif) no-repeat 0px 0.3em;
+background: url(bullet.gif) no-repeat 0px 0.3em;
 padding-left: 10px;
 }
 

@@ -58,7 +58,7 @@ body, select, textarea {
 
 body #wrapper .bdLTMosGreenT	{ letter-spacing: 0; }
 
-body			{ background: url(/library/img/bg_body.gif); }
+body			{ background: url(bg_body.gif); }
 body.reportBg	{ background: url(/library/img/bg_report_body.gif); }
 
 label	{ vertical-align: middle; }
@@ -213,11 +213,11 @@ h1	{ background-image: none; }
 	vertical-align: middle;
 }
 
-.s					{ background-image: url(/library/img/sprites/s.png); background-repeat: no-repeat; }
-.b					{ background-image: url(/library/img/sprites/s.png); background-repeat: no-repeat; }
-#wrapper .ic    { background-image: url(/library/img/sprites/i.png); background-repeat: no-repeat; }
-.lightbox .ic		{ background-image: url(/library/img/sprites/i.png); background-repeat: no-repeat; }
-.ib					{ background-image: url(/library/img/sprites/i.png); background-repeat: no-repeat; }
+.s					{ background-image: url(s.png); background-repeat: no-repeat; }
+.b					{ background-image: url(s.png); background-repeat: no-repeat; }
+#wrapper .ic    { background-image: url(i.png); background-repeat: no-repeat; }
+.lightbox .ic		{ background-image: url(i.png); background-repeat: no-repeat; }
+.ib					{ background-image: url(i.png); background-repeat: no-repeat; }
 .c					{ background-image: url(/library/img/sprites/c.png); background-repeat: no-repeat; }
 .y					{ background-image: url(/library/img/sprites/y.png); background-repeat: no-repeat; }
 .m					{ background-image: url(/library/img/sprites/m.png); background-repeat: no-repeat; }
@@ -1039,7 +1039,7 @@ img{ -ms-interpolation-mode: bicubic; }
 }
 
 .suumobook {
-	background: url(/library/img/suumobook.png) no-repeat;
+	background: url(suumobook.png) no-repeat;
 	width: 186px;
 	height: 156px;
 	text-indent: -9999px;
@@ -1264,7 +1264,7 @@ img{ -ms-interpolation-mode: bicubic; }
 }
 .slick_carousel .slick_carousel-prev .slick_carousel-prev-item:before {
 	content: "";
-	background: url("/library/img/prev.png") no-repeat;
+	background: url("prev.png") no-repeat;
 	width: 18px;
 	height: 19px;
 	display: inline-block;
@@ -1289,7 +1289,7 @@ img{ -ms-interpolation-mode: bicubic; }
 }
 .slick_carousel .slick_carousel-next .slick_carousel-next-item:before {
 	content: "";
-	background: url("/library/img/next.png") no-repeat;
+	background: url("next.png") no-repeat;
 	width: 18px;
 	height: 19px;
 	display: inline-block;
@@ -2333,7 +2333,7 @@ span.loader {
 }
 .accordion--open-icon, .accordion--close-icon {
 	display: inline-block;
-	background:url(/library/img/sprites/library_detail_icon.png) no-repeat;
+	background:url(library_detail_icon.png) no-repeat;
 	width: 25px;
 	height: 24px;
 	vertical-align: middle;
@@ -2368,7 +2368,7 @@ span.loader {
 	padding: 0 10px;
 }
 .shikugun_gaiyo-title_icon, .eki_gaiyo-title_icon {
-	background-image: url(/library/img/sprites/library_detail_icon.png);
+	background-image: url(library_detail_icon.png);
 	background-repeat: no-repeat;
 	-webkit-background-size: 26px;
 	background-size: 26px;
@@ -2444,7 +2444,7 @@ span.loader {
 	display: table-cell;
 	float: left;
 	margin: 6px 0;
-	background:url(/library/img/sprites/library_detail_icon.png) no-repeat;
+	background:url(library_detail_icon.png) no-repeat;
 	-webkit-background-size: 45px;
 	background-size: 45px;
 	width: 44px;
@@ -2521,7 +2521,7 @@ span.loader {
 }
 .rosen_info-title_icon {
     height: 20px;
-	background-image: url(/library/img/sprites/library_detail_icon.png);
+	background-image: url(library_detail_icon.png);
 	background-repeat: no-repeat;
 	-webkit-background-size: 23px;
 	background-size: 23px;
@@ -2668,7 +2668,7 @@ span.loader {
     position: absolute;
     top: 0;
     bottom: 0;
-    background-image: url(/library/img/sprites/library_detail_icon.png);
+    background-image: url(library_detail_icon.png);
 	background-repeat: no-repeat;
 	-webkit-background-size: 75px;
 	background-size: 75px;
@@ -2790,7 +2790,7 @@ span.loader {
 }
 .shuhen_info-title_icon {
     height: 20px;
-	background-image: url(/library/img/sprites/library_detail_icon.png);
+	background-image: url(library_detail_icon.png);
 	background-repeat: no-repeat;
 	-webkit-background-size: 23px;
 	background-size: 23px;

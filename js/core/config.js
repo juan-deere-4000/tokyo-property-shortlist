@@ -12,12 +12,6 @@
 	      window.NOTES_CONFIG || {}
 	    );
 
-    // Fail hard if Supabase config is missing
-    const supabaseApiKey = NOTES_CONFIG.supabasePublishableKey || NOTES_CONFIG.supabaseAnonKey;
-    if (!NOTES_CONFIG.supabaseUrl || !supabaseApiKey) {
-      throw new Error('Supabase config missing: supabaseUrl and supabasePublishableKey required in NOTES_CONFIG (supabaseAnonKey still works as a legacy alias)');
-    }
-
 	    const RATERS = ['Joe', 'Max', 'Michelle'];
 	    const NOTE_AUTHORS = ['Joe', 'Max', 'Michelle', 'Agent'];
 	    const METRICS = ['Interior', 'Neighborhood', 'Transit'];
@@ -40,6 +34,14 @@
 	    const SORT_OPTIONS = ['rating', 'neighborhood_rating', 'transit_rating', 'interior_rating', 'date', 'price', 'cpsqm', 'sqm', 'walk', 'train', 'total'];
 	    const UI_PREFS_STORAGE_KEY = 'tokyo_property_shortlist_ui_prefs_v1';
 
-	    const supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, supabaseApiKey);
+	    let supabaseClient;
+    function initializeSupabase() {
+      const key = NOTES_CONFIG.supabasePublishableKey || NOTES_CONFIG.supabaseAnonKey;
+      if (!NOTES_CONFIG.supabaseUrl || !key) {
+        throw new Error('Supabase configuration is missing');
+      }
+      if (!window.supabase) throw new Error('Supabase could not load');
+      supabaseClient = window.supabase.createClient(NOTES_CONFIG.supabaseUrl, key);
+    }
 	    let editDialog = null;
 	    let editHandlersBound = false;

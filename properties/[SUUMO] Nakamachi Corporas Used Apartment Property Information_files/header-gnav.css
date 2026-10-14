@@ -239,7 +239,7 @@
 }
 
 .header_kurashi--sprite, .header_kurashi--moving, .gnav_drop.gnav_drop--moving:before, .header_kurashi--popup_arrow, .balloon_nav .balloon_nav-action .balloon_nav-action-item:after, .header_kurashi--fp, .gnav_drop.gnav_drop--fp:before, .header_kurashi--loan, .gnav_drop.gnav_drop--loan:before {
-  background-image: url("/edit/assets/suumo/img/sprite/header_kurashi-.png?180723");
+  background-image: url("header_kurashi-.png");
   background-repeat: no-repeat;
 }
 

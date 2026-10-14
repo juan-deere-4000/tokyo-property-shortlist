@@ -124,7 +124,7 @@ GMAPS = {
 			'cursor': 'pointer'
 		}
 		var mapBackBtn = document.createElement("img");
-		mapBackBtn.src = '/jj/jjcommon/img/btn_map_901.gif';
+		mapBackBtn.src = '[SUUMO] Nakamachi Corporas Used Apartment Property Information_files/btn_map_901.gif';
 		mapBackBtn.index = 1;
 		$(mapBackBtn).css(mapBackBtnStyle);
 		GMAPS.gMapsMap.controls[google.maps.ControlPosition.TOP_LEFT].push(mapBackBtn);

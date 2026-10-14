@@ -1033,7 +1033,7 @@ label			{ vertical-align: middle; }
 .footerMisc { text-align: right; margin-bottom: 10px; padding: 0 15px; }
 .footerMisc ul { padding-left: 5px; text-align: right; }
 .footerMisc ul li { display: inline; margin-left: 10px; }
-.footerMisc ul li a { background: url(/jj/jjcommon/img/bullet.gif) no-repeat 0 50%; padding-left: 10px; }
+.footerMisc ul li a { background: url(bullet.gif) no-repeat 0 50%; padding-left: 10px; }
 
 .serviceList { margin:20px 0; }
 .serviceList ul { text-align: left; font-size: 84%; }
@@ -1176,7 +1176,7 @@ label			{ vertical-align: middle; }
 .ui-list--flow .arrow1InputGreen, .ui-list--flow .arrow2CheckGray, .ui-list--flow .arrow3FinishGray,
 .ui-list--flow .arrow1InputGreen_active, .ui-list--flow .arrow2CheckGray_active, .ui-list--flow .arrow3FinishGray_active,
 .ui-list--flow .arrow1InputGreen_registered, .ui-list--flow .arrow2CheckGray_registered {
-	background-image: url(/edit/include/top/img/flow.png);
+	background-image: url(flow.png);
 	background-repeat: no-repeat;
 	text-indent: -9999px;
 	overflow: hidden;
@@ -1517,7 +1517,7 @@ p.error {
 	display: block;
 	position: relative;
 	z-index: 1;
-	background: url(/edit/include/top/img/spacer.gif);
+	background: url(spacer.gif);
 	width: 134px;
 	height: 101px;
 	margin-bottom: -101px;

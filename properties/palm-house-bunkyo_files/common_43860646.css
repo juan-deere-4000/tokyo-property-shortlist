@@ -1,7 +1,7 @@
 @charset "utf-8";
 
 /* パーツ用CSS */
-@import url(/jj/jjcommon/css/parts.css);
+@import url(parts.css);
 
 /************************************************************
  * FORMAT
@@ -306,11 +306,11 @@ a:hover, a:active 	{ color: #0080FF; }
 /* 2011/12/15 LKI王 Mantis38036 end */
 .v		{ background: url("../img/sprite/x.png") repeat-x; }
 .y		{ background: url("../img/sprite/y.png") repeat-y; }
-.ic		{ background: url("../img/sprite/i.png") no-repeat; }
-.new_ic		{ background: url("../img/sprite/i.png") no-repeat; }
+.ic		{ background: url("i.png") no-repeat; }
+.new_ic		{ background: url("i.png") no-repeat; }
 .bt		{ background: url("../img/sprite/b.png") no-repeat; }
 .bt_b	{ background: url("../img/sprite/b_blue.png") no-repeat; }
-.bt_o	{ background: url("../img/sprite/b_orange.png") no-repeat; }
+.bt_o	{ background: url("b_orange.png") no-repeat; }
 .bt_r	{ background: url("../img/sprite/b_red.png") no-repeat; }
 /************************************************************
  * HEADER

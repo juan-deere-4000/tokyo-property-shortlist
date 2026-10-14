@@ -19,12 +19,12 @@
 }
 
 .ui-icon--plus2, .ui-icon--minus2, .ui-icon--plus, .ui-icon--minus, .ui-icon--plus1_2, .ui-icon--minus1_2, .ui-icon--enter {
-  background-image: url(/edit/assets/suumo/img/sprite/condition_search.png);
+  background-image: url(condition_search.png);
   background-repeat: no-repeat;
 }
 
 .mylist .mylist-logo a, .mylist .mylist-login, .mylist .mylist-logout, .mylist .mylist-entry, .mylist .member-entry, .mylistbar .mylistbar-title, .mylistbarlink .mylistbarlink-title, .mylisticon {
-  background-image: url(/edit/assets/suumo/img/sprite/mylist.png);
+  background-image: url(mylist.png);
   background-repeat: no-repeat;
 }
 
@@ -49,7 +49,7 @@
 }
 
 .ui-icon--suumo00, .ui-icon--suumo01, .ui-icon--suumo02, .ui-icon--suumo03, .ui-icon--suumo04, .ui-icon--suumo05, .ui-icon--suumo06, .ui-icon--suumo07, .ui-icon--suumo08, .ui-icon--suumo09, .ui-icon--suumo10, .ui-icon--suumo11, .ui-icon--suumo12, .ui-icon--suumo13, .ui-icon--suumo14 {
-  background-image: url(/edit/assets/suumo/img/sprite/suumo.png);
+  background-image: url(suumo.png);
   background-repeat: no-repeat;
 }
 
@@ -3033,7 +3033,7 @@
   left: 0;
   width: 100%;
   height: 46px;
-  background-image: url("/edit/assets/suumo/img/mylist.png");
+  background-image: url("mylist.png");
   background-repeat: repeat-x;
 }
 .mylist .mylist-inner {
@@ -3847,7 +3847,7 @@
 }
 
 .header_kurashi--sprite, .header_kurashi--moving, .gnav_drop.gnav_drop--moving:before, .gnav_drop.gnav_drop--moving:before, .header_kurashi--popup_arrow, .balloon_nav .balloon_nav-action .balloon_nav-action-item:after, .balloon_nav .balloon_nav-action .balloon_nav-action-item:after, .header_kurashi--fp, .gnav_drop.gnav_drop--fp:before, .gnav_drop.gnav_drop--fp:before, .header_kurashi--loan, .gnav_drop.gnav_drop--loan:before, .gnav_drop.gnav_drop--loan:before {
-  background-image: url("/edit/assets/suumo/img/sprite/header_kurashi-.png?180723");
+  background-image: url("header_kurashi-.png");
   background-repeat: no-repeat;
 }
 

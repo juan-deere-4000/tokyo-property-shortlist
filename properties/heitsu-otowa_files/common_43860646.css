@@ -1,7 +1,7 @@
 @charset "utf-8";
 
 /* パーツ用CSS */
-@import url(/jj/jjcommon/css/parts.css);
+@import url(parts.css);
 
 /************************************************************
  * FORMAT
@@ -18,7 +18,7 @@ input, select	{ vertical-align: middle; height: 1.5em; }
 
 body,input,textarea { font-family: 'メイリオ',meiryo,'ＭＳ Ｐゴシック','MS P Gothic','ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro',Helvetica,sans-serif; }
 
-body {	background: url("../img/bg.gif") repeat-y center top;
+body {	background: url("bg.gif") repeat-y center top;
     background-color: #E3F1D2;
     color: #333333; font-size: 12px;
 }
@@ -306,11 +306,11 @@ a:hover, a:active 	{ color: #0080FF; }
 /* 2011/12/15 LKI王 Mantis38036 end */
 .v		{ background: url("../img/sprite/x.png") repeat-x; }
 .y		{ background: url("../img/sprite/y.png") repeat-y; }
-.ic		{ background: url("../img/sprite/i.png") no-repeat; }
-.new_ic		{ background: url("../img/sprite/i.png") no-repeat; }
+.ic		{ background: url("i.png") no-repeat; }
+.new_ic		{ background: url("i.png") no-repeat; }
 .bt		{ background: url("../img/sprite/b.png") no-repeat; }
 .bt_b	{ background: url("../img/sprite/b_blue.png") no-repeat; }
-.bt_o	{ background: url("../img/sprite/b_orange.png") no-repeat; }
+.bt_o	{ background: url("b_orange.png") no-repeat; }
 .bt_r	{ background: url("../img/sprite/b_red.png") no-repeat; }
 /************************************************************
  * HEADER

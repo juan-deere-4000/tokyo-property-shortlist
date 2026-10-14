@@ -59,10 +59,14 @@
 	        hide.disabled = true;
 	        try {
 	          const externalId = form.elements.external_id.value;
-	          const { error } = await supabaseClient.rpc('hide_property', { p_external_id: externalId });
+	          const { data, error } = await checkedQuery(supabaseClient.rpc('hide_property', { p_external_id: externalId }));
 	          if (error) throw error;
-	          const card = document.querySelector('[data-external-id="' + externalId + '"]');
-	          if (card) card.remove();
+	          const card = Array.from(document.querySelectorAll('.property')).find(function (node) {
+            return node.dataset.externalId === externalId;
+          });
+	          if (!data) throw new Error('Hide did not match a published row');
+          if (card) card.remove();
+          updateRanks();
 	          dialog.close();
 	        } catch (err) {
 	          msg.textContent = String(err.message || err);
@@ -96,7 +100,7 @@
 		            display_date: form.elements.display_date.value.trim(),
 			            source_url: normalizeSourceUrl(form.elements.source_url.value),
 		          };
-		          const { data, error } = await supabaseClient.rpc('update_published_property', {
+		          const { data, error } = await checkedQuery(supabaseClient.rpc('update_published_property', {
 		            p_external_id: externalId,
 		            p_title_en: payload.title_en,
 		            p_title_ja: payload.title_ja,
@@ -110,10 +114,15 @@
 		            p_station_line: payload.station_line,
 		            p_display_date: payload.display_date,
 		            p_source_url: payload.source_url,
-		          });
+		          }));
 		          if (error) throw error;
 		          if (!data) throw new Error('Update did not match a published row');
-		          updateCardDOM(externalId, payload);
+		          const saved = await checkedQuery(supabaseClient
+                    .from('properties')
+                    .select('title_en,title_ja,price_m,walk_min,train_min,total_transit_min,layout,sqm,ward,source_url,source_url_translated,station_name,station_line')
+                    .eq('external_id', externalId)
+                    .single());
+                  updateCardDOM(externalId, saved.data);
 		          msg.textContent = 'Saved';
 	          msg.classList.add('ok');
 	          setTimeout(function () { dialog.close(); }, 400);
@@ -144,16 +153,24 @@
 	      const msg = dialog.querySelector('#edit-msg');
 	      msg.classList.remove('ok');
 	      msg.textContent = '';
-	      const { data, error } = await supabaseClient
+          form.reset();
+          form.querySelector('.edit-save').disabled = true;
+          form.querySelector('.edit-hide').disabled = true;
+	      let result;
+          try {
+            result = await checkedQuery(supabaseClient
 	        .from('properties')
 	        .select('external_id,source,source_listing_id,status,title_en,title_ja,price_m,walk_min,train_min,total_transit_min,layout,sqm,ward,source_url,station_name,station_line,display_date,presented_at,approved_at,rejected_at,published_at,rejection_reason,created_at')
 	        .eq('external_id', externalId)
-	        .single();
-	      if (error) {
-	        msg.textContent = error.message;
-	        dialog.showModal();
-	        return;
-	      }
+	        .single());
+          } catch (error) {
+            msg.textContent = error.message || 'Could not load this property';
+            dialog.showModal();
+            return;
+          }
+          const data = result.data;
+          form.querySelector('.edit-save').disabled = false;
+          form.querySelector('.edit-hide').disabled = false;
 	      form.elements.title_en.value = data.title_en || '';
 	      form.elements.title_ja.value = data.title_ja || '';
 	      form.elements.price_m.value = data.price_m == null ? '' : data.price_m;

@@ -24,7 +24,7 @@
 }
 
 .ui-icon--plus2, .ui-icon--minus2, .ui-icon--plus, .ui-icon--minus, .ui-icon--plus1_2, .ui-icon--minus1_2, .ui-icon--enter {
-  background-image: url(/edit/assets/suumo/img/sprite/condition_search.png);
+  background-image: url(condition_search.png);
   background-repeat: no-repeat;
 }
 
@@ -49,7 +49,7 @@
 }
 
 .ui-icon--suumo00, .ui-icon--suumo01, .ui-icon--suumo02, .ui-icon--suumo03, .ui-icon--suumo04, .ui-icon--suumo05, .ui-icon--suumo06, .ui-icon--suumo07, .ui-icon--suumo08, .ui-icon--suumo09, .ui-icon--suumo10, .ui-icon--suumo11, .ui-icon--suumo12, .ui-icon--suumo13, .ui-icon--suumo14 {
-  background-image: url(/edit/assets/suumo/img/sprite/suumo.png);
+  background-image: url(suumo.png);
   background-repeat: no-repeat;
 }
 

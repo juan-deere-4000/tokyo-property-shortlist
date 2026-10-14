@@ -1,5 +1,5 @@
 .kr_detail-icon2--sprite, .kr_detail-icon2--acc_close, .section_h2 .section_h2-header::after, .kr_detail-icon2--acc_open, .section_h2.is-close .section_h2-header::after, .kr_detail-icon2--arrow_left_gray, .modalgallery_contents .modalgallery_contents-object_prev::before, .kr_detail-icon2--arrow_right_gray, .modalgallery_contents .modalgallery_contents-object_next::before, .kr_detail-icon2--close, .modalgallery .modalgallery-body_close:before, .kr_detail-icon2--loader_large, .themeimage_image::before, .modalgallery_contents .modalgallery_contents-object_image::before, .kr_detail-icon2--loader_medium, .themeimage_image.themeimage_image--medium::before, .kr_detail-icon2--next, .reserve_carousel .reserve_carousel-button.reserve_carousel-button--next::before, .kr_detail-icon2--next_inactive, .reserve_carousel .reserve_carousel-button.is-inactive.reserve_carousel-button--next::before, .kr_detail-icon2--prev, .reserve_carousel .reserve_carousel-button.reserve_carousel-button--prev::before, .kr_detail-icon2--prev_inactive, .reserve_carousel .reserve_carousel-button.is-inactive.reserve_carousel-button--prev::before, .kr_detail-icon2--reserve, .requestarea_btn.requestarea_btn--normal_reserve::before, .cta .cta-normal_reserve::before, .button_contents .button_contents-normal_reserve::before, .kr_detail-icon2--schedule-closed, .schedule .schedule-status.is-closed::before, .kr_detail-icon2--schedule-immediate, .schedule .schedule-status.is-immediate::before, .kr_detail-icon2--schedule-tel, .schedule .schedule-status.is-tel::before, .kr_detail-icon2--schedule-temporary, .schedule .schedule-status.is-temporary::before, .kr_detail-icon2--schedule-unavailable, .schedule .schedule-status.is-unavailable::before {
-  background-image: url('/edit/assets/suumo/img/sprite/kr_detail-icon2-.png?93727a169e');
+  background-image: url('kr_detail-icon2-.png');
   background-repeat: no-repeat;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .kr_detail-carrousel--sprite, .kr_detail-carrousel--arrow_left, .kr_detail-carrousel--arrow_left_gray, .kr_detail-carrousel--arrow_right, .kr_detail-carrousel--arrow_right_gray, .kr_detail-carrousel--close, .kr_detail-carrousel--icon_area, .recommend .recommend_card-head_icon.recommend_card-head_icon--area, .kr_detail-carrousel--icon_buildings, .recommend .recommend_card-head_icon.recommend_card-head_icon--buildings, .kr_detail-carrousel--icon_distance, .recommend .recommend_card-head_icon.recommend_card-head_icon--distance, .kr_detail-carrousel--icon_price, .recommend .recommend_card-head_icon.recommend_card-head_icon--price, .kr_detail-carrousel--icon_recommended, .recommend .recommend_card-head_icon.recommend_card-head_icon--recommended, .kr_detail-carrousel--icon_steps, .recommend .recommend_card-head_icon.recommend_card-head_icon--steps, .kr_detail-carrousel--loader_large, .kr_detail-carrousel--loader_medium {
-  background-image: url('/edit/assets/suumo/img/sprite/kr_detail-carrousel-.png?bcdc4be714');
+  background-image: url('kr_detail-carrousel-.png');
   background-repeat: no-repeat;
 }
 
@@ -207,7 +207,7 @@
 }
 
 .ui-icon--plus2, .otherlink .otherlink-btn .otherlink-btn-item:before, .ui-icon--minus2, .otherlink .otherlink-btn .otherlink-btn-item.is-active:before {
-  background-image: url(/edit/assets/suumo/img/sprite/condition_search.png);
+  background-image: url(condition_search.png);
   background-repeat: no-repeat;
 }
 
@@ -759,7 +759,7 @@
 }
 .requestarea_btn .requestarea_btn-icon::before {
   content: "";
-  background-image: url(/edit/assets/suumo/img/kr_detail-button_icon_sokuji.png);
+  background-image: url(kr_detail-button_icon_sokuji.png);
   background-size: cover;
   height: 32px;
   width: 56px;
@@ -1487,7 +1487,7 @@
 }
 .cta .cta-reserve_icon::before {
   content: "";
-  background-image: url(/edit/assets/suumo/img/kr_detail-button_icon_sokuji.png);
+  background-image: url(kr_detail-button_icon_sokuji.png);
   background-size: cover;
   height: 32px;
   width: 56px;
@@ -1707,7 +1707,7 @@
 }
 .button_contents .button_contents-reserve_icon::before {
   content: "";
-  background-image: url(/edit/assets/suumo/img/kr_detail-button_icon_sokuji.png);
+  background-image: url(kr_detail-button_icon_sokuji.png);
   background-size: cover;
   height: 32px;
   width: 56px;

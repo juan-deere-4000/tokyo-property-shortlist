@@ -1,0 +1,4 @@
+# Preserve upstream archive line endings without treating CRLF as trailing spaces.
+properties/** whitespace=cr-at-eol
+# Keep the pinned upstream UMD bundle byte-for-byte intact.
+vendor/** -whitespace

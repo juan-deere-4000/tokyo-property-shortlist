@@ -3,6 +3,8 @@
       const ratingsStore = {};
       const vetoStore = {};
       const saveTimers = {};
+      const touchedRatings = new Set();
+      const touchedVetoes = new Set();
       const isRatingsSortActive = function () {
         const key = document.getElementById('sort-by')?.value;
         return key === 'rating' || key === 'neighborhood_rating' || key === 'transit_rating' || key === 'interior_rating';
@@ -76,15 +78,15 @@
               try {
                 let error = null;
                 if (score == null || !Number.isFinite(score)) {
-                  const res = await supabaseClient
+                  const res = await checkedQuery(supabaseClient
                     .from(NOTES_CONFIG.ratingTable)
                     .delete()
                     .eq('property_slug', entry.slug)
                     .eq('rater', rater)
-                    .eq('metric', storageMetric);
+                    .eq('metric', storageMetric));
                   error = res.error;
                 } else {
-                  const res = await supabaseClient
+                  const res = await checkedQuery(supabaseClient
                     .from(NOTES_CONFIG.ratingTable)
                     .upsert(
                       {
@@ -95,17 +97,18 @@
                         updated_at: new Date().toISOString()
                       },
                       { onConflict: 'property_slug,rater,metric' }
-                    );
+                    ));
                   error = res.error;
                 }
                 if (error) throw error;
               } catch (err) {
-                console.error('Rating save failed', entry.slug, rater, metric, err);
+                reportAppError('Could not save this rating.', err);
               }
             })();
           };
 
           const onInput = function () {
+            touchedRatings.add(key);
             const score = Number(range.value);
             renderControl(control, score);
             ratingsStore[key] = score;
@@ -124,6 +127,7 @@
 
           if (clear) {
             clear.addEventListener('click', function () {
+              touchedRatings.add(key);
               range.value = '0';
               renderControl(control, null);
               delete ratingsStore[key];
@@ -142,6 +146,7 @@
           const rater = btn.getAttribute('data-rater');
           const key = vetoKey(entry.slug, rater);
           btn.addEventListener('click', function () {
+            touchedVetoes.add(key);
             const next = !Boolean(vetoStore[key]);
             vetoStore[key] = next;
             btn.classList.toggle('active', next);
@@ -149,7 +154,7 @@
             applyFilters();
             (async function () {
               try {
-                await supabaseClient
+                await checkedQuery(supabaseClient
                   .from(NOTES_CONFIG.vetoTable)
                   .upsert(
                     {
@@ -159,9 +164,13 @@
                       updated_at: new Date().toISOString()
                     },
                     { onConflict: 'property_slug,rater' }
-                  );
+                  ));
               } catch (err) {
-                console.error('Veto save failed', entry.slug, rater, err);
+                vetoStore[key] = !next;
+                btn.classList.toggle('active', !next);
+                updateVetoPill(entry.card, entry.slug, vetoStore);
+                applyFilters();
+                reportAppError('Could not save this veto.', err);
               }
             })();
           });
@@ -175,30 +184,32 @@
 
       // Hydrate from Supabase after listeners are live.
       try {
-        const { data } = await supabaseClient
+        const { data } = await checkedQuery(supabaseClient
           .from(NOTES_CONFIG.ratingTable)
           .select('property_slug, rater, metric, score')
-          .in('property_slug', slugs);
+          .in('property_slug', slugs));
         (data || []).forEach(function (row) {
           const score = Number(row.score);
           if (!Number.isFinite(score)) return;
           const metric = METRIC_STORAGE_TO_UI[row.metric] || row.metric;
-          ratingsStore[ratingKey(row.property_slug, row.rater, metric)] = score;
+          const key = ratingKey(row.property_slug, row.rater, metric);
+          if (!touchedRatings.has(key)) ratingsStore[key] = score;
         });
       } catch (err) {
-        console.error('Failed to load ratings from Supabase', err);
+        reportAppError('Could not load ratings.', err);
       }
 
       try {
-        const { data } = await supabaseClient
+        const { data } = await checkedQuery(supabaseClient
           .from(NOTES_CONFIG.vetoTable)
           .select('property_slug, rater, vetoed')
-          .in('property_slug', slugs);
+          .in('property_slug', slugs));
         (data || []).forEach(function (row) {
-          vetoStore[vetoKey(row.property_slug, row.rater)] = row.vetoed;
+          const key = vetoKey(row.property_slug, row.rater);
+          if (!touchedVetoes.has(key)) vetoStore[key] = row.vetoed;
         });
       } catch (err) {
-        console.error('Failed to load vetoes from Supabase', err);
+        reportAppError('Could not load vetoes.', err);
       }
 
       entries.forEach(renderEntry);
